@@ -26,7 +26,7 @@ public class Game
 
     private static int AA_LEVEL = 4;
     private static float OPENGL_VERSION = 3.2f;
-    private static String title = "<Projekttitel>";
+    private static String title = "Simple Java Flight Simulator";
 
 	private VehicleAirplane plane;
 	private int shaderProgramRef;
