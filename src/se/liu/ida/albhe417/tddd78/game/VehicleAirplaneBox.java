@@ -20,7 +20,8 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		setupParts(parts);
     }
 
-	private DrawablePartPosColor setupBody(final int shaderProgram){
+	//TODO: remove me
+	private DrawablePartPosColor setupBody_debug(final int shaderProgram){
 		Vector3 color = new Vector3(1, 1, 1);
 		final int SIZE = 1;
 
@@ -41,16 +42,16 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		};
 
 		int[] indices = {
-			4, 6, 7, 	4, 5, 6,//Front
+			0, 1, 2//4, 6, 7, 	4, 5, 6,//Front
 		};
 
 		return new DrawablePartPosColor(vertices, indices, shaderProgram);
 
 	}
 
-    private DrawablePartPosColor setupBody_box(final int shaderProgram){
+    private DrawablePartPosColor setupBody(final int shaderProgram){
 		Vector3 color = new Vector3(1, 1, 1);
-		final int SIZE = 1;
+		final float SIZE = 0.5f;
 
 		//"LTR" = left top rear
 		Vector3 posLTR = new Vector3(-SIZE, SIZE, SIZE);

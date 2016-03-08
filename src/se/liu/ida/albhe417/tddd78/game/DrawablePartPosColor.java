@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -14,6 +13,9 @@ import java.nio.IntBuffer;
 
 public class DrawablePartPosColor extends AbstractDrawablePart
 {
+    final int POSITION_INDEX = 1;
+    final int COLOR_INDEX = 0;
+    
     public DrawablePartPosColor(final VertexPositionColor[] vertices, int[] indices, final int shaderProgram) {
         this.shaderProgram = shaderProgram;
         setup(vertices, indices);
@@ -21,12 +23,13 @@ public class DrawablePartPosColor extends AbstractDrawablePart
 
 
     private void setup(VertexPositionColor[] vertices, int[] indices){
-        final int FLOATS_PER_VECTOR = 3;
+        final int floatsPerVector = 3;
 
+        vertexArray = glGenVertexArrays();
+        glBindVertexArray(vertexArray);
 
-        //glBindVertexArray(vertexArrayObjRef);
-
-
+        glEnableVertexAttribArray(POSITION_INDEX);
+        glEnableVertexAttribArray(COLOR_INDEX);
 
         //Setup vertex buffer
         float[] floats = vertexToFloatArray(vertices);
@@ -39,6 +42,11 @@ public class DrawablePartPosColor extends AbstractDrawablePart
         glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
 
 
+        //Show gpu how to interprete the vertex data
+        glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, 0);
+        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES);
+
+
         //Setup index buffer
         IntBuffer indexBufferData = BufferUtils.createIntBuffer(indices.length);
         indexBufferData.put(indices);
@@ -47,43 +55,21 @@ public class DrawablePartPosColor extends AbstractDrawablePart
         indexBuffer = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_STATIC_DRAW);
-        triangleCount = indices.length / 3;
+        indexCount = indices.length;
 
 
-
-        //Set up how the GPU should interprete the array of floats
-        //glUseProgram(shaderProgram);
-
+        glBindVertexArray(0);
     }
 
 
     public void draw(Matrix4x4 modelMatrix){
-        final int FLOATS_PER_VECTOR = 3;
+        glBindVertexArray(vertexArray);
+        glUseProgram(shaderProgram);
 
-        //Find pos and color attrib
-        int positionAttributes = 0;//glGetAttribLocation(shaderProgram, "position");
-        int colorAttributes = 1;//glGetAttribLocation(shaderProgram, "color");
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
-        //Enable them
-        glEnableVertexAttribArray(positionAttributes);
-        glEnableVertexAttribArray(colorAttributes);
-
-        //Bind vertex buffer
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-        //Show gpu how to interprete the data
-        glVertexAttribPointer(positionAttributes, FLOATS_PER_VECTOR, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, 0);
-        glVertexAttribPointer(colorAttributes, FLOATS_PER_VECTOR, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, FLOATS_PER_VECTOR * Float.BYTES);
-
-
-        //Bind index buffer and draw triangles
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-        //glDrawElements(GL_TRIANGLES, triangleCount / 3, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        //Clean up
-        glDisableVertexAttribArray(positionAttributes);
-        glDisableVertexAttribArray(colorAttributes);
+        glUseProgram(0);
+        glBindVertexArray(0);
     }
 
     private float[] vertexToFloatArray(VertexPositionColor[] vertices){
