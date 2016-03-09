@@ -17,6 +17,6 @@ public class AbstractMatrix
     }
 
     public float[][] getFloatsRef(){
-	return values;
+	    return values;
     }
 }
