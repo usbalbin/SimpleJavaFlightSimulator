@@ -1,7 +1,10 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class Matrix4x4 extends AbstractMatrix
 {
+
     public Matrix4x4(float[][] matrixArray){
 		super(matrixArray);
 		if(matrixArray.length != 4)
@@ -46,7 +49,7 @@ public class Matrix4x4 extends AbstractMatrix
 		final float yScale = 1.0f / (float)Math.tan(fieldOfView / 2.0f);
 		final float xScale = yScale / apsectRatio;
 		final float zFactor1 = -(farLimit + nearLimit) / (farLimit - nearLimit);
-		final float zFactor2 = -((2.0f * nearLimit * farLimit) / (farLimit - nearLimit));
+		final float zFactor2 = -(2.0f * nearLimit * farLimit) / (farLimit - nearLimit);
 		final float wFactor = -1;
 
 		//TODO: Fix: stuff gets larger the further away they get
@@ -59,13 +62,29 @@ public class Matrix4x4 extends AbstractMatrix
 		return result;
 	}
 
+
+	public static Matrix4x4 createViewMatrix(Vector3 cameraPos, Vector3 target, Vector3 upVector){
+		Vector3 forward = target.sub(cameraPos).getNormalized();
+		Vector3 side = forward.cross(upVector).getNormalized();
+		Vector3 up = side.cross(forward);
+
+		float[][] values = {
+			{ side.getX(),		 	up.getX(), 			-forward.getX(), 		0.0f},
+			{ side.getY(),			up.getY(),			-forward.getY(), 		0.0f},
+			{ side.getZ(),			up.getZ(),			-forward.getZ(),		0.0f},
+			{-side.dot(cameraPos), -up.dot(cameraPos), 	forward.dot(cameraPos),1.0f}
+		};
+
+		return new Matrix4x4(values);
+	}
+
 	public Matrix4x4 multiply(Matrix4x4 other){
 		Matrix4x4 result = new Matrix4x4(0);
 
 		for(int row = 0; row < 4; row++){
 			for (int column = 0; column < 4; column++){
-				for(int i = 0; i < 4; i++)
-					result.values[row][column] += this.values[row][i] * other.values[i][column];
+				for(int i = 0; i < 4; i++)//TODO kolla om row och column ska byta plats
+					result.values[row][column] += this.values[i][column] * other.values[row][i];
 			}
 		}
 

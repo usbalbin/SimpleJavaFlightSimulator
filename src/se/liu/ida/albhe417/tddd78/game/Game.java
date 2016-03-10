@@ -13,6 +13,7 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 public class Game
 {
@@ -25,7 +26,7 @@ public class Game
 
 	private static final float FOV = 90 * (float)Math.PI / 180.0f;
 	private static final float DRAW_DISTANCE = 256;
-	private static final float DRAW_DISTANCE_NEAR_LIMIT = 0.2f;
+	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
     private static int AA_LEVEL = 16;
 	private static float OPENGL_VERSION = 3.2f;
@@ -34,7 +35,8 @@ public class Game
 	private Matrix4x4 projectionMatrix;
 	private Matrix4x4 viewMatrix;
 	private int cameraMatrixId;
-	private VehicleAirplane plane;
+	ArrayList<AbstractDrawable> gameObjects;
+	AbstractVehicle currentVehicle;
 	private int shaderProgram;
 
 	//TODO: ta bort
@@ -151,7 +153,13 @@ public class Game
 	}
 
 	private void setupGameObjects(){
-		plane = new VehicleAirplaneBox(new Vector3(0, 0, 0), shaderProgram);
+		gameObjects = new ArrayList<>(2);
+
+		currentVehicle = new  VehicleAirplaneBox(new Vector3(0, 0, 0), shaderProgram);
+		Terrain terrain = new Terrain(new Vector3(0, -1, 0), shaderProgram);
+
+		gameObjects.add(currentVehicle);
+		gameObjects.add(terrain);
 	}
 
 	private void setupProjectionMatrix(){
@@ -159,17 +167,15 @@ public class Game
 	}
 
     private void update(){
-		updateViewMatrix(new Vector3(0, 0, -1), yaw, 0, 0);
-		yaw += 0.0001f;
+		updateCameraMatrix(new Vector3(128.f, 64.0f, 128.f), yaw, 0, 0);
+		yaw += 0.001f;
     }
 
-	private void updateViewMatrix(Vector3 position, float yaw, float pitch, float roll){
+	private void updateCameraMatrix(final Vector3 cameraPosition, float yaw, float pitch, float roll){
 		final int matrixRows = 4;
-		viewMatrix = new Matrix4x4();
-		viewMatrix = viewMatrix.multiply(Matrix4x4.createPosFromVector(position));
-		viewMatrix = viewMatrix.multiply(viewMatrix.getRotatedAboutY(yaw));
-		viewMatrix = viewMatrix.multiply(viewMatrix.getRotatedAboutX(pitch));
-		viewMatrix = viewMatrix.multiply(viewMatrix.getRotatedAboutZ(roll));
+
+		viewMatrix = currentVehicle.getViewMatrix();
+
 		Matrix4x4 cameraMatrix = projectionMatrix.multiply(viewMatrix);
 		cameraMatrixId = glGetUniformLocation(shaderProgram, "cameraMatrix");
 
@@ -190,13 +196,16 @@ public class Game
     private void draw(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		plane.draw(new Matrix4x4());
+		for (AbstractDrawable drawable: gameObjects) {
+			drawable.draw(new Matrix4x4());
+		}
 
 		glfwSwapBuffers(window);
+		glFinish();
+
     }
 
     public void run(){
-
 
 		while(glfwWindowShouldClose(window) != GL_TRUE){
 			glfwPollEvents();

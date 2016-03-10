@@ -1,21 +1,23 @@
 package se.liu.ida.albhe417.tddd78.math;
 
-public class Vector4 extends AbstractVector
+public class Vector4
 {
+    private float[] values;
+
     public Vector4() {
-	super(new float[3]);
-	setX(0);setY(0);setZ(0);setW(0);
+	    this.values  = new float[4];
+	    setX(0);setY(0);setZ(0);setW(0);
     }
 
     public Vector4(final float x, final float y, final float z, float w) {
-	super(new float[4]);
-	setX(x);setY(y);setZ(z);setW(w);
+	    this.values = new float[4];
+	    setX(x);setY(y);setZ(z);setW(w);
     }
 
     public Vector4(float[] values) {
-	super(values);
-	if(values.length != 4)
-	    throw new IllegalArgumentException("Wrong sized array");
+    	if(values.length != 4)
+	        throw new IllegalArgumentException("Wrong sized array");
+        this.values = values;
     }
 
     public void setX(float x){
@@ -51,11 +53,12 @@ public class Vector4 extends AbstractVector
     }
 
     public float[] getNewFloats(){
-	float x = getX();
-	float y = getY();
-	float z = getZ();
-	float w = getW();
+        float x = getX();
+        float y = getY();
+        float z = getZ();
+        float w = getW();
 
-	return new Vector4(x, y, z, w).getFloatsRef();
+        return new Vector4(x, y, z, w).values;
     }
+
 }
