@@ -167,6 +167,10 @@ public class Game
 	}
 
     private void update(){
+		for (AbstractDrawable drawable: gameObjects) {
+			drawable.update();
+		}
+
 		updateCameraMatrix(new Vector3(128.f, 64.0f, 128.f), yaw, 0, 0);
 		yaw += 0.001f;
     }

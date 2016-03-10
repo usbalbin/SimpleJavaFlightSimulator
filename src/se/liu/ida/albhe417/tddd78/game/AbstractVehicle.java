@@ -12,7 +12,7 @@ public abstract class AbstractVehicle extends AbstractDrawable
     abstract public void update();
 
     public Matrix4x4 getViewMatrix(){
-        Vector3 cameraPosition = new Vector3(0, 2, 5).getRotated(yaw, pitch, roll);
+        Vector3 cameraPosition = new Vector3(0, 1, 1.5f).getRotated(yaw, pitch, roll);
         cameraPosition = cameraPosition.add(position);
 
         Vector3 cameraTarget = position;

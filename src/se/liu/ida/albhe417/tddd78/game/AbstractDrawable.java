@@ -23,6 +23,10 @@ public abstract class AbstractDrawable
     	this.parts = parts;
     }
 
+    public void update(){
+
+    }
+
     public void draw(Matrix4x4 cameraMatrix){
         Matrix4x4 modelMatrix = new Matrix4x4();
 

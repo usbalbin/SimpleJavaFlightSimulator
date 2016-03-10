@@ -39,9 +39,9 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		Vector3 posRBF = new Vector3( SIZE,-SIZE, -SIZE);
 		Vector3 posLBF = new Vector3(-SIZE,-SIZE, -SIZE);
 
-		VertexPositionColor LTR = new VertexPositionColor(posLTR, white);
-		VertexPositionColor RTR = new VertexPositionColor(posRTR, white);
-		VertexPositionColor RBR = new VertexPositionColor(posRBR, white);
+		VertexPositionColor LTR = new VertexPositionColor(posLTR, red);
+		VertexPositionColor RTR = new VertexPositionColor(posRTR, green);
+		VertexPositionColor RBR = new VertexPositionColor(posRBR, blue);
 		VertexPositionColor LBR = new VertexPositionColor(posLBR, white);
 
 		VertexPositionColor LTF = new VertexPositionColor(posLTF, red);
@@ -67,6 +67,6 @@ public class VehicleAirplaneBox extends VehicleAirplane
     }
 
     public void update(){
-
+		yaw += 0.001f;
     }
 }
