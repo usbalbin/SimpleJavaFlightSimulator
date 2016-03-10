@@ -28,7 +28,12 @@ public abstract class AbstractDrawable
     }
 
     public void draw(Matrix4x4 cameraMatrix, int matrixId){
-        Matrix4x4 modelViewProjectionMatrix = cameraMatrix;
+        Matrix4x4 modelMatrix = new Matrix4x4();
+        modelMatrix = modelMatrix.getTranslated(position);
+        modelMatrix = modelMatrix.getRotated(yaw, pitch, roll);
+
+
+        Matrix4x4 modelViewProjectionMatrix = cameraMatrix.multiply(modelMatrix);
 
 
         for(AbstractDrawablePart part : parts){

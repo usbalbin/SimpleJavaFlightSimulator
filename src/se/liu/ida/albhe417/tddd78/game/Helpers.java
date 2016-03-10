@@ -72,10 +72,10 @@ public class Helpers {
     }
 
     public static float byteToFloatColor(short color){
-        final int toUnsigedByte = 128;
+        final short toUnsigedByte = 0x00FF;
         final float unsignedByteMaxVal = 256f;
-        if(color < 0)
-            color += unsignedByteMaxVal;//Undo any overflow caused by using signed byte, image uses unsigned byte
-        return ((int)color) / unsignedByteMaxVal;
+
+        //Interprete color as unsigned byte(colors are represented by unsigned byte)
+        return (color & toUnsigedByte ) / unsignedByteMaxVal;
     }
 }

@@ -9,6 +9,8 @@ public abstract class AbstractVehicle extends AbstractDrawable
 	super(position);
     }
 
+    abstract public void handleInput();
+
     abstract public void update();
 
     public Matrix4x4 getViewMatrix(){

@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -42,7 +43,6 @@ public class Game
 	protected float yaw = 0;
 
     public Game(){
-
 		//TODO: Move to render-class
 		setupGraphics();
 		setupShaders();
@@ -54,6 +54,7 @@ public class Game
 
     private void setupGraphics(){
 		errorCallback = GLFWErrorCallback.createPrint(System.err);//Bind error output to console
+
 		long res = glfwInit();
 		if(res != GL_TRUE){
 			throw new RuntimeException("Failed to initialize!");
@@ -70,6 +71,8 @@ public class Game
 		if(window == NULL){
 			throw new RuntimeException("Failed to create window");
 		}
+
+		glfwSetKeyCallback(window, InputHandler.getInstance());
 
 		glfwSetWindowPos(window, WINDOW_POS_X, WINDOW_POS_Y);
 		glfwMakeContextCurrent(window);
@@ -163,10 +166,13 @@ public class Game
 	}
 
 	private void setupProjectionMatrix(){
+		//TODO: only do once
 		projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float)WINDOW_WIDTH / WINDOW_HEIGHT, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
 	}
 
     private void update(){
+		currentVehicle.handleInput();
+
 		for (AbstractDrawable drawable: gameObjects) {
 			drawable.update();
 		}

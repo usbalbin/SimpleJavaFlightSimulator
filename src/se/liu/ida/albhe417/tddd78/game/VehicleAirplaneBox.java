@@ -1,4 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game;
+import static org.lwjgl.glfw.GLFW.*;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
@@ -19,6 +20,40 @@ public class VehicleAirplaneBox extends VehicleAirplane
 
 		setupParts(parts);
     }
+
+	public void handleInput(){
+
+
+		//TODO: byta ut allt mot global modelMatrix
+		float relativeX = 0;
+		float relativeY = 0;
+		float relativeZ = 0;
+
+		float deltaYaw = 0;
+		float deltaPitch = 0;
+		float deltaRoll = 0;
+
+		InputHandler input = InputHandler.getInstance();
+		if(input.isPressed(GLFW_KEY_W))
+			relativeZ -= 0.1f;
+		if(input.isPressed(GLFW_KEY_S))
+			relativeZ += 0.1f;
+		if(input.isPressed(GLFW_KEY_RIGHT))
+			relativeRoll += 0.1f;
+		if(input.isPressed(GLFW_KEY_LEFT))
+			relativePitch -= 0.1f;
+
+		if(input.isPressed(GLFW_KEY_D))
+			relativeYaw -= 0.001;
+		if(input.isPressed(GLFW_KEY_A))
+			relativeYaw += 0.001;
+
+		yaw += deltaYaw;
+
+		Vector3 relativePos = new Vector3(relativeX, relativeY, relativeZ);
+		Vector3 deltaPos = relativePos.getRotatedAroundY(yaw);//, deltaPitch, deltaRoll);
+		position = position.add(deltaPos);
+	}
 
     private DrawablePartPosColor setupBody(final int shaderProgram){
 		final Vector3 red = 	new Vector3(1, 0, 0);
@@ -67,6 +102,6 @@ public class VehicleAirplaneBox extends VehicleAirplane
     }
 
     public void update(){
-		yaw += 0.001f;
+
     }
 }

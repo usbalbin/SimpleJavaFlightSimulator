@@ -1,7 +1,5 @@
 package se.liu.ida.albhe417.tddd78.math;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class Matrix4x4 extends AbstractMatrix
 {
 
@@ -35,11 +33,11 @@ public class Matrix4x4 extends AbstractMatrix
 		values[3] = three.getNewFloats();
     }
 
-    public static Matrix4x4 createPosFromVector(Vector3 position){
+    public static Matrix4x4 createTranslation(Vector3 position){
 		Matrix4x4 res = new Matrix4x4();
-		res.setValueAt(3, 0, position.getX());
-		res.setValueAt(3, 1, position.getY());
-		res.setValueAt(3, 2, position.getZ());
+		res.values[3][0] = position.getX();
+		res.values[3][1] = position.getY();
+		res.values[3][2] = position.getZ();
 		return res;
     }
 
@@ -100,7 +98,7 @@ public class Matrix4x4 extends AbstractMatrix
 		result.values[1] = new float[]{0, cos, -sin, 0};
 		result.values[2] = new float[]{0, sin,  cos, 0};
 
-		return result;
+		return this.multiply(result);
 	}
 
 	public Matrix4x4 getRotatedAboutY(float angle){
@@ -112,7 +110,7 @@ public class Matrix4x4 extends AbstractMatrix
 		result.values[0] = new float[]{cos, 0, -sin, 0};
 		result.values[2] = new float[]{sin, 0,  cos, 0};
 
-		return result;
+		return this.multiply(result);
 	}
 
 	public Matrix4x4 getRotatedAboutZ(float angle){
@@ -124,15 +122,15 @@ public class Matrix4x4 extends AbstractMatrix
 		result.values[0] = new float[]{cos, -sin, 0, 0};
 		result.values[1] = new float[]{sin,  cos,  0, 0};
 
-		return result;
+		return this.multiply(result);
 	}
 
 	public Matrix4x4 getRotated(float yaw, float pitch, float roll){
-		return this.getRotatedAboutY(yaw).getRotatedAboutX(pitch).getRotatedAboutZ(roll);
+		return this.getRotatedAboutY(yaw)/*.getRotatedAboutX(pitch).getRotatedAboutZ(roll)*/;
 	}
 
 	public Matrix4x4 getTranslated(Vector3 move){
-		return this.multiply(createPosFromVector(move));
+		return this.multiply(createTranslation(move));
 	}
 
 	//TODO: ta bort kanske
