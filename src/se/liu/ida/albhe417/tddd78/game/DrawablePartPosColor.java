@@ -62,10 +62,14 @@ public class DrawablePartPosColor extends AbstractDrawablePart
     }
 
 
-    public void draw(Matrix4x4 modelMatrix){
+    public void draw(Matrix4x4 modelMatrix, int matrixId){
+        Matrix4x4 modelViewProjectionMatrix = modelMatrix;
+
+
         glBindVertexArray(vertexArray);
         glUseProgram(shaderProgram);
 
+        setPartMatrix(modelViewProjectionMatrix, matrixId);
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
         glUseProgram(0);

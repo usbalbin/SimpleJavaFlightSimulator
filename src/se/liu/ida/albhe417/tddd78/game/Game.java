@@ -6,13 +6,11 @@ import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class Game
@@ -34,7 +32,8 @@ public class Game
 
 	private Matrix4x4 projectionMatrix;
 	private Matrix4x4 viewMatrix;
-	private int cameraMatrixId;
+	private Matrix4x4 cameraMatrix;
+	private int matrixId;
 	ArrayList<AbstractDrawable> gameObjects;
 	AbstractVehicle currentVehicle;
 	private int shaderProgram;
@@ -150,13 +149,14 @@ public class Game
 		if(result != GL_TRUE){
 			throw new RuntimeException("Failed to link shader program");
 		}
+		matrixId = glGetUniformLocation(shaderProgram, "cameraMatrix");
 	}
 
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(2);
 
-		currentVehicle = new  VehicleAirplaneBox(new Vector3(0, 0, 0), shaderProgram);
-		Terrain terrain = new Terrain(new Vector3(0, -1, 0), shaderProgram);
+		currentVehicle = new  VehicleAirplaneBox(new Vector3(128, 32, 128), shaderProgram);
+		Terrain terrain = new Terrain(new Vector3(0, 0, 0), shaderProgram);
 
 		gameObjects.add(currentVehicle);
 		gameObjects.add(terrain);
@@ -175,33 +175,19 @@ public class Game
 		yaw += 0.001f;
     }
 
-	private void updateCameraMatrix(final Vector3 cameraPosition, float yaw, float pitch, float roll){
-		final int matrixRows = 4;
+	private void updateCameraMatrix(final Vector3 cameraPosition, float yaw, float pitch, float roll) {
 
 		viewMatrix = currentVehicle.getViewMatrix();
 
-		Matrix4x4 cameraMatrix = projectionMatrix.multiply(viewMatrix);
-		cameraMatrixId = glGetUniformLocation(shaderProgram, "cameraMatrix");
+		cameraMatrix = projectionMatrix.multiply(viewMatrix);
 
-
-
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(matrixRows * matrixRows);
-		for(int row = 0; row < matrixRows; row++)
-			for(int column = 0; column < matrixRows; column++)
-				buffer.put(cameraMatrix.getValueAt(column, row));
-		buffer.flip();
-		//TODO: kolla upp booleanen vid ev fel, annars ta bort denna kommentar
-
-		glUseProgram(shaderProgram);
-		glUniformMatrix4fv(cameraMatrixId, false, buffer);
-		glUseProgram(0);
 	}
 
     private void draw(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (AbstractDrawable drawable: gameObjects) {
-			drawable.draw(new Matrix4x4());
+			drawable.draw(cameraMatrix, matrixId);
 		}
 
 		glfwSwapBuffers(window);

@@ -27,12 +27,12 @@ public abstract class AbstractDrawable
 
     }
 
-    public void draw(Matrix4x4 cameraMatrix){
-        Matrix4x4 modelMatrix = new Matrix4x4();
+    public void draw(Matrix4x4 cameraMatrix, int matrixId){
+        Matrix4x4 modelViewProjectionMatrix = cameraMatrix;
 
 
         for(AbstractDrawablePart part : parts){
-            part.draw(modelMatrix);
+            part.draw(modelViewProjectionMatrix, matrixId);
         }
     }
 }

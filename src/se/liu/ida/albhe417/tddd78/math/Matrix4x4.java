@@ -127,6 +127,14 @@ public class Matrix4x4 extends AbstractMatrix
 		return result;
 	}
 
+	public Matrix4x4 getRotated(float yaw, float pitch, float roll){
+		return this.getRotatedAboutY(yaw).getRotatedAboutX(pitch).getRotatedAboutZ(roll);
+	}
+
+	public Matrix4x4 getTranslated(Vector3 move){
+		return this.multiply(createPosFromVector(move));
+	}
+
 	//TODO: ta bort kanske
 	public Matrix4x4 copy(){
 		float[][] values = new float[4][4];
