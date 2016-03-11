@@ -39,6 +39,8 @@ public class Game
 	AbstractVehicle currentVehicle;
 	private int shaderProgram;
 
+	private long lastTime;
+
 	//TODO: ta bort
 	protected float yaw = 0;
 
@@ -158,11 +160,14 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(2);
 
-		currentVehicle = new  VehicleAirplaneBox(new Vector3(128, 32, 128), shaderProgram);
 		Terrain terrain = new Terrain(new Vector3(0, 0, 0), shaderProgram);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
+
 
 		gameObjects.add(currentVehicle);
 		gameObjects.add(terrain);
+
+		lastTime = System.currentTimeMillis();
 	}
 
 	private void setupProjectionMatrix(){
@@ -171,17 +176,19 @@ public class Game
 	}
 
     private void update(){
-		currentVehicle.handleInput();
+		long nowTime = System.currentTimeMillis();
+		float deltaTime = (nowTime - lastTime) / 1000.0f;
+		lastTime = nowTime;
+		currentVehicle.handleInput(deltaTime);
 
 		for (AbstractDrawable drawable: gameObjects) {
-			drawable.update();
+			drawable.update(deltaTime);
 		}
 
-		updateCameraMatrix(new Vector3(128.f, 64.0f, 128.f), yaw, 0, 0);
-		yaw += 0.001f;
+		updateCameraMatrix();
     }
 
-	private void updateCameraMatrix(final Vector3 cameraPosition, float yaw, float pitch, float roll) {
+	private void updateCameraMatrix() {
 
 		viewMatrix = currentVehicle.getViewMatrix();
 

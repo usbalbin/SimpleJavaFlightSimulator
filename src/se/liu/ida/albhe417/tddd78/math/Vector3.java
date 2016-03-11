@@ -1,5 +1,7 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import java.util.Arrays;
+
 public class Vector3
 {
     public static final Vector3 RIGHT = new Vector3(1, 0, 0);
@@ -8,7 +10,7 @@ public class Vector3
     public static final Vector3 FORWARD = new Vector3(0, 0, -1);
     public static final Vector3 ONE = new Vector3(1, 1, 1);
 
-    private float[] values;
+    public final float[] values;
     public Vector3() {
     	this.values = new float[3];
     	setX(0);setY(0);setZ(0);
@@ -131,5 +133,8 @@ public class Vector3
         return this.getRotatedAroundY(yaw).getRotatedAroundX(pitch).getRotatedAroundZ(roll);
     }
 
-
+    @Override
+    public String toString() {
+        return getX() + ";" + getY() + ";" + getZ();
+    }
 }

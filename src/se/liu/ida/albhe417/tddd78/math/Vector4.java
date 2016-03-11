@@ -2,16 +2,32 @@ package se.liu.ida.albhe417.tddd78.math;
 
 public class Vector4
 {
-    private float[] values;
+    public static final Vector4 UP = new Vector4(0, 1, 0, 1);
+    public static final Vector4 FORWARD = new Vector4(0, 0, -1, 1);
+    public static final Vector4 BACK = new Vector4(0, 0, 1, 1);
+    public static final Vector4 RIGHT = new Vector4(1, 0, 0, 1);
+
+
+    public static final Vector4 DIR_UP = new Vector4(0, 1, 0, 0);
+    public static final Vector4 DIR_FORWARD = new Vector4(0, 0, -1, 0);
+    public static final Vector4 DIR_BACK = new Vector4(0, 0, 1, 0);
+    public static final Vector4 DIR_RIGHT = new Vector4(1, 0, 0, 0);
+
+    public final float[] values;
 
     public Vector4() {
 	    this.values  = new float[4];
 	    setX(0);setY(0);setZ(0);setW(0);
     }
 
-    public Vector4(final float x, final float y, final float z, float w) {
+    public Vector4(final float x, final float y, final float z, final float w) {
 	    this.values = new float[4];
 	    setX(x);setY(y);setZ(z);setW(w);
+    }
+
+    public Vector4(Vector3 vector3, float w) {
+        this.values = new float[4];
+        setX(vector3.getX());setY(vector3.getY());setZ(vector3.getZ());setW(w);
     }
 
     public Vector4(float[] values) {
@@ -61,4 +77,12 @@ public class Vector4
         return new Vector4(x, y, z, w).values;
     }
 
+    public Vector3 toVector3(){
+        return new Vector3(getX(), getY(), getZ());
+    }
+
+    @Override
+    public String toString() {
+        return getX() + ";" + getY() + ";" + getZ() + ";" + getW();
+    }
 }

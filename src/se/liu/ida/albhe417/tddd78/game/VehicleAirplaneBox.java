@@ -1,6 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game;
 import static org.lwjgl.glfw.GLFW.*;
 
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
@@ -8,8 +9,8 @@ import java.util.ArrayList;
 
 public class VehicleAirplaneBox extends VehicleAirplane
 {
-    public VehicleAirplaneBox(Vector3 position, final int shaderProgram){
-		super(position);
+    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+		super(position, yaw, 100.0f, 1.0f, terrain);
 		setup(shaderProgram);
     }
 
@@ -21,7 +22,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		setupParts(parts);
     }
 
-	public void handleInput(){
+	public void handleInput(float deltaTime){
 
 
 		//TODO: byta ut allt mot global modelMatrix
@@ -29,9 +30,9 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		float relativeY = 0;
 		float relativeZ = 0;
 
-		float deltaYaw = 0;
-		float deltaPitch = 0;
-		float deltaRoll = 0;
+		float relativeYaw = 0;
+		float relativePitch = 0;
+		float relativeRoll = 0;
 
 		InputHandler input = InputHandler.getInstance();
 		if(input.isPressed(GLFW_KEY_W))
@@ -39,20 +40,24 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		if(input.isPressed(GLFW_KEY_S))
 			relativeZ += 0.1f;
 		if(input.isPressed(GLFW_KEY_RIGHT))
-			relativeRoll += 0.1f;
+			relativeRoll += 0.001;
 		if(input.isPressed(GLFW_KEY_LEFT))
-			relativePitch -= 0.1f;
+			relativeRoll -= 0.001;
+		if(input.isPressed(GLFW_KEY_UP))
+			relativePitch += 0.001;
+		if(input.isPressed(GLFW_KEY_DOWN))
+			relativePitch -= 0.001;
+
 
 		if(input.isPressed(GLFW_KEY_D))
 			relativeYaw -= 0.001;
 		if(input.isPressed(GLFW_KEY_A))
 			relativeYaw += 0.001;
 
-		yaw += deltaYaw;
 
-		Vector3 relativePos = new Vector3(relativeX, relativeY, relativeZ);
-		Vector3 deltaPos = relativePos.getRotatedAroundY(yaw);//, deltaPitch, deltaRoll);
-		position = position.add(deltaPos);
+		Matrix4x4 move = Matrix4x4.createTranslation(new Vector3(relativeX, relativeY, relativeZ));
+		move = move.getRotated(relativeYaw, relativePitch, relativeRoll);
+		modelMatrix = modelMatrix.multiply(move);
 	}
 
     private DrawablePartPosColor setupBody(final int shaderProgram){
@@ -61,7 +66,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		final Vector3 blue = 	new Vector3(0, 0, 1);
 		final Vector3 white = 	new Vector3(1, 1, 1);
 
-		final float SIZE = 0.1f;
+		final float SIZE = 1f;
 
 		//"LTR" = left top rear
 		Vector3 posLTR = new Vector3(-SIZE, SIZE, SIZE);
@@ -101,7 +106,14 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		return new DrawablePartPosColor(vertices, indices, shaderProgram);
     }
 
-    public void update(){
+    public void update(float deltaTime){
+		float AirPlaneHeight = 1;
+		Vector3 position = modelMatrix.getPosition();
 
+		float terrainHeight = terrain.getHeight(position.getX(), position.getZ());
+		if( position.getY() < terrainHeight + AirPlaneHeight){
+			position.setY(terrainHeight + AirPlaneHeight);
+			modelMatrix.setPosition(position);
+		}
     }
 }

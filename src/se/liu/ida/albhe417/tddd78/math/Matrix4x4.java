@@ -89,6 +89,32 @@ public class Matrix4x4 extends AbstractMatrix
 		return result;
 	}
 
+	public Vector4 multiply(Vector4 other){
+		Vector4 result = new Vector4();
+
+		for(int row = 0; row < 4; row++){
+			for (int column = 0; column < 4; column++){
+				result.values[row] += this.values[row][column] * other.values[column];
+			}
+		}
+		return result;
+	}
+
+	//TODO: Remove "vector"?
+	public Vector3 multiply(Vector3 other){
+		Vector4 vector = new Vector4(other.getX(), other.getY(), other.getZ(), 1.0f);
+		Vector4 result = new Vector4();
+
+		for(int row = 0; row < 4; row++){
+			for (int column = 0; column < 4; column++){
+				result.values[row] += this.values[row][column] * vector.values[column];
+			}
+		}
+		return result.toVector3();
+
+	}
+
+
 	public Matrix4x4 getRotatedAboutX(float angle){
 		Matrix4x4 result = new Matrix4x4();
 
@@ -126,7 +152,7 @@ public class Matrix4x4 extends AbstractMatrix
 	}
 
 	public Matrix4x4 getRotated(float yaw, float pitch, float roll){
-		return this.getRotatedAboutY(yaw)/*.getRotatedAboutX(pitch).getRotatedAboutZ(roll)*/;
+		return this.getRotatedAboutY(yaw).getRotatedAboutX(pitch).getRotatedAboutZ(roll);
 	}
 
 	public Matrix4x4 getTranslated(Vector3 move){
@@ -142,5 +168,36 @@ public class Matrix4x4 extends AbstractMatrix
 		}
 
 		return new Matrix4x4(values);
+	}
+
+	public Vector3 getPosition(){
+		return new Vector3(values[3][0], values[3][1], values[3][2]);
+	}
+
+	public void setPosition(Vector3 position){
+		values[3][0] = position.getX();
+		values[3][1] = position.getY();
+		values[3][2] = position.getZ();
+	}
+
+	public Matrix4x4 getInverse(){
+		float[][] values = new float[4][4];
+
+		//Flip matrix
+		for (int row = 0; row < 3; row++) {
+			for (int column = 0; column < 4; column++) {
+				values[row][column] = this.values[column][row];
+			}
+		}
+		values[0][3] = 0;
+		values[1][3] = 0;
+		values[2][3] = 0;
+		values[3][3] = 1;
+
+		Matrix4x4 result = new Matrix4x4(values);
+		Vector4 lastRowIn = new Vector4(-this.values[3][0], -this.values[3][1], -this.values[3][2], this.values[3][3]);
+		Vector4 lastRowRes = result.multiply(lastRowIn);
+		result.values[3] = lastRowRes.values;
+		return result;
 	}
 }

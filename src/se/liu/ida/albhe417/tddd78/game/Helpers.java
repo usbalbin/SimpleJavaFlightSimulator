@@ -57,13 +57,14 @@ public class Helpers {
                 for (int row = 0; row < height; row++) {
                     for (int column = 0; column < width; column++) {
                         colors[row][column] = new Vector3(
-                                byteToFloatColor(pixels[j + 0]),
                                 byteToFloatColor(pixels[j + 1]),
-                                byteToFloatColor(pixels[j + 2])
+                                byteToFloatColor(pixels[j + 2]),
+                                byteToFloatColor(pixels[j + 3])
                         );
-                        j += componentsPerPixel;
+                        j += 4;
                     }
                 }
+                break;
             default:
                 throw new RuntimeException("Invalid image " + fileName);
         }

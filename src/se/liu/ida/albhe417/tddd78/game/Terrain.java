@@ -8,11 +8,12 @@ import java.util.ArrayList;
  * Created by Albin on 09/03/2016.
  */
 public class Terrain extends AbstractDrawable{
+    VertexPositionColor[] vertices;
     protected int width;
     private int height;
 
     public Terrain(Vector3 position, final int shaderProgram){
-        super(position);
+        super(position, 0);
         setup(shaderProgram);
     }
 
@@ -24,7 +25,7 @@ public class Terrain extends AbstractDrawable{
         final Vector3 color = new Vector3(0.5f, 0.5f, 0.5f);
 
         //Setup vertices
-        VertexPositionColor[] vertices = new VertexPositionColor[height * width];
+        vertices = new VertexPositionColor[height * width];
         for (int z = 0; z < height; z++) {
             for (int x = 0; x < width; x++) {
                 float y = colors[z][x].getX() * 10.0f;
@@ -58,5 +59,38 @@ public class Terrain extends AbstractDrawable{
         DrawablePartPosColor part = new DrawablePartPosColor(vertices, indices, shaderProgram);
         parts.add(part);
         setupParts(parts);
+    }
+
+    //TODO: Make this accurate
+    public float getHeight(float x, float z){
+        if(x < 0)
+            x = 0;
+        else if(x > width - 2)
+            x = width - 2;
+        if(z < 0)
+            z = 0;
+        else if(z > height - 2)
+            z = height - 2;
+
+
+        //Get heights from closest vertices
+        float leftFront =  vertices[(((int)z + 0) * width) + ((int)x + 0)].position.getY();
+        float rightFront = vertices[(((int)z + 0) * width) + ((int)x + 1)].position.getY();
+
+        float leftBack =   vertices[(((int)z + 1) * width) + ((int)x + 0)].position.getY();
+        float rightBack =  vertices[(((int)z + 1) * width) + ((int)x + 1)].position.getY();
+
+        float xRest = x % 1;
+        float zRest = z % 1;
+
+        //Interpolate heights depending on how close
+        float height =
+                leftBack * (1.0f - xRest)  * (1.0f - zRest) +
+                rightBack * (xRest)        * (1.0f - zRest) +
+
+                leftFront * (1.0f - xRest) * (zRest)        +
+                rightFront * (xRest)       * (zRest);
+
+        return height;
     }
 }
