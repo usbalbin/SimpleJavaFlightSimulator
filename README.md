@@ -1,7 +1,7 @@
 # SimpleJavaFlightSimulator
 
 ##Milstolpar
-
+###Done
 - 1	Skapa nya/använd javas klasser för vektor och matris matematik
 
 - 2	Implementera en ”Game” klass som sätter upp ett fönster med OpenGL-utritningsfunktionalitet. Skapa även en abstrakt klass för utritningsbart 3D-objekt som innerhåller funktioner för att rita ut sig själv.
@@ -19,6 +19,8 @@
 - 8	Fäst kameran vid fordonet
 
 - 9	Implementera flygplansfysik samt lägg till så att kollision med mark ger GameOver(behöver inte vara exakt).
+
+###To do
 
 - 10	Lägg till möjlighet att respawna.
 
