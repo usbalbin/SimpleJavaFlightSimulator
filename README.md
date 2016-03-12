@@ -2,7 +2,6 @@
 
 ##Milstolpar
 
-#	Beskrivning
 - 1	Skapa nya/använd javas klasser för vektor och matris matematik
 
 - 2	Implementera en ”Game” klass som sätter upp ett fönster med OpenGL-utritningsfunktionalitet. Skapa även en abstrakt klass för utritningsbart 3D-objekt som innerhåller funktioner för att rita ut sig själv.
