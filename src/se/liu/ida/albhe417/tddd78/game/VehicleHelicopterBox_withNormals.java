@@ -1,19 +1,17 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 
 /**
  * Created by Albin on 11/03/2016.
  */
-public class VehicleHelicopterBox extends VehicleHelicopter{
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+public class VehicleHelicopterBox_withNormals extends VehicleHelicopter{
+    public VehicleHelicopterBox_withNormals(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
         //TODO, add constants
         super(position, yaw, 1000.0f, 200000.0f, terrain);
         setup(shaderProgram);
@@ -110,20 +108,32 @@ public class VehicleHelicopterBox extends VehicleHelicopter{
         Vector3 posRBF = new Vector3( SIZE,-SIZE, -SIZE);
         Vector3 posLBF = new Vector3(-SIZE,-SIZE, -SIZE);
 
-        VertexPositionColor LTR = new VertexPositionColor(posLTR, red);
-        VertexPositionColor RTR = new VertexPositionColor(posRTR, green);
-        VertexPositionColor RBR = new VertexPositionColor(posRBR, blue);
-        VertexPositionColor LBR = new VertexPositionColor(posLBR, white);
 
-        VertexPositionColor LTF = new VertexPositionColor(posLTF, red);
-        VertexPositionColor RTF = new VertexPositionColor(posRTF, green);
-        VertexPositionColor RBF = new VertexPositionColor(posRBF, blue);
-        VertexPositionColor LBF = new VertexPositionColor(posLBF, white);
+        Vector3 normalLTR = new Vector3(-SIZE, SIZE, SIZE);
+        Vector3 normalRTR = new Vector3( SIZE, SIZE, SIZE);
+        Vector3 normalRBR = new Vector3( SIZE,-SIZE, SIZE);
+        Vector3 normalLBR = new Vector3(-SIZE,-SIZE, SIZE);
 
-        VertexPositionColor[] vertices = {
+        Vector3 normalLTF = new Vector3(-SIZE, SIZE, -SIZE);
+        Vector3 normalRTF = new Vector3( SIZE, SIZE, -SIZE);
+        Vector3 normalRBF = new Vector3( SIZE,-SIZE, -SIZE);
+        Vector3 normalLBF = new Vector3(-SIZE,-SIZE, -SIZE);
+
+        VertexPositionNormalColor LTR = new VertexPositionNormalColor(posLTR, normalLTR, red);
+        VertexPositionNormalColor RTR = new VertexPositionNormalColor(posRTR, normalRTR, green);
+        VertexPositionNormalColor RBR = new VertexPositionNormalColor(posRBR, normalRBR, blue);
+        VertexPositionNormalColor LBR = new VertexPositionNormalColor(posLBR, normalLBR, white);
+
+        VertexPositionNormalColor LTF = new VertexPositionNormalColor(posLTF, normalLTF, red);
+        VertexPositionNormalColor RTF = new VertexPositionNormalColor(posRTF, normalRTF, green);
+        VertexPositionNormalColor RBF = new VertexPositionNormalColor(posRBF, normalRBF, blue);
+        VertexPositionNormalColor LBF = new VertexPositionNormalColor(posLBF, normalLBF, white);
+
+        VertexPositionNormalColor[] vertices = {
             LTR, RTR, RBR, LBR,
             LTF, RTF, RBF, LBF
         };
+
 
         int[] indices = {
             0, 2, 3, 	0, 1, 2,//Rear
@@ -134,7 +144,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter{
             3, 6, 7, 	3, 2, 6	//Bottom
         };
 
-        return new DrawablePartPosColor(vertices, indices, shaderProgram);
+        return new DrawablePartPosNormalColor(vertices, indices, shaderProgram);
     }
 
     public void update(float deltaTime){

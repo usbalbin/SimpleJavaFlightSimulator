@@ -37,8 +37,6 @@ public abstract class AbstractDrawablePart
             for(int column = 0; column < matrixRows; column++)
                 buffer.put(modelViewProjectionMatrix.getValueAt(column, row));
         buffer.flip();
-        //TODO: kolla upp booleanen vid ev fel, annars ta bort denna kommentar
-
 
         glUniformMatrix4fv(matrixId, false, buffer);
     }

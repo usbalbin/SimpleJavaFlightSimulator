@@ -2,6 +2,7 @@ package se.liu.ida.albhe417.tddd78.game;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -18,20 +19,19 @@ public class Terrain extends AbstractDrawable{
     }
 
     protected void setup(final int shaderProgram){
-        Vector3[][] colors = Helpers.imageToColors("content/heightmap.png");
+        Vector3[][] colors = Helpers.imageToColors("content/heightmapLarge.jpg");
         width = colors[0].length;
         height = colors.length;
-
-        final Vector3 color = new Vector3(0.5f, 0.5f, 0.5f);
 
         //Setup vertices
         vertices = new VertexPositionColor[height * width];
         for (int z = 0; z < height; z++) {
             for (int x = 0; x < width; x++) {
-                float y = colors[z][x].getX() * 10.0f;
+                float y = colors[z][x].getX() * 128.0f;
+                Vector3 color = selectColor(y);
 
                 Vector3 position = new Vector3(x, y, z);
-                vertices[z * width + x] = new VertexPositionColor(position, new Vector3(position.getY() / 20f, position.getY() / 20f, position.getY() / 20f));
+                vertices[z * width + x] = new VertexPositionColor(position, color);
             }
         }
 
@@ -92,5 +92,22 @@ public class Terrain extends AbstractDrawable{
                 rightFront * (xRest)       * (zRest);
 
         return height;
+    }
+
+    private Vector3 selectColor(float height){
+        final Vector3 white = new Vector3(1, 0, 0);
+        final Vector3 brown = new Vector3(0.4f, 0.2f, 0.05f);
+        final Vector3 green = new Vector3(0, 1, 0);
+        final Vector3 blue = new Vector3(0, 0, 1);
+
+        if(height > 200)
+            return white;
+        if(height > 150)
+            return brown;
+        if(height > 100)
+            return green;
+        return blue;
+
+
     }
 }

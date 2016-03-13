@@ -6,12 +6,13 @@ import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class Game
@@ -34,7 +35,11 @@ public class Game
 	private Matrix4x4 projectionMatrix;
 	private Matrix4x4 viewMatrix;
 	private Matrix4x4 cameraMatrix;
-	private int matrixId;
+	private int modelViewProjectionMatrixId;
+
+	private Vector3 lightDirection;
+	private int lightDirectionId;
+
 	ArrayList<AbstractDrawable> gameObjects;
 	AbstractVehicle currentVehicle;
 	private int shaderProgram;
@@ -50,6 +55,7 @@ public class Game
 		setupShaders();
 		setupGameObjects();
 		setupProjectionMatrix();
+		setupLight();
     }
 
 
@@ -91,31 +97,21 @@ public class Game
 		//TODO: Add culling stuff
     }
 
-	private void setupShaders(){
+	private void setupShaders_old(){
 		int result;
 
-		//TODO: fix matrix-support, layout-issue and Use normals
-		String vertexShaderCodeOld =
-			"#version 150 core\n" +
-			"/*layout(location=0) */in vec3 position;\n" +
-			"/*layout(location=1) */in vec3 color;\n" +
-			"out vec3 vertexColor;\n" +
-			"\n" +
-			"void main(){\n" +
-			"	vertexColor = color;\n" +
-			"	gl_Position = vec4(position, 1.0);\n" +
-			"}";
-
+		//TODO: fix layout-issue and Use normals
 		String vertexShaderCode =
 			"#version 150 core\n" +
 			"/*layout(location=0) */in vec3 position;\n" +
 			"/*layout(location=1) */in vec3 color;\n" +
 			"out vec3 vertexColor;\n" +
-			"uniform mat4 cameraMatrix;\n" +
+			"uniform mat4 modelViewProjectionMatrix;\n" +
+			"uniform vec3 lightDirection;\n" +
 			"\n" +
 			"void main(){\n" +
 			"	vertexColor = color;\n" +
-			"	gl_Position = cameraMatrix * vec4(position, 1.0);\n" +
+			"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
 			"}";
 
 		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
@@ -154,7 +150,74 @@ public class Game
 		if(result != GL_TRUE){
 			throw new RuntimeException("Failed to link shader program");
 		}
-		matrixId = glGetUniformLocation(shaderProgram, "cameraMatrix");
+		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+	}
+
+	private void setupShaders(){
+		int result;
+
+		//TODO: fix layout-issue and Use normals
+		String vertexShaderCode =
+				"#version 150 core\n" +
+				"/*layout(location=0) */in vec3 position;\n" +
+				"/*layout(location=1) */in vec3 normal;\n" +
+				"/*layout(location=2) */in vec3 color;\n" +
+
+				"out vec3 vertexColor;\n" +
+				"out vec3 vertexNormal;" +
+
+				"uniform mat4 modelViewProjectionMatrix;\n" +
+				"\n" +
+				"\n" +
+				"void main(){\n" +
+				"	vertexColor = color;\n" +
+				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
+				"	vertexNormal = normal;\n" +
+				"}";
+
+		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShaderRef, vertexShaderCode);
+		glCompileShader(vertexShaderRef);
+		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
+			throw new RuntimeException("Failed to compile vertex shader");
+		}
+
+		//TODO: Make use of normals
+		String fragmentShaderCode =
+				"#version 150 core\n" +
+				"in vec3 vertexColor;\n" +
+				"in vec3 vertexNormal;\n" +
+				"uniform vec3 lightDirection;" +
+				"out vec4 pixelColor;\n" +
+
+				"\n" +
+				"\n" +
+				"void main(){\n" +
+				"	pixelColor = vec4(vertexColor.xyz, 1.0) * dot(vertexNormal, -lightDirection);\n" +
+				"}";
+
+		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShaderRef, fragmentShaderCode);
+		glCompileShader(fragmentShaderRef);
+		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
+			throw new RuntimeException("Failed to compile fragment shader");
+		}
+
+		shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShaderRef);
+		glAttachShader(shaderProgram, fragmentShaderRef);
+
+		glLinkProgram(shaderProgram);
+
+		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+		if(result != GL_TRUE){
+			throw new RuntimeException("Failed to link shader program");
+		}
+		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 	}
 
 	private void setupGameObjects(){
@@ -171,8 +234,18 @@ public class Game
 	}
 
 	private void setupProjectionMatrix(){
-		//TODO: only do once
 		projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float)WINDOW_WIDTH / WINDOW_HEIGHT, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
+	}
+
+	private void setupLight(){
+		lightDirection = new Vector3(-1, -1, -1);
+		int numVectorElements = 3;
+
+
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(numVectorElements);
+		buffer.put(lightDirection.values);
+		buffer.flip();
+		glUniform3fv(lightDirectionId, buffer);
 	}
 
     private void update(){
@@ -200,7 +273,7 @@ public class Game
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (AbstractDrawable drawable: gameObjects) {
-			drawable.draw(cameraMatrix, matrixId);
+			drawable.draw(cameraMatrix, modelViewProjectionMatrixId);
 		}
 
 		glfwSwapBuffers(window);
