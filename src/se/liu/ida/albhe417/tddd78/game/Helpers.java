@@ -61,9 +61,10 @@ public class Helpers {
                                 byteToFloatColor(pixels[j + 1]),
                                 byteToFloatColor(pixels[j + 2])
                         );
-                        j += componentsPerPixel;
+                        j += 3;
                     }
                 }
+                break;
             default:
                 throw new RuntimeException("Invalid image " + fileName);
         }
@@ -72,10 +73,10 @@ public class Helpers {
     }
 
     public static float byteToFloatColor(short color){
-        final int toUnsigedByte = 128;
+        final short toUnsigedByte = 0x00FF;
         final float unsignedByteMaxVal = 256f;
-        if(color < 0)
-            color += unsignedByteMaxVal;//Undo any overflow caused by using signed byte, image uses unsigned byte
-        return ((int)color) / unsignedByteMaxVal;
+
+        //Interprete color as unsigned byte(colors are represented by unsigned byte)
+        return (color & toUnsigedByte ) / unsignedByteMaxVal;
     }
 }

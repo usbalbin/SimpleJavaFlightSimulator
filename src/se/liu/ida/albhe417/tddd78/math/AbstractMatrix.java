@@ -2,7 +2,7 @@ package se.liu.ida.albhe417.tddd78.math;
 
 public class AbstractMatrix
 {
-    protected final float[][] values;
+    public final float[][] values;
 
     public AbstractMatrix(float[][] values){
 	this.values = values;
