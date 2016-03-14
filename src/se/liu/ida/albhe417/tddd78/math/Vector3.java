@@ -11,9 +11,14 @@ public class Vector3
     public static final Vector3 ONE = new Vector3(1, 1, 1);
 
     public final float[] values;
+
     public Vector3() {
     	this.values = new float[3];
     	setX(0);setY(0);setZ(0);
+    }
+
+    public Vector3(float value){
+        this(value, value, value);
     }
 
     public Vector3(final float x, final float y, final float z) {
@@ -78,6 +83,10 @@ public class Vector3
 
     public Vector3 add(Vector3 other){
         return new Vector3(this.getX() + other.getX(), this.getY() + other.getY(), this.getZ() + other.getZ());
+    }
+
+    public Vector3 add(float otherX, float otherY, float otherZ){
+        return this.add(new Vector3(otherX, otherY, otherZ));
     }
 
     public Vector3 sub(Vector3 other){

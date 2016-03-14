@@ -144,7 +144,9 @@ public class VehicleHelicopterBox_withNormals extends VehicleHelicopter{
             3, 6, 7, 	3, 2, 6	//Bottom
         };
 
-        return new DrawablePartPosNormalColor(vertices, indices, shaderProgram);
+        //TODO fix me
+        //return new DrawablePartPosNormalColor(vertices, indices, shaderProgram);
+        return null;
     }
 
     public void update(float deltaTime){

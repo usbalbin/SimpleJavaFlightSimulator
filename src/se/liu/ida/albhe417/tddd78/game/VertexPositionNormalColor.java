@@ -14,4 +14,8 @@ public class VertexPositionNormalColor implements Vertex
         this.normal = normal;
 	    this.color = color;
     }
+
+    public int getFloatCount(){
+        return FLOAT_COUNT;
+    }
 }
