@@ -100,7 +100,7 @@ public class DrawablePartPosColor extends AbstractDrawablePart
         glBindVertexArray(0);
     }
 
-    private float[] vertexToFloatArray(VertexPositionColor[] vertices){
+    /*private float[] vertexToFloatArray(VertexPositionColor[] vertices){
         float[] floatArray = new float[VertexPositionColor.FLOAT_COUNT * vertices.length];
         int i = 0;
         for(VertexPositionColor vertex : vertices){
@@ -113,7 +113,7 @@ public class DrawablePartPosColor extends AbstractDrawablePart
             floatArray[i++] = vertex.color.getZ();
         }
         return floatArray;
-    }
+    }*/
 
     private void vertexToFloatBuffer(VertexPositionColor[] vertices){
         if(vertexBufferData == null)

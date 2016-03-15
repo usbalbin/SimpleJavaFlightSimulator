@@ -7,20 +7,19 @@ public class VertexPositionColor implements Vertex
 {
 
     //TODO: get rid of me, i'm awful!!
-    public static float HEIGHT_FACTOR = 10;
+    public static final float HEIGHT_FACTOR = 10;
+    public static final int FLOATS_PER_VECTOR = 3;
 
     public static final int FLOAT_COUNT = 6;
-    public Vector3 position;
-    public Vector3 color;
+    public float[] values;
 
     public VertexPositionColor(Vector3 position){
-        this.position = position;
-        this.color = new Vector3(position.getY() / HEIGHT_FACTOR);
+        Vector3 color = new Vector3(position.getY() / HEIGHT_FACTOR);
+        setupValues(position, color);
     }
 
     public VertexPositionColor(Vector3 position, Vector3 color){
-	    this.position = position;
-	    this.color = color;
+        setupValues(position, color);
     }
 
     public int getFloatCount(){
@@ -28,10 +27,12 @@ public class VertexPositionColor implements Vertex
     }
 
     public float[] getFloats(){
-        final int floatsPerVector = 3;
-        float[] result = new float[FLOAT_COUNT];
-        System.arraycopy(position.values, 0, result, 0, floatsPerVector);
-        System.arraycopy(color.values, 0, result, floatsPerVector, floatsPerVector);
-        return result;
+        return values;
+    }
+
+    private void setupValues(Vector3 position, Vector3 color){
+        values = new float[FLOAT_COUNT];
+        System.arraycopy(position.values, 0, this.values, 0, FLOATS_PER_VECTOR);
+        System.arraycopy(color.values, 0, this.values, FLOATS_PER_VECTOR, FLOATS_PER_VECTOR);
     }
 }

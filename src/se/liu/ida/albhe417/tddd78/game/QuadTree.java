@@ -17,6 +17,11 @@ public class QuadTree {
     private QuadTree leftBottom;
     private QuadTree rightBottom;
 
+    private QuadTree neighborLF;
+    private QuadTree neighborRF;
+    private QuadTree neighborLB;
+    private QuadTree neighborRB;
+
     //TODO replace with bitfield to save some space
     private boolean leftStitchPnt = false;
     private boolean frontStitchPnt = false;
@@ -98,8 +103,8 @@ public class QuadTree {
 
 
 
-    private void generateTree(Vector3 cameraPos, float detailFactor, short maxLevels){
-        float distSquared = cameraPos.sub(position).length2();
+    private void generateTree(final Vector3 cameraPos, final float detailFactor, final short maxLevels){
+        final float distSquared = cameraPos.sub(position).length2();
 
         //TODO make working formula
         int desiredLevelSquared = (int)((detailFactor * detailFactor) / distSquared);
@@ -305,4 +310,20 @@ public class QuadTree {
     public int getSize(){
         return size;
     }
+
+    /*private QuadTree getNortNeighbor(QuadType currentQuadType, QuadTree parent){
+        if(parent == null)
+            return null;
+        switch (currentQuadType){
+            case NW:
+                return parent.leftFront;
+            break;
+            case NE:
+                return parent.rightFront;
+                break;
+            default:
+
+
+        }
+    }*/
 }
