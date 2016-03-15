@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 

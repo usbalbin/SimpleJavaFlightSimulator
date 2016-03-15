@@ -11,7 +11,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * Created by Albin on 11/03/2016.
  */
 public class VehicleHelicopterBox_withNormals extends VehicleHelicopter{
-    public VehicleHelicopterBox_withNormals(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+    public VehicleHelicopterBox_withNormals(final Vector3 position, float yaw, final Terrain_old terrain, final int shaderProgram){
         //TODO, add constants
         super(position, yaw, 1000.0f, 200000.0f, terrain);
         setup(shaderProgram);

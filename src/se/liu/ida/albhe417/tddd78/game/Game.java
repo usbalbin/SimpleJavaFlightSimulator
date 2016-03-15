@@ -173,7 +173,7 @@ public class Game
 				"void main(){\n" +
 				"	vertexColor = color;\n" +
 				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-				"	vertexNormal = normal;\n" +
+				//"	vertexNormal = normal;\n" +
 				"}";
 
 		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
@@ -188,14 +188,14 @@ public class Game
 		String fragmentShaderCode =
 				"#version 150 core\n" +
 				"in vec3 vertexColor;\n" +
-				"in vec3 vertexNormal;\n" +
-				"uniform vec3 lightDirection;" +
+				//"in vec3 vertexNormal;\n" +
+				//"uniform vec3 lightDirection;" +
 				"out vec4 pixelColor;\n" +
 
 				"\n" +
 				"\n" +
 				"void main(){\n" +
-				"	pixelColor = vec4(vertexColor.xyz, 1.0) * dot(vertexNormal, -lightDirection);\n" +
+				"	pixelColor = vec4(vertexColor.xyz, 1.0);// * dot(vertexNormal, -lightDirection);\n" +
 				"}";
 
 		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
@@ -223,7 +223,7 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(2);
 
-		Terrain terrain = new Terrain(new Vector3(0, 0, 0), shaderProgram);
+		Terrain terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
 		currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
 
 

@@ -3,13 +3,12 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
-import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.ArrayList;
 
 public class VehicleAirplaneBox extends VehicleAirplane
 {
-    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain_old terrain, final int shaderProgram){
 		super(position, yaw, 100.0f, 1.0f, terrain);
 		setup(shaderProgram);
     }

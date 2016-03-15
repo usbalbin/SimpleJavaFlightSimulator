@@ -29,15 +29,18 @@ public class QuadTree {
     private short level;
 
     private Vector3[][] heightmap;//Only for root quad
+    private static float HEIGHT_FACTOR;
 
     /**
      * Create Root QuadTree
      * @param fileNameHeightmap heightmap
      */
-    public QuadTree(String fileNameHeightmap){
-        heightmap = Helpers.imageToColors(fileNameHeightmap);
+    public QuadTree(Vector3[][] heightmap, final float heightFactor){
+        this.HEIGHT_FACTOR = heightFactor;
+        this.heightmap = heightmap;
         this.size = Math.min(heightmap.length, heightmap[0].length);
-        this.position = new Vector3(size / 2, 0, -size / 2);
+        this.size -= size % 2;//Make sure size is even
+        this.position = new Vector3(size / 2, 0, size / 2);
         this.level = 0;
     }
 
@@ -57,9 +60,49 @@ public class QuadTree {
         generateTree(cameraPos, detailFactor, maxLevels);
     }
 
+    public void update(Vector3 cameraPosition, List<VertexPositionColor> vertices, List<Integer> indices){
+        final float detailFactor = 10;
+        final short maxLevels = 10;
+
+        generateTree(cameraPosition, detailFactor, maxLevels);
+
+        stitch(null, null, null, null);
+        generateVerticesAndIndices(vertices, indices, heightmap);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private void generateTree(Vector3 cameraPos, float detailFactor, short maxLevels){
         float distSquared = cameraPos.sub(position).length2();
-        float distLimit = detailFactor * level;
+
+        //TODO make working formula
+        float distLimit = detailFactor * (level + 1);
         if(distSquared < distLimit * distLimit && level < maxLevels){
             final int childSize = size / 2;
             final int halfChildSize = childSize / 2;
@@ -84,15 +127,6 @@ public class QuadTree {
             rightFront != null &&
             leftBottom != null &&
             rightBottom != null;
-    }
-
-    public void prepForDraw(Vector3[][] heightmap){
-        LinkedList<VertexPositionColor> vertices = new LinkedList<>();
-        LinkedList<Integer> indices = new LinkedList<>();
-
-        stitch(null, null, null, null);
-        generateVerticesAndIndices(vertices, indices, heightmap);
-
     }
 
     /**
@@ -260,9 +294,14 @@ public class QuadTree {
     }
 
     private void setHeight(Vector3 position, Vector3[][] heightmap){
+        //position = position.add(this.position);
         int x = (int)position.getX();
         int z = (int)position.getZ();
         float y = heightmap[(int)z][(int)x].getY();
-        position.setY(y);
+        position.setY(y * HEIGHT_FACTOR);
+    }
+
+    public int getSize(){
+        return size;
     }
 }

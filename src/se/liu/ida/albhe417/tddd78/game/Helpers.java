@@ -14,7 +14,7 @@ import java.io.InputStream;
 public class Helpers {
     public static Vector3[][] imageToColors(String fileName){
         BufferedImage heightMapBuff;
-        InputStream fileStream = Terrain.class.getResourceAsStream(fileName);
+        InputStream fileStream = Terrain_old.class.getResourceAsStream(fileName);
 
         if(fileStream == null)
             throw new RuntimeException("Failed to load " + fileName);
@@ -29,7 +29,6 @@ public class Helpers {
         int height = heightMapBuff.getHeight();
 
         byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
-        boolean hasAlphaComponent = heightMapBuff.getAlphaRaster() != null;
 
 
         Vector3[][] colors = new Vector3[height][width];;
@@ -57,11 +56,11 @@ public class Helpers {
                 for (int row = 0; row < height; row++) {
                     for (int column = 0; column < width; column++) {
                         colors[row][column] = new Vector3(
-                                byteToFloatColor(pixels[j + 0]),
                                 byteToFloatColor(pixels[j + 1]),
-                                byteToFloatColor(pixels[j + 2])
+                                byteToFloatColor(pixels[j + 2]),
+                                byteToFloatColor(pixels[j + 3])
                         );
-                        j += 3;
+                        j += 4;
                     }
                 }
                 break;
