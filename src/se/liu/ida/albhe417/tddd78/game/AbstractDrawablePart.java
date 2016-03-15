@@ -41,4 +41,6 @@ public abstract class AbstractDrawablePart
         glUniformMatrix4fv(matrixId, false, buffer);
     }
 
+    abstract public void updateData(Vertex[] vertices, int[] indices);
+
 }

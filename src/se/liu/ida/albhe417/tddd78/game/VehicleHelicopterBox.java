@@ -77,7 +77,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter{
         Vector3 acceleration = aeroForce.divide(MASS);
         acceleration = acceleration.add(GRAVITY);
 
-        System.out.println(acceleration);
+        //System.out.println(acceleration);
 
         velocity = velocity.add(acceleration.multiply(deltaTime));
 

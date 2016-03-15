@@ -17,7 +17,7 @@ public class QuadTree {
     private QuadTree leftBottom;
     private QuadTree rightBottom;
 
-    //TODO replace with bitfield to save space
+    //TODO replace with bitfield to save some space
     private boolean leftStitchPnt = false;
     private boolean frontStitchPnt = false;
     private boolean rightStitchPnt = false;
@@ -28,7 +28,7 @@ public class QuadTree {
     private int size;
     private short level;
 
-    private Vector3[][] heightmap;//Only for root quad
+    private static Vector3[][] heightmap;//Only for root quad
     private static float HEIGHT_FACTOR;
 
     /**
@@ -61,13 +61,13 @@ public class QuadTree {
     }
 
     public void update(Vector3 cameraPosition, List<VertexPositionColor> vertices, List<Integer> indices){
-        final float detailFactor = 10;
-        final short maxLevels = 10;
+        final float detailFactor = 500;
+        final short maxLevels = 7;
 
         generateTree(cameraPosition, detailFactor, maxLevels);
 
         stitch(null, null, null, null);
-        generateVerticesAndIndices(vertices, indices, heightmap);
+        generateVerticesAndIndices(vertices, indices);
 
     }
 
@@ -102,8 +102,8 @@ public class QuadTree {
         float distSquared = cameraPos.sub(position).length2();
 
         //TODO make working formula
-        float distLimit = detailFactor * (level + 1);
-        if(distSquared < distLimit * distLimit && level < maxLevels){
+        int desiredLevelSquared = (int)((detailFactor * detailFactor) / distSquared);
+        if(desiredLevelSquared > level * level && level < maxLevels){
             final int childSize = size / 2;
             final int halfChildSize = childSize / 2;
             final short childLevel = (short)(1 + level);
@@ -132,6 +132,7 @@ public class QuadTree {
     /**
      * Make sure that adjacent quads have same LOD at their common border
      */
+    //TODO fix me
     protected void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
         //Stuff....
         //..
@@ -144,7 +145,6 @@ public class QuadTree {
 
         }
         else {
-            QuadTree[] neighbors = {neighborLeft, neighborFront, neighborRight, neighborBottom};
             if(neighborLeft != null)
                 stitchLeft(neighborLeft);
             if(neighborFront != null)
@@ -189,38 +189,28 @@ public class QuadTree {
         bottomNeighbor.addFrontStitchPnt();
     }
 
-    protected void generateVerticesAndIndices(List<VertexPositionColor> vertices, List<Integer> indices, Vector3[][] heightmap){
+    protected void generateVerticesAndIndices(List<VertexPositionColor> vertices, List<Integer> indices){
         if(hasChildren()){
-            leftFront.generateVerticesAndIndices(vertices, indices, heightmap);
-            rightFront.generateVerticesAndIndices(vertices, indices, heightmap);
-            leftBottom.generateVerticesAndIndices(vertices, indices, heightmap);
-            rightBottom.generateVerticesAndIndices(vertices, indices, heightmap);
+            leftFront.generateVerticesAndIndices(vertices, indices);
+            rightFront.generateVerticesAndIndices(vertices, indices);
+            leftBottom.generateVerticesAndIndices(vertices, indices);
+            rightBottom.generateVerticesAndIndices(vertices, indices);
         }
 
         else{
             float halfSide = size / 2;
-            Vector3 center = position;
-            setHeight(center, heightmap);
-
-            Vector3 leftPos = position.add(-halfSide, 0, 0);
-            Vector3 frontPos = position.add(0, 0, -halfSide);
-            Vector3 rightPos = position.add(+halfSide, 0, 0);
-            Vector3 bottomPos = position.add(0, 0, +halfSide);
 
             Vector3 leftFrontPos = position.add(-halfSide, 0, -halfSide);
             Vector3 rightFrontPos = position.add(+halfSide, 0, -halfSide);
             Vector3 leftBottomPos = position.add(-halfSide, 0, +halfSide);
             Vector3 rightBottomPos = position.add(+halfSide, 0, +halfSide);
 
-            setHeight(leftPos, heightmap);
-            setHeight(frontPos, heightmap);
-            setHeight(rightPos, heightmap);
-            setHeight(bottomPos, heightmap);
 
-            setHeight(leftFrontPos, heightmap);
-            setHeight(rightFrontPos, heightmap);
-            setHeight(leftBottomPos, heightmap);
-            setHeight(rightBottomPos, heightmap);
+
+            setHeight(leftFrontPos);
+            setHeight(rightFrontPos);
+            setHeight(leftBottomPos);
+            setHeight(rightBottomPos);
 
 
 
@@ -236,7 +226,18 @@ public class QuadTree {
                 indices.add(0 + index);indices.add(1 + index);indices.add(3 + index);
             }else{
                 final int numVertices = 5 + numStitchPnts();
-                //TODO: add predefined size to aprx 6 or something
+                Vector3 center = position;
+                setHeight(center);
+                Vector3 leftPos = position.add(-halfSide, 0, 0);
+                Vector3 frontPos = position.add(0, 0, -halfSide);
+                Vector3 rightPos = position.add(+halfSide, 0, 0);
+                Vector3 bottomPos = position.add(0, 0, +halfSide);
+
+                setHeight(leftPos);
+                setHeight(frontPos);
+                setHeight(rightPos);
+                setHeight(bottomPos);
+
                 vertices.add(new VertexPositionColor(center));
 
                 vertices.add(new VertexPositionColor(leftFrontPos));
@@ -293,7 +294,7 @@ public class QuadTree {
         return (leftStitchPnt ? 1 : 0) + (frontStitchPnt ? 1 : 0) + (rightStitchPnt ? 1 : 0) + (bottomStitchPnt ? 1 : 0);
     }
 
-    private void setHeight(Vector3 position, Vector3[][] heightmap){
+    private void setHeight(Vector3 position){
         //position = position.add(this.position);
         int x = (int)position.getX();
         int z = (int)position.getZ();

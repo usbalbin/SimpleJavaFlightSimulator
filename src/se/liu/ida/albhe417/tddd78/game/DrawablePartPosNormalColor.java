@@ -65,6 +65,10 @@ public class DrawablePartPosNormalColor extends AbstractDrawablePart
         glBindVertexArray(0);
     }
 
+    public void updateData(Vertex[] vertices, int[] indices){
+
+    }
+
 
     public void draw(Matrix4x4 modelMatrix, int matrixId){
         Matrix4x4 modelViewProjectionMatrix = modelMatrix;

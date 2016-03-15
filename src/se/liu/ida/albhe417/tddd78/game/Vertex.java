@@ -7,4 +7,6 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  */
 public interface Vertex {
     public int getFloatCount();
+
+    public float[] getFloats();
 }

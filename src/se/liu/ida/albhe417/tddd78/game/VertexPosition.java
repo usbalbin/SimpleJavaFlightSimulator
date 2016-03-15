@@ -15,4 +15,8 @@ public class VertexPosition implements Vertex
     public int getFloatCount(){
         return FLOAT_COUNT;
     }
+
+    public float[] getFloats(){
+        return position.values;
+    }
 }

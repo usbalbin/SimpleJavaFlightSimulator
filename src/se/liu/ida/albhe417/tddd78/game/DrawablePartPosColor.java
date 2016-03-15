@@ -15,7 +15,15 @@ public class DrawablePartPosColor extends AbstractDrawablePart
 {
     final int POSITION_INDEX = 1;
     final int COLOR_INDEX = 0;
-    
+    private FloatBuffer vertexBufferData;
+
+
+    public DrawablePartPosColor(final int shaderProgram, int bufferSize) {
+        this.shaderProgram = shaderProgram;
+        setup(null, null);
+        vertexBufferData = BufferUtils.createFloatBuffer(bufferSize * VertexPositionColor.FLOAT_COUNT);
+    }
+
     public DrawablePartPosColor(final VertexPositionColor[] vertices, int[] indices, final int shaderProgram) {
         this.shaderProgram = shaderProgram;
         setup(vertices, indices);
@@ -23,7 +31,7 @@ public class DrawablePartPosColor extends AbstractDrawablePart
 
 
     private void setup(VertexPositionColor[] vertices, int[] indices){
-        final int floatsPerVector = 3;
+
 
         vertexArray = glGenVertexArrays();
         glBindVertexArray(vertexArray);
@@ -31,32 +39,48 @@ public class DrawablePartPosColor extends AbstractDrawablePart
         glEnableVertexAttribArray(POSITION_INDEX);
         glEnableVertexAttribArray(COLOR_INDEX);
 
-        //Setup vertex buffer
-        float[] floats = vertexToFloatArray(vertices);
-        FloatBuffer vertexBufferData = BufferUtils.createFloatBuffer(vertices.length * VertexPositionColor.FLOAT_COUNT);
-        vertexBufferData.put(floats);
-        vertexBufferData.flip();
-
         vertexBuffer = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
+        indexBuffer = glGenBuffers();
+
+        glBindVertexArray(0);
+        updateData(vertices, indices);
+        glBindVertexArray(vertexArray);
 
 
-        //Show gpu how to interprete the vertex data
-        glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, 0);
-        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES);
+        glBindVertexArray(0);
+    }
 
+    public void updateData(Vertex[] vertices, int[] indices){
+        final int floatsPerVector = 3;
+
+        if(vertices == null || indices == null)
+            return;
+
+        glBindVertexArray(vertexArray);
+        //Setup vertex buffer
+        {
+            vertexToFloatBuffer((VertexPositionColor[])vertices);
+
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+            glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_DYNAMIC_DRAW);//TODO: GL_STATIC_DRAW for nonchanging objects
+            vertices = null;
+        }
 
         //Setup index buffer
-        IntBuffer indexBufferData = BufferUtils.createIntBuffer(indices.length);
-        indexBufferData.put(indices);
-        indexBufferData.flip();
+        {
+            IntBuffer indexBufferData = BufferUtils.createIntBuffer(indices.length);
+            indexBufferData.put(indices);
+            indexBufferData.flip();
 
-        indexBuffer = glGenBuffers();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_STATIC_DRAW);
-        indexCount = indices.length;
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW for nonchanging objects
+            indexCount = indices.length;
 
+            //Show gpu how to interprete the vertex data
+            glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, 0);
+            glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, VertexPositionColor.FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES);
+            indices = null;
+        }
 
         glBindVertexArray(0);
     }
@@ -90,4 +114,21 @@ public class DrawablePartPosColor extends AbstractDrawablePart
         }
         return floatArray;
     }
+
+    private void vertexToFloatBuffer(VertexPositionColor[] vertices){
+        if(vertexBufferData == null)
+            vertexBufferData = BufferUtils.createFloatBuffer(vertices.length * VertexPositionColor.FLOAT_COUNT);
+        else
+            vertexBufferData.clear();
+
+        for(VertexPositionColor vertex : vertices){
+            if(vertex == null)
+                break;
+            vertexBufferData.put(vertex.getFloats());
+        }
+
+        vertexBufferData.flip();
+    }
+
+
 }

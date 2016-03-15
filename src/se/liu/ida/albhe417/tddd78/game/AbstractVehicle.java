@@ -11,7 +11,8 @@ public abstract class AbstractVehicle extends AbstractDrawable
     protected final float THRUST_FACTOR;
     protected float throttle = 0;
     protected Vector3 velocity;
-    protected final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+    protected final static Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+    protected Vector3 cameraPosition;
 
     public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor, Terrain terrain){
 	    super(position, yaw);
@@ -26,7 +27,7 @@ public abstract class AbstractVehicle extends AbstractDrawable
     abstract public void update(float deltaTime);
 
     public Matrix4x4 getViewMatrix(){
-        Vector3 cameraPosition = modelMatrix.getInverse().multiply(new Vector4(0, 5f, 15f, 0)).toVector3();
+        cameraPosition = modelMatrix.getInverse().multiply(new Vector4(0, 5f, 15f, 0)).toVector3();
         cameraPosition = cameraPosition.add(modelMatrix.getPosition());
 
         Vector3 cameraTarget = modelMatrix.getPosition();
@@ -46,5 +47,9 @@ public abstract class AbstractVehicle extends AbstractDrawable
         throttle += deltaThrottle;
         throttle = Math.max(MIN_THROTTLE, Math.min(throttle, MAX_THROTTLE));
         throttle *= THROTTLE_SETTLE;
+    }
+
+    public Vector3 getCameraPosition(){
+        return cameraPosition;
     }
 }

@@ -18,4 +18,14 @@ public class VertexPositionNormalColor implements Vertex
     public int getFloatCount(){
         return FLOAT_COUNT;
     }
+
+    public float[] getFloats(){
+        final int floatsPerVector = 3;
+        float[] result = new float[FLOAT_COUNT];
+        /*System.arraycopy(position.values, 0, result, 0, floatsPerVector);
+
+        System.arraycopy(color.values, 0, result, floatsPerVector * 2, floatsPerVector * 2);
+        */
+        return result;
+    }
 }

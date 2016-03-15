@@ -42,6 +42,7 @@ public class Game
 
 	ArrayList<AbstractDrawable> gameObjects;
 	AbstractVehicle currentVehicle;
+	Terrain terrain;
 	private int shaderProgram;
 
 	private long lastTime;
@@ -223,12 +224,12 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(2);
 
-		Terrain terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
 		currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
 
 
 		gameObjects.add(currentVehicle);
-		gameObjects.add(terrain);
+
 
 		lastTime = System.currentTimeMillis();
 	}
@@ -272,12 +273,18 @@ public class Game
     private void draw(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//Wireframe
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		Vector3 cameraPosition = new Vector3(75, 0, 150);//currentVehicle.getCameraPosition();
+		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId, cameraPosition);
+
 		for (AbstractDrawable drawable: gameObjects) {
 			drawable.draw(cameraMatrix, modelViewProjectionMatrixId);
 		}
 
 		glfwSwapBuffers(window);
-		glFinish();
+		//glFinish();
 
     }
 
