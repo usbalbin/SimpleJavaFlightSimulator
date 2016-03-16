@@ -25,7 +25,7 @@ public class Game
 	private static final int WINDOW_POS_Y = 50;
 
 	private static final float FOV = 90 * (float)Math.PI / 180.0f;
-	private static final float DRAW_DISTANCE = 256;
+	private static final float DRAW_DISTANCE = 2048;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
     private static int AA_LEVEL = 16;
@@ -225,8 +225,8 @@ public class Game
 		gameObjects = new ArrayList<>(2);
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
-
+		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 6, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
 
 		gameObjects.add(currentVehicle);
 
@@ -274,9 +274,9 @@ public class Game
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Wireframe
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		Vector3 cameraPosition = new Vector3(75, 0, 150);//currentVehicle.getCameraPosition();
+		Vector3 cameraPosition = currentVehicle.getCameraPosition();
 		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId, cameraPosition);
 
 		for (AbstractDrawable drawable: gameObjects) {
