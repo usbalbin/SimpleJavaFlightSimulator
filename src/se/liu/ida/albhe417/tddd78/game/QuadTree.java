@@ -160,6 +160,7 @@ public class QuadTree {
         //Stuff....
         //..
         //..
+        //Make use of tree search by position
         if(hasChildren()){
             leftFront.stitch(neighborLeft, neighborFront, null, null);
             rightFront.stitch(null, neighborFront, neighborRight, null);
