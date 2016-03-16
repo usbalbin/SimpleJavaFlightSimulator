@@ -18,6 +18,7 @@ public class QuadTree {
     private QuadTree rightFront;
     private QuadTree leftBottom;
     private QuadTree rightBottom;
+    private QuadTree parent;
 
     /*private QuadTree neighborLF;
     private QuadTree neighborRF;
@@ -62,10 +63,11 @@ public class QuadTree {
      * @param detailFactor
      * @param maxLevels max LOD-levels
      */
-    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, final float detailFactor, final short maxLevels) {
+    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, final float detailFactor, final short maxLevels, QuadTree parent) {
         this.position = position;
         this.size = size;
         this.level = level;
+        this.parent = parent;
         generateTree(cameraPos, detailFactor, maxLevels);
     }
 
@@ -131,10 +133,10 @@ public class QuadTree {
             final int halfChildSize = childSize / 2;
             final short childLevel = (short)(1 + level);
 
-            leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels);
-            rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels);
-            leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels);
-            rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels);
+            leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
         }
         else {
             leftFront = null;
@@ -156,25 +158,36 @@ public class QuadTree {
      * Make sure that adjacent quads have same LOD at their common border
      */
     //TODO fix me
-    protected void stitch(final QuadTree neighborLeft, final QuadTree neighborFront, final QuadTree neighborRight, final QuadTree neighborBottom){
+    protected void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
         //Stuff....
         //..
         //..
-        //Make use of tree search by position
         if(hasChildren()){
-            leftFront.stitch(neighborLeft, neighborFront, null, null);
-            rightFront.stitch(null, neighborFront, neighborRight, null);
-            leftBottom.stitch(neighborLeft, null, null, neighborBottom);
-            rightBottom.stitch(null, null, neighborRight, neighborBottom);
+            //                left front   right      bottom
+            leftFront.stitch(null, null, rightFront, leftBottom);
+            rightFront.stitch(leftFront, null, null, rightBottom);
+            leftBottom.stitch(null, leftFront, rightBottom, null);
+            rightBottom.stitch(leftBottom, rightFront, null, null);
 
         }
         else {
+            if(neighborLeft == null)
+                neighborLeft = findNode(this.position.add(-size, 0, 0));
             if(neighborLeft != null)
                 stitchLeft(neighborLeft);
+
+            if(neighborFront == null)
+                neighborFront = findNode(this.position.add(0, 0, -size));
             if(neighborFront != null)
                 stitchFront(neighborFront);
+
+            if(neighborRight == null)
+                neighborRight = findNode(this.position.add(size, 0, 0));
             if(neighborRight != null)
                 stitchRight(neighborRight);
+
+            if(neighborBottom == null)
+                neighborBottom = findNode(this.position.add(0, 0, size));
             if(neighborBottom != null)
                 stitchBottom(neighborBottom);
         }
@@ -314,6 +327,10 @@ public class QuadTree {
         return leftStitchPnt || frontStitchPnt || rightStitchPnt || bottomStitchPnt;
     }
 
+    protected boolean isRoot(){
+        return size == rootSize;
+    }
+
     protected int numStitchPnts(){
         return (leftStitchPnt ? 1 : 0) + (frontStitchPnt ? 1 : 0) + (rightStitchPnt ? 1 : 0) + (bottomStitchPnt ? 1 : 0);
     }
@@ -345,4 +362,37 @@ public class QuadTree {
 
         }
     }*/
+
+    //TODO fix problem propaply due to -z
+    protected QuadTree findNode(final Vector3 position){
+        final Vector3 delta = position.sub(this.position);
+        final int dx = Math.round(delta.getX());
+        final int dz = Math.round(delta.getZ());
+
+        final float radius = size / 2.0f;
+
+        if(dx < -radius || radius < dx ||
+           dz < -radius || radius < dz){
+            if(isRoot())
+                return null;
+            else
+                return parent.findNode(position);
+        }
+
+        if((dz == 0 && dx == 0) || !hasChildren())
+            return this;
+
+        if(0 < dz){
+            if(0 < dx)
+                return leftFront.findNode(position);
+            else
+                return rightFront.findNode(position);
+        }
+        else{
+            if(0 < dx)
+                return leftBottom.findNode(position);
+            else
+                return rightBottom.findNode(position);
+        }
+    }
 }
