@@ -9,6 +9,8 @@ import static org.lwjgl.system.MemoryUtil.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import se.liu.ida.albhe417.tddd78.game.Vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -28,7 +30,7 @@ public class Game
 	private static final float DRAW_DISTANCE = 2048;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
-	private static boolean WIRE_FRAME = false;
+	private static boolean WIRE_FRAME = true;
     private static int AA_LEVEL = 16;
 	private static float OPENGL_VERSION = 3.2f;
     private static String title = "Simple Java Flight Simulator";

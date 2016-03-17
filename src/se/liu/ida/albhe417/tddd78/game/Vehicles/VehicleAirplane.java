@@ -1,5 +1,6 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
+import se.liu.ida.albhe417.tddd78.game.Terrain_old;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 public abstract class VehicleAirplane extends AbstractVehicle

@@ -183,7 +183,7 @@ public class Matrix4x4 extends AbstractMatrix
 	public Matrix4x4 getInverse(){
 		float[][] values = new float[4][4];
 
-		//Flip matrix
+		//Flip frustumMatrix
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 4; column++) {
 				values[row][column] = this.values[column][row];

@@ -1,5 +1,6 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
+import se.liu.ida.albhe417.tddd78.game.Terrain;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 /**
