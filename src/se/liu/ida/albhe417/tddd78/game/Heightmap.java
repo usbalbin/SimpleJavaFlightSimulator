@@ -22,5 +22,5 @@ public interface Heightmap {
      */
     public float getValueS(int x, int z);
 
-    public void increaseValue(float x, float z, float value);
+    public void increaseValueScaled(int x, int z, float value);
 }

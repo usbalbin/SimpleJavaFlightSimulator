@@ -42,13 +42,42 @@ public class HeightmapUbyte implements Heightmap{
         return getValueS(x, z) * Y_SCALE;
     }
 
-    @Override
-    public void increaseValueScaled(int x, int z, float value) {
-        values[z][x] += value * Y_SCALE;
+    public float getHeight(float x, float z){
+        x = Math.max(0, x);
+        x = Math.min(x, width - 2);
+
+        z = Math.max(0, z);
+        z = Math.min(z, height - 2);
+
+        //Get heights from closest vertices
+        float leftFront =  getValueF((int)x + 0, (int)z + 0);
+        float rightFront = getValueF((int)x + 1, (int)z + 0);
+
+        float leftBack =   getValueF((int)x + 0, (int)z + 1);
+        float rightBack =  getValueF((int)x + 1, (int)z + 1);
+
+        float xRest = x % 1;
+        float zRest = z % 1;
+
+        //Interpolate heights depending on how close
+        //TODO: fix math
+        float height =
+                leftBack * (1.0f - xRest)  * (1.0f - zRest) +
+                rightBack * (xRest)        * (1.0f - zRest) +
+
+                leftFront * (1.0f - xRest) * (zRest)        +
+                rightFront * (xRest)       * (zRest);
+
+        return height;
     }
 
     @Override
-    public void increaseValueUnScaled(int x, int z, byte value) {
+    public void increaseValueScaled(int x, int z, float value) {
+        increaseValueUnscaled(x, z, (byte)(value * Y_SCALE));
+    }
+
+
+    public void increaseValueUnscaled(int x, int z, byte value) {
         values[z][x] = (byte)Math.min(value + getValueS(x, z), 0x00FF);
     }
 

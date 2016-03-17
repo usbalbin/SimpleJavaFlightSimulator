@@ -62,9 +62,9 @@ public class VehicleHelicopterBox extends VehicleHelicopter{
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
         final float throttleSensetivity = 1f;
-        final float yawSensetivity = 0.001f;
-        final float pitchSensetivity = 0.001f;
-        final float rollSensetivity = 0.001f;
+        final float yawSensetivity = 1f;    //Rads/sec
+        final float pitchSensetivity = 1f;
+        final float rollSensetivity = 1f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
@@ -86,7 +86,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter{
 
 
 
-        modelMatrix = modelMatrix.getRotated(yawValue * yawSensetivity, pitchValue * pitchSensetivity, rollValue * rollSensetivity);
+        modelMatrix = modelMatrix.getRotated(yawValue * yawSensetivity * deltaTime, pitchValue * pitchSensetivity* deltaTime, rollValue * rollSensetivity* deltaTime);
         modelMatrix.setPosition(position);
     }
 

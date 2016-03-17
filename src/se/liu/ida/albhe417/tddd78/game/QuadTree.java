@@ -176,22 +176,22 @@ public class QuadTree {
         }
         else {
             if(neighborLeft == null)
-                neighborLeft = root.findNode_onlyDown(this.position.add(-size, 0, 0));
+                neighborLeft = findNode(this.position.add(-size, 0, 0));
             if(neighborLeft != null && neighborLeft.level + 1 == this.level)
                 stitchLeft(neighborLeft);
 
             if(neighborFront == null)
-                neighborFront = root.findNode_onlyDown(this.position.add(0, 0, -size));
+                neighborFront = findNode(this.position.add(0, 0, -size));
             if(neighborFront != null && neighborFront.level + 1 == this.level)
                 stitchFront(neighborFront);
 
             if(neighborRight == null)
-                neighborRight = root.findNode_onlyDown(this.position.add(size, 0, 0));
+                neighborRight = findNode(this.position.add(size, 0, 0));
             if(neighborRight != null && neighborRight.level + 1 == this.level)
                 stitchRight(neighborRight);
 
             if(neighborBottom == null)
-                neighborBottom = root.findNode_onlyDown(this.position.add(0, 0, size));
+                neighborBottom = findNode(this.position.add(0, 0, size));
             if(neighborBottom != null && neighborBottom.level + 1 == this.level)
                 stitchBottom(neighborBottom);
         }
@@ -367,7 +367,7 @@ public class QuadTree {
         }
     }*/
 
-    //TODO fix problem propaply due to -z
+    //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
     protected QuadTree findNode(final Vector3 position){
         final Vector3 delta = position.sub(this.position);
         final int dx = Math.round(delta.getX());
@@ -386,14 +386,14 @@ public class QuadTree {
         if((dz == 0 && dx == 0) || !hasChildren())
             return this;
 
-        if(0 < dz){
-            if(0 < dx)
+        if(0 > dz){
+            if(0 > dx)
                 return leftFront.findNode(position);
             else
                 return rightFront.findNode(position);
         }
         else{
-            if(0 < dx)
+            if(0 > dx)
                 return leftBottom.findNode(position);
             else
                 return rightBottom.findNode(position);
