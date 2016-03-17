@@ -37,9 +37,12 @@ public class QuadTree {
     private int size;
     private short level;
 
-    private static byte[][] heightmap;//Only for root quad
+    private static byte[][] heightmap;
     private static float HEIGHT_FACTOR;
     private static int rootSize;
+
+    //TODO: try to get rid of me
+    private static QuadTree root;
 
     /**
      * Create Root QuadTree
@@ -52,6 +55,7 @@ public class QuadTree {
         this.size -= size % 2;//Make sure size is even
         this.position = new Vector3(size / 2, 0, size / 2);
         this.level = 0;
+        root = this;
     }
 
     /**
@@ -73,7 +77,7 @@ public class QuadTree {
 
     public void update(Vector3 cameraPosition, List<VertexPositionColor> vertices, List<Integer> indices){
         final float detailFactor = 300;
-        final short maxLevels = 13;//11;
+        final short maxLevels = 12;//11;
 
         generateTree(cameraPosition, detailFactor, maxLevels);
 
@@ -172,23 +176,23 @@ public class QuadTree {
         }
         else {
             if(neighborLeft == null)
-                neighborLeft = findNode(this.position.add(-size, 0, 0));
-            if(neighborLeft != null)
+                neighborLeft = root.findNode_onlyDown(this.position.add(-size, 0, 0));
+            if(neighborLeft != null && neighborLeft.level + 1 == this.level)
                 stitchLeft(neighborLeft);
 
             if(neighborFront == null)
-                neighborFront = findNode(this.position.add(0, 0, -size));
-            if(neighborFront != null)
+                neighborFront = root.findNode_onlyDown(this.position.add(0, 0, -size));
+            if(neighborFront != null && neighborFront.level + 1 == this.level)
                 stitchFront(neighborFront);
 
             if(neighborRight == null)
-                neighborRight = findNode(this.position.add(size, 0, 0));
-            if(neighborRight != null)
+                neighborRight = root.findNode_onlyDown(this.position.add(size, 0, 0));
+            if(neighborRight != null && neighborRight.level + 1 == this.level)
                 stitchRight(neighborRight);
 
             if(neighborBottom == null)
-                neighborBottom = findNode(this.position.add(0, 0, size));
-            if(neighborBottom != null)
+                neighborBottom = root.findNode_onlyDown(this.position.add(0, 0, size));
+            if(neighborBottom != null && neighborBottom.level + 1 == this.level)
                 stitchBottom(neighborBottom);
         }
     }
@@ -393,6 +397,35 @@ public class QuadTree {
                 return leftBottom.findNode(position);
             else
                 return rightBottom.findNode(position);
+        }
+    }
+
+    protected QuadTree findNode_onlyDown(final Vector3 position){
+        final Vector3 delta = position.sub(this.position);
+        final int dx = Math.round(delta.getX());
+        final int dz = Math.round(delta.getZ());
+
+        final float radius = size / 2.0f;
+
+        if(dx < -radius || radius < dx ||
+                dz < -radius || radius < dz){
+            return null;
+        }
+
+        if((dz == 0 && dx == 0) || !hasChildren())
+            return this;
+
+        if(0 > dz){
+            if(0 > dx)
+                return leftFront.findNode_onlyDown(position);
+            else
+                return rightFront.findNode_onlyDown(position);
+        }
+        else{
+            if(0 > dx)
+                return leftBottom.findNode_onlyDown(position);
+            else
+                return rightBottom.findNode_onlyDown(position);
         }
     }
 }
