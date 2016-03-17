@@ -28,6 +28,7 @@ public class Game
 	private static final float DRAW_DISTANCE = 2048;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
+	private static boolean WIRE_FRAME = false;
     private static int AA_LEVEL = 16;
 	private static float OPENGL_VERSION = 3.2f;
     private static String title = "Simple Java Flight Simulator";
@@ -274,7 +275,8 @@ public class Game
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Wireframe
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		if(WIRE_FRAME)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		Vector3 cameraPosition = currentVehicle.getCameraPosition();
 		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId, cameraPosition);

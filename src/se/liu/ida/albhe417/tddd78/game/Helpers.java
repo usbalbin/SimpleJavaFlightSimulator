@@ -71,50 +71,6 @@ public class Helpers {
         return colors;
     }
 
-    /**
-     * Returns symetrical 2d array of byte-values representing heightvalues in heightmap.
-     * Observe that real values will have to be read using value | 0x00FF to compensate for overflow caused by java having signed bytes.
-     * @param fileName
-     * @return
-     */
-    public static byte[][] imageToHeights(String fileName){
-        BufferedImage heightMapBuff;
-        InputStream fileStream = Helpers.class.getResourceAsStream(fileName);
-
-        if(fileStream == null)
-            throw new RuntimeException("Failed to load " + fileName);
-
-        try{
-            heightMapBuff = ImageIO.read(fileStream);
-        }catch (IOException e){
-            throw new RuntimeException("Failed to load " + fileName);
-        }
-
-        int width = heightMapBuff.getWidth();
-        int height = heightMapBuff.getHeight();
-
-        int size = Math.min(Math.min(width, height), 8192);
-
-        byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
-
-
-        byte[][] colors = new byte[size][size];
-
-        final int componentsPerPixel = heightMapBuff.getColorModel().getNumColorComponents();
-
-        //int j = 0;
-        for (int row = 0; row < size; row++) {
-            for (int column = 0; column < size; column++) {
-                byte color = pixels[row * width * componentsPerPixel + column * componentsPerPixel];
-                colors[row][column] = color;
-                //j += componentsPerPixel;
-            }
-        }
-
-
-        return colors;
-    }
-
     public static float byteToFloatColor(short color){
         final short toUnsigedByte = 0x00FF;
         final float unsignedByteMaxVal = 256f;
