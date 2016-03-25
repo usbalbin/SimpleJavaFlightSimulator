@@ -4,21 +4,20 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by Albin_Hedman on 2016-03-14.
  */
-public class QuadTree {
+public class QuadTreeMultiThreaded implements Runnable{
     //TODO implement me
     //Info: http://victorbush.com/2015/01/tessellated-terrain/
 
-    private QuadTree leftFront;
-    private QuadTree rightFront;
-    private QuadTree leftBottom;
-    private QuadTree rightBottom;
-    private QuadTree parent;
+    private QuadTreeMultiThreaded leftFront;
+    private QuadTreeMultiThreaded rightFront;
+    private QuadTreeMultiThreaded leftBottom;
+    private QuadTreeMultiThreaded rightBottom;
+    private QuadTreeMultiThreaded parent;
 
     /*private QuadTree neighborLF;
     private QuadTree neighborRF;
@@ -42,13 +41,13 @@ public class QuadTree {
     private static int rootSize;
 
     //TODO: try to get rid of me
-    private static QuadTree root;
+    private static QuadTreeMultiThreaded root;
 
     /**
      * Create Root QuadTree
      * @param fileNameHeightmap heightmap
      */
-    public QuadTree(byte[][] heightmap, final float heightFactor){
+    public QuadTreeMultiThreaded(byte[][] heightmap, final float heightFactor){
         this.HEIGHT_FACTOR = heightFactor;
         this.heightmap = heightmap;
         this.rootSize = this.size = Math.min(heightmap.length, heightmap[0].length);
@@ -56,6 +55,12 @@ public class QuadTree {
         this.position = new Vector3(size / 2, 0, size / 2);
         this.level = 0;
         root = this;
+    }
+
+
+    @Override
+    public void run() {
+
     }
 
     /**
@@ -67,7 +72,7 @@ public class QuadTree {
      * @param detailFactor
      * @param maxLevels max LOD-levels
      */
-    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, final float detailFactor, final short maxLevels, QuadTree parent) {
+    private QuadTreeMultiThreaded(final Vector3 position, final int size, final short level, final Vector3 cameraPos, final float detailFactor, final short maxLevels, QuadTreeMultiThreaded parent) {
         this.position = position;
         this.size = size;
         this.level = level;
@@ -137,10 +142,10 @@ public class QuadTree {
             final int halfChildSize = childSize / 2;
             final short childLevel = (short)(1 + level);
 
-            leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            leftFront = new QuadTreeMultiThreaded(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            rightFront = new QuadTreeMultiThreaded(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            leftBottom = new QuadTreeMultiThreaded(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
+            rightBottom = new QuadTreeMultiThreaded(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
         }
         else {
             leftFront = null;
@@ -162,7 +167,7 @@ public class QuadTree {
      * Make sure that adjacent quads have same LOD at their common border
      */
     //TODO fix me
-    protected void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
+    protected void stitch(QuadTreeMultiThreaded neighborLeft, QuadTreeMultiThreaded neighborFront, QuadTreeMultiThreaded neighborRight, QuadTreeMultiThreaded neighborBottom){
         //Stuff....
         //..
         //..
@@ -198,7 +203,7 @@ public class QuadTree {
     }
 
     //TODO: reuse code better
-    private void stitchLeft(final QuadTree leftNeighbor){
+    private void stitchLeft(final QuadTreeMultiThreaded leftNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(leftNeighbor.hasChildren())
@@ -206,7 +211,7 @@ public class QuadTree {
         leftNeighbor.addRightStitchPnt();
     }
 
-    private void stitchFront(final QuadTree frontNeighbor){
+    private void stitchFront(final QuadTreeMultiThreaded frontNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(frontNeighbor.hasChildren())
@@ -214,7 +219,7 @@ public class QuadTree {
         frontNeighbor.addBottomStitchPnt();
     }
 
-    private void stitchRight(final QuadTree rightNeighbor){
+    private void stitchRight(final QuadTreeMultiThreaded rightNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(rightNeighbor.hasChildren())
@@ -222,7 +227,7 @@ public class QuadTree {
         rightNeighbor.addLeftStitchPnt();
     }
 
-    private void stitchBottom(final QuadTree bottomNeighbor){
+    private void stitchBottom(final QuadTreeMultiThreaded bottomNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(bottomNeighbor.hasChildren())
@@ -258,21 +263,15 @@ public class QuadTree {
             final int index = vertices.size();
 
             if(!isStitched()){
-                Vector3 col1 = new Vector3(leftFrontPos.getY() / HEIGHT_FACTOR);
-                Vector3 col2 = new Vector3(rightFrontPos.getY() /HEIGHT_FACTOR);
-                Vector3 col3 = new Vector3(leftBottomPos.getY() /HEIGHT_FACTOR);
-                Vector3 col4 = new Vector3(rightBottomPos.getY() /HEIGHT_FACTOR);
-
-                vertices.add(new VertexPositionColor(leftFrontPos, col1));//0
-                vertices.add(new VertexPositionColor(rightFrontPos, col2));//1
-                vertices.add(new VertexPositionColor(leftBottomPos, col3));//2
-                vertices.add(new VertexPositionColor(rightBottomPos,col4));//3
+                vertices.add(new VertexPositionColor(leftFrontPos));//0
+                vertices.add(new VertexPositionColor(rightFrontPos));//1
+                vertices.add(new VertexPositionColor(leftBottomPos));//2
+                vertices.add(new VertexPositionColor(rightBottomPos));//3
 
                 indices.add(0 + index);indices.add(3 + index);indices.add(2 + index);
                 indices.add(0 + index);indices.add(1 + index);indices.add(3 + index);
             }else{
                 final int numVertices = 5 + numStitchPnts();
-
                 Vector3 center = position;
                 setHeight(center);
                 Vector3 leftPos = position.add(-halfSide, 0, 0);
@@ -285,37 +284,23 @@ public class QuadTree {
                 setHeight(rightPos);
                 setHeight(bottomPos);
 
-                Vector3 col0 = new Vector3(center.getY() / HEIGHT_FACTOR);
+                vertices.add(new VertexPositionColor(center));
 
-                Vector3 col1 = new Vector3(leftFrontPos.getY() / HEIGHT_FACTOR);
-                Vector3 col2 = new Vector3(rightFrontPos.getY() /HEIGHT_FACTOR);
-                Vector3 col3 = new Vector3(rightBottomPos.getY() /HEIGHT_FACTOR);
-                Vector3 col4 = new Vector3(leftBottomPos.getY() /HEIGHT_FACTOR);
-
-                Vector3 col5 = new Vector3(frontPos.getY() / HEIGHT_FACTOR);
-                Vector3 col6 = new Vector3(rightPos.getY() /HEIGHT_FACTOR);
-                Vector3 col7 = new Vector3(bottomPos.getY() /HEIGHT_FACTOR);
-                Vector3 col8 = new Vector3(leftPos.getY() /HEIGHT_FACTOR);
-
-
-
-                vertices.add(new VertexPositionColor(center, col0));
-
-                vertices.add(new VertexPositionColor(leftFrontPos, col1));
+                vertices.add(new VertexPositionColor(leftFrontPos));
                 if(frontStitchPnt)
-                    vertices.add(new VertexPositionColor(frontPos, col5));
+                    vertices.add(new VertexPositionColor(frontPos));
 
-                vertices.add(new VertexPositionColor(rightFrontPos, col2));
+                vertices.add(new VertexPositionColor(rightFrontPos));
                 if(rightStitchPnt)
-                    vertices.add(new VertexPositionColor(rightPos, col6));
+                    vertices.add(new VertexPositionColor(rightPos));
 
-                vertices.add(new VertexPositionColor(rightBottomPos, col3));
+                vertices.add(new VertexPositionColor(rightBottomPos));
                 if(bottomStitchPnt)
-                    vertices.add(new VertexPositionColor(bottomPos, col7));
+                    vertices.add(new VertexPositionColor(bottomPos));
 
-                vertices.add(new VertexPositionColor(leftBottomPos, col4));
+                vertices.add(new VertexPositionColor(leftBottomPos));
                 if(leftStitchPnt)
-                    vertices.add(new VertexPositionColor(leftPos, col8));
+                    vertices.add(new VertexPositionColor(leftPos));
 
 
                 indices.add(index + (numVertices - 1));   //last vertex
@@ -388,7 +373,7 @@ public class QuadTree {
     }*/
 
     //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
-    protected QuadTree findNode(final Vector3 position){
+    protected QuadTreeMultiThreaded findNode(final Vector3 position){
         final Vector3 delta = position.sub(this.position);
         final int dx = Math.round(delta.getX());
         final int dz = Math.round(delta.getZ());
@@ -420,7 +405,7 @@ public class QuadTree {
         }
     }
 
-    protected QuadTree findNode_onlyDown(final Vector3 position){
+    protected QuadTreeMultiThreaded findNode_onlyDown(final Vector3 position){
         final Vector3 delta = position.sub(this.position);
         final int dx = Math.round(delta.getX());
         final int dz = Math.round(delta.getZ());

@@ -227,9 +227,9 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(2);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), 500,shaderProgram);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 6, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(4096, 6, 4096.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
 
 		gameObjects.add(currentVehicle);
 

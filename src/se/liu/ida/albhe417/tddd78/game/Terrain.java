@@ -13,7 +13,7 @@ abstract public class Terrain extends AbstractDrawable{
 
     protected final int shaderProgram;
 
-    protected Terrain(Vector3 position, final int height_factor, final int shaderProgram){
+    protected Terrain(Vector3 position, final float height_factor, final int shaderProgram){
         super(position, 0);
         HEIGHT_FACTOR = height_factor;
         this.shaderProgram = shaderProgram;

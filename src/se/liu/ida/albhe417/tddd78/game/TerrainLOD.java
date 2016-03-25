@@ -23,8 +23,8 @@ public class TerrainLOD extends Terrain {
 
     private static final int MAX_EXPECTED_VERT_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final int shaderProgram) {
-        super(position, 10, shaderProgram);
+    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram) {
+        super(position, heightFactor, shaderProgram);
         vertexArray = new VertexPositionColor[MAX_EXPECTED_VERT_COUNT];
         //indexArray = new int[5500];
         vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
@@ -35,7 +35,7 @@ public class TerrainLOD extends Terrain {
 
     protected void setup() {
         heights = Helpers.imageToHeights("content/heightmapLarger.jpg");
-        quadTree = new QuadTree(heights, 10);
+        quadTree = new QuadTree(heights, 500);
         height = width = quadTree.getSize();
 
         ArrayList<AbstractDrawablePart> parts = new ArrayList<>(1);
