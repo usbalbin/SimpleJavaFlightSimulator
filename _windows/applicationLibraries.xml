@@ -1,0 +1,16 @@
+<application>
+  <component name="libraryTable">
+    <library name="lwjgl">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/IdeaProjects/SimpleJavaFlightSimulator_WithJBullet/lwjgl/jar/lwjgl.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/IdeaProjects/SimpleJavaFlightSimulator_WithJBullet/lwjgl/doc/javadoc.zip!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="file://$USER_HOME$/IdeaProjects/SimpleJavaFlightSimulator_WithJBullet/lwjgl" />
+      </SOURCES>
+      <jarDirectory url="file://$USER_HOME$/IdeaProjects/SimpleJavaFlightSimulator_WithJBullet/lwjgl" recursive="false" type="SOURCES" />
+    </library>
+  </component>
+</application>
