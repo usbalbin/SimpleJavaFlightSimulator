@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import javax.vecmath.Vector3f;
 import java.util.Arrays;
 
 public class Vector3
@@ -15,6 +16,10 @@ public class Vector3
     public Vector3() {
     	this.values = new float[3];
     	setX(0);setY(0);setZ(0);
+    }
+
+    public Vector3(Vector3 vector3){
+        this(vector3.getX(), vector3.getY(), vector3.getZ());
     }
 
     public Vector3(float value){
@@ -145,5 +150,9 @@ public class Vector3
     @Override
     public String toString() {
         return getX() + ";" + getY() + ";" + getZ();
+    }
+
+    public Vector3f toVector3f(){
+        return new Vector3f(this.values);
     }
 }

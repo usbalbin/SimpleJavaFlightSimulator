@@ -6,6 +6,15 @@ import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.DbvtBroadphase;
+import com.bulletphysics.collision.dispatch.CollisionConfiguration;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -19,6 +28,7 @@ import java.util.ArrayList;
 
 public class Game
 {
+	//TODO: Needed?
     private GLFWErrorCallback errorCallback;
     private long window;//Reference to window
     private static final int WINDOW_WIDTH = 1024;
@@ -30,7 +40,7 @@ public class Game
 	private static final float DRAW_DISTANCE = 2048;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
-	private static boolean WIRE_FRAME = true;
+	private static boolean WIRE_FRAME = false;
     private static int AA_LEVEL = 16;
 	private static float OPENGL_VERSION = 3.2f;
     private static String title = "Simple Java Flight Simulator";
@@ -43,20 +53,22 @@ public class Game
 	private Vector3 lightDirection;
 	private int lightDirectionId;
 
-	ArrayList<AbstractDrawable> gameObjects;
+
+	private static Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+	private DynamicsWorld physics;
+
+	ArrayList<AbstractGameObject> gameObjects;
 	AbstractVehicle currentVehicle;
 	Terrain terrain;
 	private int shaderProgram;
 
 	private long lastTime;
 
-	//TODO: ta bort
-	protected float yaw = 0;
-
     public Game(){
-		//TODO: Move to render-class
+		//TODO: Move to render-class?
 		setupGraphics();
 		setupShaders();
+		setupPhysics();
 		setupGameObjects();
 		setupProjectionMatrix();
 		setupLight();
@@ -224,14 +236,25 @@ public class Game
 		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 	}
 
-	private void setupGameObjects(){
-		gameObjects = new ArrayList<>(2);
+	private void setupPhysics(){
+		BroadphaseInterface broadphase = new DbvtBroadphase();
+		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
+		CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
+		ConstraintSolver solver = new SequentialImpulseConstraintSolver();
+		physics = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		physics.setGravity(GRAVITY.toVector3f());
+	}
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram);
-		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 6, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
+	private void setupGameObjects(){
+		gameObjects = new ArrayList<>(3);
+
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram, physics);
+		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 50, 1022.5f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
+		gameObjects.add(new VehicleHelicopterBox(new Vector3(1024, 40, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
+		//gameObjects.add(terrain);
 
 
 		lastTime = System.currentTimeMillis();
@@ -256,12 +279,18 @@ public class Game
 		long nowTime = System.currentTimeMillis();
 		float deltaTime = (nowTime - lastTime) / 1000.0f;
 		lastTime = nowTime;
+
 		currentVehicle.handleInput(deltaTime);
 
-		for (AbstractDrawable drawable: gameObjects) {
+		for (AbstractGameObject drawable: gameObjects) {
 			drawable.update(deltaTime);
 		}
 
+
+		Vector3 cameraPosition = new Vector3();//currentVehicle.getCameraPosition();
+		//TODO remove cast
+		((TerrainLOD)terrain).update(cameraPosition);
+		physics.stepSimulation(deltaTime);
 		updateCameraMatrix();
     }
 
@@ -280,10 +309,9 @@ public class Game
 		if(WIRE_FRAME)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		Vector3 cameraPosition = currentVehicle.getCameraPosition();
-		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId, cameraPosition);
+		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId);
 
-		for (AbstractDrawable drawable: gameObjects) {
+		for (AbstractGameObject drawable: gameObjects) {
 			drawable.draw(cameraMatrix, modelViewProjectionMatrixId);
 		}
 

@@ -58,4 +58,9 @@ public class CollisionFrustum implements CollisionObject{
     public boolean intersects(Vector3 point) {
         return intersects(point, new Matrix4x4());
     }
+
+    @Override
+    public boolean intersects(CollisionFrustum frustum) {
+        return false;
+    }
 }

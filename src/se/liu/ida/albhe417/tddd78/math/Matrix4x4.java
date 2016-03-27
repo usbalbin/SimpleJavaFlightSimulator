@@ -1,5 +1,7 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import javax.vecmath.Matrix4f;
+
 public class Matrix4x4 extends AbstractMatrix
 {
 
@@ -12,6 +14,15 @@ public class Matrix4x4 extends AbstractMatrix
 			throw new IllegalArgumentException("Wrong sized array");
 		}
     }
+
+	public Matrix4x4(Matrix4f matrix){
+		this();
+		float[][] floats = this.values;
+		int j = 0;
+		for(int row = 0; row < 4; row++)
+			for (int col = 0; col < 4; col++)
+				matrix.getColumn(row, floats[row]);//Res matrix has columns switched with rows
+	}
 
     public Matrix4x4(){
     	this(1.0f);
@@ -199,5 +210,15 @@ public class Matrix4x4 extends AbstractMatrix
 		Vector4 lastRowRes = result.multiply(lastRowIn);
 		result.values[3] = lastRowRes.values;
 		return result;
+	}
+
+	public Matrix4f toMatrix4f(){
+		float[] floats = new float[16];
+		int j = 0;
+		for(int row = 0; row < 4; row++)
+			for (int col = 0; col < 4; col++)
+				floats[j++] = this.getValueAt(row, col);//Res matrix has columns switched with rows
+
+		return new Matrix4f(floats);
 	}
 }

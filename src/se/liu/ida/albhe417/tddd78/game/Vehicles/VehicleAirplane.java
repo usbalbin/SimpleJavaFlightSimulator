@@ -1,11 +1,11 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
-import se.liu.ida.albhe417.tddd78.game.Terrain_old;
+import se.liu.ida.albhe417.tddd78.game.Terrain;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 public abstract class VehicleAirplane extends AbstractVehicle
 {
-    public VehicleAirplane(final Vector3 position, float yaw, float mass, float thrustFactor, final Terrain_old terrain) {
+    public VehicleAirplane(final Vector3 position, float yaw, float mass, float thrustFactor, final Terrain terrain) {
         super(position, yaw, mass, thrustFactor, terrain);
     }
 

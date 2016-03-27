@@ -77,7 +77,7 @@ public class Helpers {
      * @param fileName
      * @return
      */
-    public static byte[][] imageToHeights(String fileName){
+    public static byte[] imageToHeights(String fileName){
         BufferedImage heightMapBuff;
         InputStream fileStream = Helpers.class.getResourceAsStream(fileName);
 
@@ -98,7 +98,7 @@ public class Helpers {
         byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
 
 
-        byte[][] colors = new byte[size][size];
+        byte[] colors = new byte[size * size];
 
         final int componentsPerPixel = heightMapBuff.getColorModel().getNumColorComponents();
 
@@ -106,8 +106,44 @@ public class Helpers {
         for (int row = 0; row < size; row++) {
             for (int column = 0; column < size; column++) {
                 byte color = pixels[row * width * componentsPerPixel + column * componentsPerPixel];
-                colors[row][column] = color;
+                colors[row * size + column] = color;
                 //j += componentsPerPixel;
+            }
+        }
+
+
+        return colors;
+    }
+
+    public static float[] imageToFloatHeights(String fileName){
+        BufferedImage heightMapBuff;
+        InputStream fileStream = Helpers.class.getResourceAsStream(fileName);
+
+        if(fileStream == null)
+            throw new RuntimeException("Failed to load " + fileName);
+
+        try{
+            heightMapBuff = ImageIO.read(fileStream);
+        }catch (IOException e){
+            throw new RuntimeException("Failed to load " + fileName);
+        }
+
+        int width = heightMapBuff.getWidth();
+        int height = heightMapBuff.getHeight();
+
+        int size = Math.min(Math.min(width, height), 8192);
+
+        byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
+
+
+        float[] colors = new float[size * size];
+
+        final int componentsPerPixel = heightMapBuff.getColorModel().getNumColorComponents();
+
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
+                float color = (pixels[row * width * componentsPerPixel + column * componentsPerPixel] & 0x00FF);
+                colors[row * size + column] = color;
             }
         }
 

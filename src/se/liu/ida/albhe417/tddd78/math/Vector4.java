@@ -1,5 +1,8 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
+
 public class Vector4
 {
     public static final Vector4 UP = new Vector4(0, 1, 0, 1);
@@ -79,6 +82,10 @@ public class Vector4
 
     public Vector3 toVector3(){
         return new Vector3(getX(), getY(), getZ());
+    }
+
+    public Vector4f toVector4f(){
+        return new Vector4f(this.values);
     }
 
     @Override

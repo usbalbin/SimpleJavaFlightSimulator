@@ -1,12 +1,13 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
-import se.liu.ida.albhe417.tddd78.game.AbstractDrawable;
+import se.liu.ida.albhe417.tddd78.game.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.AbstractGameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Terrain;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
-public abstract class AbstractVehicle extends AbstractDrawable
+public abstract class AbstractVehicle extends AbstractGameObject
 {
     protected Terrain terrain;
     protected float MASS;
@@ -15,6 +16,8 @@ public abstract class AbstractVehicle extends AbstractDrawable
     protected Vector3 velocity;
     protected final static Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
     protected Vector3 cameraPosition;
+    protected AbstractGameObjectPart partBody;
+
 
     public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor, Terrain terrain){
 	    super(position, yaw);
@@ -29,6 +32,8 @@ public abstract class AbstractVehicle extends AbstractDrawable
     abstract public void update(float deltaTime);
 
     public Matrix4x4 getViewMatrix(){
+        Matrix4x4 modelMatrix = partBody.getMatrix();
+
         cameraPosition = modelMatrix.getInverse().multiply(new Vector4(0, 5f, 15f, 0)).toVector3();
         cameraPosition = cameraPosition.add(modelMatrix.getPosition());
 
@@ -38,6 +43,8 @@ public abstract class AbstractVehicle extends AbstractDrawable
 
 
         Matrix4x4 viewMatrix = Matrix4x4.createViewMatrix(cameraPosition, cameraTarget, cameraUp);
+
+        System.out.println(modelMatrix.getPosition());
         return viewMatrix;
     }
 

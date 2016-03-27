@@ -1,9 +1,17 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
+import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -13,18 +21,16 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
  * Created by Albin on 11/03/2016.
  */
 public class VehicleHelicopterBox extends VehicleHelicopter {
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+
+    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics){
         //TODO, add constants
         super(position, yaw, 1000.0f, 200000.0f, terrain);
-        setup(shaderProgram);
+        setup(shaderProgram, physics);
     }
 
-    private void setup(final int shaderProgram){
-        ArrayList<AbstractDrawablePart> parts = new ArrayList<>();
-        parts.add(setupBody(shaderProgram));
-
-
-        setupParts(parts);
+    private void setup(final int shaderProgram, DynamicsWorld physics){
+        this.parts = new ArrayList<>();
+        setupBody(shaderProgram, physics);
     }
 
     public void handleInput(float deltaTime){
@@ -91,7 +97,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         modelMatrix.setPosition(position);
     }
 
-    private DrawablePartPosColor setupBody(final int shaderProgram){
+    private void setupBody(final int shaderProgram, DynamicsWorld physics){
         final Vector3 red = 	new Vector3(1, 0, 0);
         final Vector3 green =	new Vector3(0, 1, 0);
         final Vector3 blue = 	new Vector3(0, 0, 1);
@@ -134,7 +140,20 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
             3, 6, 7, 	3, 2, 6	//Bottom
         };
 
-        return new DrawablePartPosColor(vertices, indices, shaderProgram);
+        //Physics
+
+        Transform transform = new Transform(modelMatrix.toMatrix4f());
+        MotionState motionState = new DefaultMotionState(transform);
+
+        CollisionShape shape = new BoxShape(new Vector3(SIZE).toVector3f());
+        Vector3f inertia = new Vector3f();
+        shape.calculateLocalInertia(MASS, inertia);
+        RigidBody physicsObject = new RigidBody(MASS, motionState, shape, inertia);
+
+        physics.addRigidBody(physicsObject);
+
+        partBody = new GameObjectPartPosColor(vertices, indices, shaderProgram, physicsObject);
+        parts.add(partBody);
     }
 
     public void update(float deltaTime){
