@@ -65,7 +65,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		modelMatrix = modelMatrix.multiply(move);
 	}
 
-    private GameObjectPartPosColor setupBody(final int shaderProgram){
+    private GameObjectPart setupBody(final int shaderProgram){
 		final Vector3 red = 	new Vector3(1, 0, 0);
 		final Vector3 green =	new Vector3(0, 1, 0);
 		final Vector3 blue = 	new Vector3(0, 0, 1);
@@ -116,7 +116,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		CollisionShape shape = new BoxShape(new Vector3(SIZE).toVector3f());
 		RigidBody physicsObject = new RigidBody(MASS, motionState, shape);
 
-		return new GameObjectPartPosColor(vertices, indices, shaderProgram, physicsObject);
+		return new GameObjectPart(vertices, indices, shaderProgram, physicsObject);
     }
 
     public void update(float deltaTime){

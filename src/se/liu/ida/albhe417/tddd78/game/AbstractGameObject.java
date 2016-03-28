@@ -11,7 +11,7 @@ public abstract class AbstractGameObject
     //protected float yaw, pitch, roll;
     protected Matrix4x4 modelMatrix;
 
-    protected ArrayList<AbstractGameObjectPart> parts;
+    protected ArrayList<GameObjectPart> parts;
 
     public AbstractGameObject(Vector3 position, float yaw){
     	/*this.position = position;
@@ -29,7 +29,7 @@ public abstract class AbstractGameObject
 
     public void draw(Matrix4x4 cameraMatrix, int matrixId){
 
-        for(AbstractGameObjectPart part : parts){
+        for(GameObjectPart part : parts){
             part.draw(cameraMatrix, matrixId);
         }
     }

@@ -19,9 +19,9 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * Created by Albin on 11/03/2016.
  */
-public class VehicleHelicopterBox extends VehicleHelicopter {
+public class VehicleHelicopterBox_normals extends VehicleHelicopter {
 
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics){
+    public VehicleHelicopterBox_normals(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics){
         //TODO, add constants
         super(position, yaw, 1000.0f, 20000.0f, terrain);
         setup(shaderProgram, physics);
@@ -110,17 +110,17 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 posRBF = new Vector3( SIZE,-SIZE, -SIZE);
         Vector3 posLBF = new Vector3(-SIZE,-SIZE, -SIZE);
 
-        VertexPositionColor LTR = new VertexPositionColor(posLTR, red);
-        VertexPositionColor RTR = new VertexPositionColor(posRTR, green);
-        VertexPositionColor RBR = new VertexPositionColor(posRBR, blue);
-        VertexPositionColor LBR = new VertexPositionColor(posLBR, white);
+        VertexPositionNormalColor LTR = new VertexPositionNormalColor(posLTR, posLTR, red);
+        VertexPositionNormalColor RTR = new VertexPositionNormalColor(posRTR, posRTR, green);
+        VertexPositionNormalColor RBR = new VertexPositionNormalColor(posRBR, posRBR, blue);
+        VertexPositionNormalColor LBR = new VertexPositionNormalColor(posLBR, posLBR, white);
 
-        VertexPositionColor LTF = new VertexPositionColor(posLTF, red);
-        VertexPositionColor RTF = new VertexPositionColor(posRTF, green);
-        VertexPositionColor RBF = new VertexPositionColor(posRBF, blue);
-        VertexPositionColor LBF = new VertexPositionColor(posLBF, white);
+        VertexPositionNormalColor LTF = new VertexPositionNormalColor(posLTF, posLTF, red);
+        VertexPositionNormalColor RTF = new VertexPositionNormalColor(posRTF, posRTF, green);
+        VertexPositionNormalColor RBF = new VertexPositionNormalColor(posRBF, posRBF, blue);
+        VertexPositionNormalColor LBF = new VertexPositionNormalColor(posLBF, posLBF, white);
 
-        VertexPositionColor[] vertices = {
+        VertexPositionNormalColor[] vertices = {
             LTR, RTR, RBR, LBR,
             LTF, RTF, RBF, LBF
         };

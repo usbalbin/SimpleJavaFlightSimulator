@@ -1,7 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
 import se.liu.ida.albhe417.tddd78.game.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.AbstractGameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Terrain;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -16,7 +16,7 @@ public abstract class AbstractVehicle extends AbstractGameObject
     protected Vector3 velocity;
     protected final static Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
     protected Vector3 cameraPosition;
-    protected AbstractGameObjectPart partBody;
+    protected GameObjectPart partBody;
 
 
     public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor, Terrain terrain){

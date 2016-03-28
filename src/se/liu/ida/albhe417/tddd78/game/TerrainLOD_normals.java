@@ -14,23 +14,23 @@ import java.util.List;
 /**
  * Created by Albin on 14/03/2016.
  */
-public class TerrainLOD extends Terrain {
+public class TerrainLOD_normals extends Terrain {
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 
-    private QuadTree quadTree;
+    private QuadTree_normals quadTree;
 
     //TODO: kolla upp
     float[] heights;
 
     private int[] indexArray;
     private VertexPositionColor[] vertexArray;
-    private List<VertexPositionColor> vertices;
+    private List<VertexPositionNormalColor> vertices;
     private List<Integer> indices;
 
     private static final int MAX_EXPECTED_VERT_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final int shaderProgram, final DynamicsWorld physics) {
+    public TerrainLOD_normals(Vector3 position, final int shaderProgram, final DynamicsWorld physics) {
         super(position, 10, shaderProgram);
         this.vertexArray = new VertexPositionColor[MAX_EXPECTED_VERT_COUNT];
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
@@ -41,12 +41,13 @@ public class TerrainLOD extends Terrain {
 
     protected void setup() {
         heights = Helpers.imageToFloatHeights("content/heightmapLarger.jpg");
-        quadTree = new QuadTree(heights, 10);
+        quadTree = new QuadTree_normals(heights, 10);
         height = width = quadTree.getSize();
 
         this.parts = new ArrayList<>(1);
-        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERT_COUNT, new VertexPositionColor());
-        this.parts.add(partMain);
+        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERT_COUNT, new VertexPositionNormalColor());
+        parts.add(partMain);
+
         //Physics
 
         MotionState motionState = new DefaultMotionState();

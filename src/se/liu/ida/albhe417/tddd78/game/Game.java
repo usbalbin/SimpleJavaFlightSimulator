@@ -287,11 +287,12 @@ public class Game
 		}
 
 
-		Vector3 cameraPosition = new Vector3();//currentVehicle.getCameraPosition();
+		updateCameraMatrix();
+		Vector3 cameraPosition = currentVehicle.getCameraPosition();
 		//TODO remove cast
 		((TerrainLOD)terrain).update(cameraPosition);
 		physics.stepSimulation(deltaTime);
-		updateCameraMatrix();
+
     }
 
 	private void updateCameraMatrix() {
