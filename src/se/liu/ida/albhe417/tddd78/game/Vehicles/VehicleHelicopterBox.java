@@ -8,6 +8,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
@@ -68,33 +69,28 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 1f;
-        final float yawSensetivity = 1f;    //Rads/sec
-        final float pitchSensetivity = 1f;
-        final float rollSensetivity = 1f;
+        final float throttleSensetivity = 100f;
+        final float yawSensetivity = 100f;    //N/m
+        final float pitchSensetivity = 100f;
+        final float rollSensetivity = 100f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
         float lift = throttle * THRUST_FACTOR;
 
+        Matrix4x4 partMatrix = partBody.getMatrix();
         Vector3 aeroForce = new Vector3(0, lift, 0);
-        aeroForce = modelMatrix.getInverse().multiply(new Vector4(aeroForce, 0.0f)).toVector3();//
+        aeroForce = partMatrix.getInverse().multiply(aeroForce);//
 
-        //aeroForce = aeroForce.getRotated(yawValue, pitchValue, rollValue);
-        Vector3 acceleration = aeroForce.divide(MASS);
-        acceleration = acceleration.add(GRAVITY);
+        Vector3 forcePoint = new Vector3(0, 1, 0);
+        forcePoint = partMatrix.getInverse().multiply(forcePoint);
 
-        //System.out.println(acceleration);
+        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
+        torque = partMatrix.getInverse().multiply(torque);
 
-        velocity = velocity.add(acceleration.multiply(deltaTime));
-
-        Vector3 position = modelMatrix.getPosition();
-        position = position.add(velocity.multiply(deltaTime));
-
-
-
-        modelMatrix = modelMatrix.getRotated(yawValue * yawSensetivity * deltaTime, pitchValue * pitchSensetivity* deltaTime, rollValue * rollSensetivity* deltaTime);
-        modelMatrix.setPosition(position);
+        partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
+        partBody.getPhysicsObject().applyTorque(torque.toVector3f());
+        partBody.getPhysicsObject().activate();
     }
 
     private void setupBody(final int shaderProgram, DynamicsWorld physics){

@@ -250,10 +250,10 @@ public class Game
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram, physics);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 50, 1022.5f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 15, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		gameObjects.add(new VehicleHelicopterBox(new Vector3(1024, 40, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
+		gameObjects.add(new VehicleHelicopterBox(new Vector3(1024, 16, 1026.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
 		//gameObjects.add(terrain);
 
 
