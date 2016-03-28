@@ -30,7 +30,7 @@ public class Game
 	private static final float DRAW_DISTANCE = 2048;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
-	private static boolean WIRE_FRAME = true;
+	private static boolean WIRE_FRAME = false;
     private static int AA_LEVEL = 16;
 	private static float OPENGL_VERSION = 3.2f;
     private static String title = "Simple Java Flight Simulator";
@@ -229,7 +229,7 @@ public class Game
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), 500,shaderProgram);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(4096, 6, 4096.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(0, 100, 0), -(float)Math.PI / 2.0f, terrain, shaderProgram);
 
 		gameObjects.add(currentVehicle);
 

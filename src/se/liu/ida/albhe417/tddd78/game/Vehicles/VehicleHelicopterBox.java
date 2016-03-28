@@ -1,6 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
 import se.liu.ida.albhe417.tddd78.game.*;
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
@@ -142,10 +143,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 position = modelMatrix.getPosition();
 
         float terrainHeight = terrain.getHeight(position.getX(), position.getZ());
-        if( position.getY() < terrainHeight + airPlaneHeight){
+        /*if( position.getY() < terrainHeight + airPlaneHeight){
             position.setY(terrainHeight + airPlaneHeight);
             modelMatrix.setPosition(position);
             velocity.setY(0);
-        }
+        }*/
     }
 }
