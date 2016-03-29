@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SimpleJavaFlightSimulator_bullet:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SimpleJavaFlightSimulator_bullet_jar</output-path>
+    <root id="archive" name="SimpleJavaFlightSimulator_bullet.jar">
+      <element id="module-output" name="SimpleJavaFlightSimulator_bullet" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jbullet/jar/jbullet.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lwjgl/jar/lwjgl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jbullet/jar/vecmath.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

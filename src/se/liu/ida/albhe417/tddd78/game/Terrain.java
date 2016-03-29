@@ -5,7 +5,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 /**
  * Created by Albin on 15/03/2016.
  */
-abstract public class Terrain extends AbstractDrawable{
+abstract public class Terrain extends AbstractGameObject {
     protected int width;
     protected int height;
     protected Vector3[][] heighMap;

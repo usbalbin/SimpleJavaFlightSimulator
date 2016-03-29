@@ -1,31 +1,35 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
-import se.liu.ida.albhe417.tddd78.math.Vector4;
 
+import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 
 /**
  * Created by Albin on 11/03/2016.
  */
 public class VehicleHelicopterBox extends VehicleHelicopter {
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
+
+    public VehicleHelicopterBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics){
         //TODO, add constants
-        super(position, yaw, 1000.0f, 200000.0f, terrain);
-        setup(shaderProgram);
+        super(position, yaw, 1000.0f, 20000.0f, terrain);
+        setup(shaderProgram, physics);
     }
 
-    private void setup(final int shaderProgram){
-        ArrayList<AbstractDrawablePart> parts = new ArrayList<>();
-        parts.add(setupBody(shaderProgram));
-
-
-        setupParts(parts);
+    private void setup(final int shaderProgram, DynamicsWorld physics){
+        this.parts = new ArrayList<>();
+        setupBody(shaderProgram, physics);
     }
 
     public void handleInput(float deltaTime){
@@ -63,36 +67,31 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 1f;
-        final float yawSensetivity = 1f;    //Rads/sec
-        final float pitchSensetivity = 1f;
-        final float rollSensetivity = 1f;
+        final float throttleSensetivity = 100f;
+        final float yawSensetivity = 100f;    //N/m
+        final float pitchSensetivity = 100f;
+        final float rollSensetivity = 100f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
         float lift = throttle * THRUST_FACTOR;
 
+        Matrix4x4 partMatrix = partBody.getMatrix();
         Vector3 aeroForce = new Vector3(0, lift, 0);
-        aeroForce = modelMatrix.getInverse().multiply(new Vector4(aeroForce, 0.0f)).toVector3();//
+        aeroForce = partMatrix.getInverse().multiply(aeroForce);//
 
-        //aeroForce = aeroForce.getRotated(yawValue, pitchValue, rollValue);
-        Vector3 acceleration = aeroForce.divide(MASS);
-        acceleration = acceleration.add(GRAVITY);
+        Vector3 forcePoint = new Vector3(0, 1, 0);
+        forcePoint = partMatrix.getInverse().multiply(forcePoint);
 
-        //System.out.println(acceleration);
+        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
+        torque = partMatrix.getInverse().multiply(torque);
 
-        velocity = velocity.add(acceleration.multiply(deltaTime));
-
-        Vector3 position = modelMatrix.getPosition();
-        position = position.add(velocity.multiply(deltaTime));
-
-
-
-        modelMatrix = modelMatrix.getRotated(yawValue * yawSensetivity * deltaTime, pitchValue * pitchSensetivity* deltaTime, rollValue * rollSensetivity* deltaTime);
-        modelMatrix.setPosition(position);
+        partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
+        partBody.getPhysicsObject().applyTorque(torque.toVector3f());
+        partBody.getPhysicsObject().activate();
     }
 
-    private DrawablePartPosColor setupBody(final int shaderProgram){
+    private void setupBody(final int shaderProgram, DynamicsWorld physics){
         final Vector3 red = 	new Vector3(1, 0, 0);
         final Vector3 green =	new Vector3(0, 1, 0);
         final Vector3 blue = 	new Vector3(0, 0, 1);
@@ -135,7 +134,20 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
             3, 6, 7, 	3, 2, 6	//Bottom
         };
 
-        return new DrawablePartPosColor(vertices, indices, shaderProgram);
+        //Physics
+
+        Transform transform = new Transform(modelMatrix.toMatrix4f());
+        MotionState motionState = new DefaultMotionState(transform);
+
+        CollisionShape shape = new BoxShape(new Vector3(SIZE).toVector3f());
+        Vector3f inertia = new Vector3f();
+        shape.calculateLocalInertia(MASS, inertia);
+        RigidBody physicsObject = new RigidBody(MASS, motionState, shape, inertia);
+
+        physics.addRigidBody(physicsObject);
+
+        partBody = new GameObjectPart(vertices, indices, shaderProgram, physicsObject);
+        parts.add(partBody);
     }
 
     public void update(float deltaTime){

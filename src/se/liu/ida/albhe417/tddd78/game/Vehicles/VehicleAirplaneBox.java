@@ -1,6 +1,12 @@
 package se.liu.ida.albhe417.tddd78.game.Vehicles;
 import static org.lwjgl.glfw.GLFW.*;
 
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -9,17 +15,16 @@ import java.util.ArrayList;
 
 public class VehicleAirplaneBox extends VehicleAirplane
 {
-    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain_old terrain, final int shaderProgram){
+
+    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
 		super(position, yaw, 100.0f, 1.0f, terrain);
 		setup(shaderProgram);
     }
 
     private void setup(final int shaderProgram){
-		ArrayList<AbstractDrawablePart> parts = new ArrayList<>();
-		parts.add(setupBody(shaderProgram));
-
-
-		setupParts(parts);
+		this.parts = new ArrayList<>(1);
+		partBody = setupBody(shaderProgram);
+		parts.add(partBody);
     }
 
 	public void handleInput(float deltaTime){
@@ -60,7 +65,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		modelMatrix = modelMatrix.multiply(move);
 	}
 
-    private DrawablePartPosColor setupBody(final int shaderProgram){
+    private GameObjectPart setupBody(final int shaderProgram){
 		final Vector3 red = 	new Vector3(1, 0, 0);
 		final Vector3 green =	new Vector3(0, 1, 0);
 		final Vector3 blue = 	new Vector3(0, 0, 1);
@@ -103,7 +108,15 @@ public class VehicleAirplaneBox extends VehicleAirplane
 			3, 6, 7, 	3, 2, 6	//Bottom
 		};
 
-		return new DrawablePartPosColor(vertices, indices, shaderProgram);
+		//Physics
+
+		Transform transform = new Transform(modelMatrix.toMatrix4f());
+		MotionState motionState = new DefaultMotionState(transform);
+
+		CollisionShape shape = new BoxShape(new Vector3(SIZE).toVector3f());
+		RigidBody physicsObject = new RigidBody(MASS, motionState, shape);
+
+		return new GameObjectPart(vertices, indices, shaderProgram, physicsObject);
     }
 
     public void update(float deltaTime){

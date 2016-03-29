@@ -37,7 +37,7 @@ public class QuadTree {
     private int size;
     private short level;
 
-    private static byte[][] heightmap;
+    private static float[] heightmap;
     private static float HEIGHT_FACTOR;
     private static int rootSize;
 
@@ -48,10 +48,10 @@ public class QuadTree {
      * Create Root QuadTree
      * @param fileNameHeightmap heightmap
      */
-    public QuadTree(byte[][] heightmap, final float heightFactor){
+    public QuadTree(float[] heightmap, final float heightFactor){
         this.HEIGHT_FACTOR = heightFactor;
         this.heightmap = heightmap;
-        this.rootSize = this.size = Math.min(heightmap.length, heightmap[0].length);
+        this.rootSize = this.size = (int)Math.sqrt(heightmap.length);
         this.size -= size % 2;//Make sure size is even
         this.position = new Vector3(size / 2, 0, size / 2);
         this.level = 0;
@@ -363,7 +363,7 @@ public class QuadTree {
         //position = position.add(this.position);
         int x = Math.min((int)position.getX(), rootSize - 1);
         int z = Math.min((int)position.getZ(), rootSize - 1);
-        float y = heightmap[z][x] & 0x00FF;
+        float y = heightmap[z * size + x];// & 0x00FF;
         position.setY(y / 256f * HEIGHT_FACTOR);
     }
 
