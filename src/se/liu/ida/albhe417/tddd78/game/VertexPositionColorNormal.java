@@ -8,9 +8,9 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class VertexPositionColorNormal implements Vertex
 {
-    private static final int POSITION_INDEX = 1;
-    private static final int COLOR_INDEX = 0;
-    private static final int NORMAL_INDEX = 2;
+    public static int POSITION_INDEX;
+    public static int COLOR_INDEX;
+    public static int NORMAL_INDEX;
 
     public static final int FLOAT_COUNT = 3 + 3 + 3;
     public static final int FLOATS_PER_VECTOR = 3;

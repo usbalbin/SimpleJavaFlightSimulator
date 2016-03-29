@@ -239,6 +239,18 @@ public class Game
 		}
 		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
 		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+
+
+		int positionIndex = glGetAttribLocation(shaderProgram, "position");
+		int colorIndex = glGetAttribLocation(shaderProgram, "color");
+		int normalIndex = glGetAttribLocation(shaderProgram, "normal");
+
+		VertexPositionColor.POSITION_INDEX 			= positionIndex;
+		VertexPositionColor.COLOR_INDEX				= colorIndex;
+
+		VertexPositionColorNormal.POSITION_INDEX 	= positionIndex;
+		VertexPositionColorNormal.COLOR_INDEX		= colorIndex;
+		VertexPositionColorNormal.NORMAL_INDEX		= normalIndex;
 	}
 
 	private void setupPhysics(){

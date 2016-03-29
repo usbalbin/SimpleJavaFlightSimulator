@@ -9,8 +9,8 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 public class VertexPositionColor implements Vertex
 {
-    private static final int POSITION_INDEX = 1;
-    private static final int COLOR_INDEX = 0;
+    public static int POSITION_INDEX;
+    public static int COLOR_INDEX;
 
     //TODO: get rid of me, i'm awful!!
     public static final float HEIGHT_FACTOR = 10;
