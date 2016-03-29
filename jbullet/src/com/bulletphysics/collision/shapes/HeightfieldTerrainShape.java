@@ -119,7 +119,7 @@ public class HeightfieldTerrainShape extends ConcaveShape
 			{
 				// float offset (4 for sizeof)
 				int index = ((y * m_heightStickWidth) + x);
-				val = m_heightFieldDataFloat[index];
+				val = m_heightFieldDataFloat[index] * m_heightScale;
 			}
 			else
 			{
@@ -210,7 +210,7 @@ public class HeightfieldTerrainShape extends ConcaveShape
 		}
 		case 1:
 		{
-			vertex.set((-m_width / 2f) + x, height/* - m_localOrigin.y removed by albhe417*/, (-m_length / 2f) + y);
+			vertex.set((-m_width / 2f) + x, height - m_localOrigin.y, (-m_length / 2f) + y);
 			break;
 		}
 		case 2:

@@ -9,7 +9,6 @@ import com.bulletphysics.linearmath.MotionState;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,34 +24,35 @@ public class TerrainLOD extends Terrain {
     float[] heights;
 
     private int[] indexArray;
-    private VertexPositionColor[] vertexArray;
-    private List<VertexPositionColor> vertices;
+    private VertexPositionColorNormal[] vertexArray;
+    private List<VertexPositionColorNormal> vertices;
     private List<Integer> indices;
 
     private static final int MAX_EXPECTED_VERT_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram) {
+    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram, DynamicsWorld physic) {
         super(position, heightFactor, shaderProgram);
-        this.vertexArray = new VertexPositionColor[MAX_EXPECTED_VERT_COUNT];
+        this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERT_COUNT];
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
         this.indices = new ArrayList<>(150000);
-        this.physics = physics;
+        this.physics = physic;
         setup();
     }
 
     protected void setup() {
-        heights = Helpers.imageToFloatHeights("content/heightmapLarger.jpg");
-        quadTree = new QuadTree(heights, 500);
-        height = width = quadTree.getSize();
+        float maxHeight = 256 * HEIGHT_FACTOR;
+
+        heights = Helpers.imageToFloatHeights("content/heightmap.png");
+        quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight);
+        height = width = quadTree.getHmapSize();
 
         this.parts = new ArrayList<>(1);
-        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERT_COUNT, new VertexPositionColor());
+        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERT_COUNT, new VertexPositionColorNormal());
         this.parts.add(partMain);
         //Physics
-
         MotionState motionState = new DefaultMotionState();
-        CollisionShape shape = new HeightfieldTerrainShape(                     //TODO: look up the enum
-                width, height, heights, 1, 0, 256, 1, false
+        CollisionShape shape = new HeightfieldTerrainShape(
+                width, height, heights, HEIGHT_FACTOR, 0, maxHeight, 1, false
         );
 
         RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);
@@ -84,7 +84,7 @@ public class TerrainLOD extends Terrain {
         quadTree.update(cameraPos, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
-            vertexArray = new VertexPositionColor[vertices.size()];
+            vertexArray = new VertexPositionColorNormal[vertices.size()];
             System.out.println("Warning had to expand vertex array!!!");
         }
         vertices.toArray(vertexArray);
@@ -127,6 +127,6 @@ public class TerrainLOD extends Terrain {
                         leftFront * (1.0f - xRest) * (zRest)        +
                         rightFront * (xRest)       * (zRest);
 
-        return height / 256f * HEIGHT_FACTOR;
+        return height * HEIGHT_FACTOR;
     }
 }

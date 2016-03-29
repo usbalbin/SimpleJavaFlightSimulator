@@ -6,28 +6,30 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
-public class VertexPositionNormalColor implements Vertex
+public class VertexPositionColorNormal implements Vertex
 {
-    private static final int POSITION_INDEX = 2;
-    private static final int NORMAL_INDEX = 1;
+    private static final int POSITION_INDEX = 1;
     private static final int COLOR_INDEX = 0;
+    private static final int NORMAL_INDEX = 2;
 
     public static final int FLOAT_COUNT = 3 + 3 + 3;
+    public static final int FLOATS_PER_VECTOR = 3;
     public Vector3 position;
-    public Vector3 normal;
     public Vector3 color;
+    public Vector3 normal;
 
-    public VertexPositionNormalColor(){}
+    public VertexPositionColorNormal(){}
 
-    public VertexPositionNormalColor(Vector3 position){
+    public VertexPositionColorNormal(Vector3 position, Vector3 color){
         this.position = position;
+        this.color = color;
         this.normal = new Vector3();
     }
 
-    public VertexPositionNormalColor(Vector3 position, Vector3 normal, Vector3 color){
+    public VertexPositionColorNormal(Vector3 position, Vector3 color, Vector3 normal){
 	    this.position = position;
-        this.normal = normal;
 	    this.color = color;
+        this.normal = normal;
     }
 
     @Override
@@ -37,20 +39,20 @@ public class VertexPositionNormalColor implements Vertex
 
     @Override
     public float[] getFloats(){
-        final int floatsPerVector = 3;
         float[] result = new float[FLOAT_COUNT];
-        /*System.arraycopy(position.values, 0, result, 0, floatsPerVector);
+        System.arraycopy(position.values,   0, result, FLOATS_PER_VECTOR * 0, FLOATS_PER_VECTOR);
+        System.arraycopy(color.values,      0, result, FLOATS_PER_VECTOR * 1, FLOATS_PER_VECTOR);
+        System.arraycopy(normal.values,     0, result, FLOATS_PER_VECTOR * 2, FLOATS_PER_VECTOR);
 
-        System.arraycopy(color.values, 0, result, floatsPerVector * 2, floatsPerVector * 2);
-        */
+
         return result;
     }
 
     @Override
     public void enableVertexAttribs(){
         glEnableVertexAttribArray(POSITION_INDEX);
-        glEnableVertexAttribArray(NORMAL_INDEX);
         glEnableVertexAttribArray(COLOR_INDEX);
+        glEnableVertexAttribArray(NORMAL_INDEX);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class VertexPositionNormalColor implements Vertex
         //Show gpu how to interprete the vertex data
         int floatsPerVector = 3;
         glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 0);
-        glVertexAttribPointer(NORMAL_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 1);
-        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 2);
+        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 1);
+        glVertexAttribPointer(NORMAL_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 2);
     }
 }

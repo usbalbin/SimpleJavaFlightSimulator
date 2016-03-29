@@ -1375,6 +1375,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/jbullet/jbullet.iml" filepath="$PROJECT_DIR$/jbullet/jbullet.iml" />
       <module fileurl="file://$PROJECT_DIR$/projekt.iml" filepath="$PROJECT_DIR$/projekt.iml" />
     </modules>
   </component>
@@ -1385,6 +1386,15 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
+    <library name="jar">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/jbullet/jar/vecmath.jar!/" />
+        <root url="jar://$PROJECT_DIR$/jbullet/jar/jbullet.jar!/" />
+        <root url="jar://$PROJECT_DIR$/jbullet/jar/jbullet - kopia.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="lwjgl">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lwjgl/jar/lwjgl.jar!/" />

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Created by Albin on 09/03/2016.
@@ -138,11 +139,11 @@ public class Helpers {
 
         float[] colors = new float[size * size];
 
-        final int componentsPerPixel = heightMapBuff.getColorModel().getNumColorComponents();
-
+        final int componentsPerPixel = pixels.length / (width * height);//heightMapBuff.getColorModel().getNumColorComponents();
+        int offset = componentsPerPixel == 4 ? 1 : 0;
         for (int row = 0; row < size; row++) {
             for (int column = 0; column < size; column++) {
-                float color = (pixels[row * width * componentsPerPixel + column * componentsPerPixel] & 0x00FF);
+                float color = (pixels[row * width * componentsPerPixel + column * componentsPerPixel + offset] & 0x00FF);
                 colors[row * size + column] = color;
             }
         }
@@ -157,5 +158,68 @@ public class Helpers {
 
         //Interprete color as unsigned byte(colors are represented by unsigned byte)
         return (color & toUnsigedByte ) / unsignedByteMaxVal;
+    }
+
+    //TODO use fixed arrays
+    public void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+        float step = 2f * (float)Math.PI / qualityFactor;
+
+        for(float alpha = 0; alpha < 2f * (float)Math.PI; alpha += step){
+            float xFactor = (float)Math.cos(alpha) * radius;
+            float zFactorAlpha = (float)Math.sin(alpha) * radius;
+
+            for(float beta = -(float)Math.PI / 2f; beta < (float)Math.PI / 2f; beta += step){
+                float yFactor = (float)Math.sin(beta) * radius;
+                float zFactorBeta = (float)Math.cos(beta);
+
+                float x = xFactor;
+                float y = yFactor;
+                float z = zFactorAlpha * zFactorBeta;
+
+                Vector3 position = new Vector3(x, y, z);
+                vertices.add(new VertexPositionColor(position, color));
+
+            }
+
+        }
+
+        setupSphereIndices(qualityFactor, indices, vertices.size());
+    }
+
+    public void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+        float step = (float)Math.PI / qualityFactor;
+
+        for(float alpha = 0; alpha < 2f * (float)Math.PI; alpha += step){
+            float xFactor = (float)Math.cos(alpha) * radius;
+            float zFactorAlpha = (float)Math.sin(alpha) * radius;
+
+            for(float beta = -(float)Math.PI / 2f; beta < (float)Math.PI / 2f; beta += step){
+                float yFactor = (float)Math.sin(beta) * radius;
+                float zFactorBeta = (float)Math.cos(beta);
+
+                float x = xFactor;
+                float y = yFactor;
+                float z = zFactorAlpha * zFactorBeta;
+
+                Vector3 position = new Vector3(x, y, z);
+                vertices.add(new VertexPositionColorNormal(position, color, position));
+
+            }
+
+        }
+
+        setupSphereIndices(qualityFactor, indices, vertices.size());
+    }
+
+    private void setupSphereIndices(int qualityFactor, List<Integer> indices, int vertexCount){
+        for(int i = 0; i < vertexCount; i++){
+            indices.add(i                                       );
+            indices.add((i - 1 - qualityFactor) % vertexCount   );
+            indices.add((i - 1)                 % vertexCount   );
+
+            indices.add(i                                       );
+            indices.add((i - 0 - qualityFactor) % vertexCount   );
+            indices.add((i - 1 - qualityFactor) % vertexCount   );
+        }
     }
 }

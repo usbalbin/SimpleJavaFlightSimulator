@@ -18,8 +18,9 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import se.liu.ida.albhe417.tddd78.game.Vehicles.AbstractVehicle;
-import se.liu.ida.albhe417.tddd78.game.Vehicles.VehicleHelicopterBox;
+import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -42,7 +43,7 @@ public class Game
 
 	private static boolean WIRE_FRAME = false;
     private static int AA_LEVEL = 16;
-	private static float OPENGL_VERSION = 3.2f;
+	private static float OPENGL_VERSION = 3.0f;
     private static String title = "Simple Java Flight Simulator";
 
 	private Matrix4x4 projectionMatrix;
@@ -59,7 +60,7 @@ public class Game
 
 	ArrayList<AbstractGameObject> gameObjects;
 	AbstractVehicle currentVehicle;
-	Terrain terrain;
+	TerrainLOD terrain;
 	private int shaderProgram;
 
 	private long lastTime;
@@ -189,7 +190,7 @@ public class Game
 				"void main(){\n" +
 				"	vertexColor = color;\n" +
 				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-				//"	vertexNormal = normal;\n" +
+				"	vertexNormal = normal;\n" +
 				"}";
 
 		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
@@ -204,14 +205,17 @@ public class Game
 		String fragmentShaderCode =
 				"#version 150 core\n" +
 				"in vec3 vertexColor;\n" +
-				//"in vec3 vertexNormal;\n" +
-				//"uniform vec3 lightDirection;" +
+				"in vec3 vertexNormal;\n" +
+				"uniform vec3 lightDirection;" +
 				"out vec4 pixelColor;\n" +
 
 				"\n" +
 				"\n" +
 				"void main(){\n" +
-				"	pixelColor = vec4(vertexColor.xyz, 1.0);// * dot(vertexNormal, -lightDirection);\n" +
+				"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
+				"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
+				"	else\n" +
+				"		pixelColor = vec4(vertexColor.xyz, 1.0) * dot(normalize(vertexNormal), -lightDirection); \n" +
 				"}";
 
 		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
@@ -219,6 +223,7 @@ public class Game
 		glCompileShader(fragmentShaderRef);
 		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
+
 			throw new RuntimeException("Failed to compile fragment shader");
 		}
 
@@ -248,12 +253,12 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(3);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), shaderProgram, physics);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), 0.1f, shaderProgram, physics);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(1024, 15, 1024.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, 1, 20), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		gameObjects.add(new VehicleHelicopterBox(new Vector3(1024, 16, 1026.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
+		gameObjects.add(new VehicleHelicopterBox(new Vector3(-122, 1, 20), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
 		//gameObjects.add(terrain);
 
 
@@ -272,7 +277,10 @@ public class Game
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(numVectorElements);
 		buffer.put(lightDirection.values);
 		buffer.flip();
+
+		glUseProgram(shaderProgram);
 		glUniform3fv(lightDirectionId, buffer);
+		glUseProgram(0);
 	}
 
     private void update(){
@@ -308,7 +316,7 @@ public class Game
 		//Wireframe
 		if(WIRE_FRAME)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+		//TODO: remove cast
 		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId);
 
 		for (AbstractGameObject drawable: gameObjects) {

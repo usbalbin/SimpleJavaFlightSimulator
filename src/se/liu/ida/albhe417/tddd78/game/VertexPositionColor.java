@@ -52,8 +52,7 @@ public class VertexPositionColor implements Vertex
 
     @Override
     public void setupVertexAttribs() {
-        int floatsPerVector = 3;
-        glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 0);
-        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 1);
+        glVertexAttribPointer(POSITION_INDEX, FLOATS_PER_VECTOR, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, FLOATS_PER_VECTOR * Float.BYTES * 0);
+        glVertexAttribPointer(COLOR_INDEX, FLOATS_PER_VECTOR, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, FLOATS_PER_VECTOR * Float.BYTES * 1);
     }
 }

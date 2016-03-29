@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 /**

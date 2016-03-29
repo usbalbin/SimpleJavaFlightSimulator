@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.Vehicles;
+package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 import static org.lwjgl.glfw.GLFW.*;
 
 import com.bulletphysics.collision.shapes.BoxShape;
