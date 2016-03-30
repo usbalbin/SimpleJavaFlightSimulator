@@ -47,9 +47,9 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         if(input.isPressed(GLFW_KEY_S))
             deltaTrottle -= 1;
 
-        if(input.isPressed(GLFW_KEY_A))
-            yawValue += 1;
         if(input.isPressed(GLFW_KEY_D))
+            yawValue += 1;
+        if(input.isPressed(GLFW_KEY_A))
             yawValue -= 1;
 
         if(input.isPressed(GLFW_KEY_UP))
@@ -67,10 +67,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 100f;
-        final float yawSensetivity = 100f;    //N/m
-        final float pitchSensetivity = 100f;
-        final float rollSensetivity = 100f;
+        final float throttleSensetivity = 200f;
+        final float yawSensetivity = 200f;    //N/m
+        final float pitchSensetivity = 200f;
+        final float rollSensetivity = 200f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
@@ -83,7 +83,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 forcePoint = new Vector3(0, 1, 0);
         forcePoint = partMatrix.getInverse().multiply(forcePoint);
 
-        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
+        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, -yawValue * yawSensetivity, -rollValue * rollSensetivity);
         torque = partMatrix.getInverse().multiply(torque);
 
         partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
