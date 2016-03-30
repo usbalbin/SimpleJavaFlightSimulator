@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactManager">
+    <artifact type="jar" build-on-make="true" name="projekt:jar">
+      <output-path>$PROJECT_DIR$/out/artifacts/projekt_jar</output-path>
+      <root id="archive" name="projekt.jar">
+        <element id="module-output" name="projekt" />
+        <element id="module-output" name="jbullet" />
+        <element id="extracted-dir" path="$PROJECT_DIR$/jbullet/jar/vecmath.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$PROJECT_DIR$/jbullet/jar/jbullet.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$PROJECT_DIR$/jbullet/jar/jbullet - kopia.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$PROJECT_DIR$/lwjgl/jar/lwjgl.jar" path-in-jar="/" />
+      </root>
+    </artifact>
+  </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <resourceExtensions />
