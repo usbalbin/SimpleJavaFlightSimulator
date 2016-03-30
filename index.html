@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Simplejavaflightsimulator by usbalbin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Simplejavaflightsimulator</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/usbalbin/SimpleJavaFlightSimulator" class="btn">View on GitHub</a>
+      <a href="https://github.com/usbalbin/SimpleJavaFlightSimulator/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/usbalbin/SimpleJavaFlightSimulator/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="simplejavaflightsimulator" class="anchor" href="#simplejavaflightsimulator" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SimpleJavaFlightSimulator</h1>
+
+<h2>
+<a id="milstolpar" class="anchor" href="#milstolpar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Milstolpar</h2>
+
+<h3>
+<a id="klart" class="anchor" href="#klart" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Klart</h3>
+
+<ul>
+<li><p>1 Skapa nya/använd javas klasser för vektor och matris matematik</p></li>
+<li><p>2 Implementera en ”Game” klass som sätter upp ett fönster med OpenGL-utritningsfunktionalitet. Skapa även en abstrakt klass för utritningsbart 3D-objekt som innerhåller funktioner för att rita ut sig själv.</p></li>
+<li><p>3 Skapa ett testfordon som utökar ”utritningsbart 3D-objekt” detta fordon bör vara så simpelt som möjligt för att testa att utritningen fungerar.</p></li>
+<li><p>4 Lägg till funktinalitet för att rita ut 3D-scenen utifrån ett perspektiv. Gör om testfördonet så att det har en mer avancerad form för bekräfta att det fungerar som det ska.</p></li>
+<li><p>5 Skapa en terräng som utökar ”utritningsbart 3D-objekt”, denna bör genereras från en heightmap-BMP-bild.</p></li>
+<li><p>6 Lägg till funktionalitet för att kunna styra kameran.</p></li>
+<li><p>7 Lägg till funktionalitet för att kunna styra testfordonet med tangentbordet.</p></li>
+<li><p>8 Fäst kameran vid fordonet</p></li>
+<li><p>9 Implementera flygplansfysik samt lägg till så att kollision med mark ger GameOver(behöver inte vara exakt).</p></li>
+</ul>
+
+<h3>
+<a id="att-göra" class="anchor" href="#att-g%C3%B6ra" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Att göra</h3>
+
+<ul>
+<li><p>10    Lägg till möjlighet att respawna.</p></li>
+<li><p>11    Lägg till någon form av skjutvapen som kan tilldelas till fordon. Skapa möjligheten att med hjälp av dessa kunna skjuta projektiler.</p></li>
+<li><p>12    Skapa måltavlor som spawnar random på banan. Självklart ärver även dessa från ”utritningsbart 3D-objekt”.  Lägg till funktionalitet för att kontrollera om dessa träffats av eventuell avfyrad projektil.</p></li>
+<li><p>13    Implementera poängsystem likt i tetrisprojektet</p></li>
+<li><p>14    (Vid behov)Förfina markkollisionshanteringen. Lägg till möjlighet att kunna starta och landa planet på marken(utan GameOver).</p></li>
+<li><p>15    Lägga till flera flygplan/helikoptrar.</p></li>
+<li><p>16    Skapa någon form av menysystem eller launcher där man kan välja fordon, karta, ställa in grafikinställningar och liknande.</p></li>
+<li><p>17    Gör så att terrängen renderas med textur.</p></li>
+<li><p>18    Lägg till fler kartor. Snygga till grafiken. Exempelvis lite grundläggande ljussätning(mkt grundläggande).</p></li>
+<li><p>19    Se till att exceptions under initialisering kommer upp som fina felmeddelanden som tydligt beskriver felet.</p></li>
+<li><p>20    De exceptions som man bör kunna återhämta sig från bör hanteras på lämpligt sätt. De som inte kan hanteras automatiskt bör skicka användaren dit det går att åtgärda. Exempelvis till menyn för val av OpenGL- version eller liknande.</p></li>
+<li><p>21    Lägg till begränsad ammunitionskapacitet. Ladda om på landningsbanan.</p></li>
+<li><p>22    Lägg till någon form av skybox/dome för att ge en lite trevligare känsla.</p></li>
+<li><p>23    Vid behov, förbättra flyg- samt kollisionsfysiken tills de upplevs tillfredsställande.</p></li>
+<li><p>24    Lägg till stöd för större kartor. Skapa ett chunkloadingssystem där bara de synliga delarna av kartan är inladdade, för att spara minne.</p></li>
+<li><p>25    Implementera funktionalitet att på lämpligt sätt kunna läsa av/sätta fordons position och riktning.</p></li>
+<li><p>26    Implementera stöd för multiplayer med hjälp av M25.</p></li>
+<li><p>27    Lägg till spelläge där man kan tävla mot andra spelare live i ett ”free for all” liknande game mode.</p></li>
+<li><p>27    Ta bort eventuellt hackande orsakat av nätverket</p></li>
+<li><p>28    Skapa ytterligare fordon och kartor. Lägga till roder och liknande som rör på sig då man ger utslag.</p></li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/usbalbin/SimpleJavaFlightSimulator">Simplejavaflightsimulator</a> is maintained by <a href="https://github.com/usbalbin">usbalbin</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
