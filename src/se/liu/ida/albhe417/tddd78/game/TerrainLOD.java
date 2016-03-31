@@ -40,9 +40,9 @@ public class TerrainLOD extends Terrain {
     }
 
     protected void setup() {
-        float maxHeight = 256 * HEIGHT_FACTOR;
+        float maxHeight = 256f * 256f * HEIGHT_FACTOR;
 
-        heights = Helpers.imageToFloatHeights("content/heightmap.png");
+        heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
         quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight);
         height = width = quadTree.getHmapSize();
 
@@ -52,7 +52,7 @@ public class TerrainLOD extends Terrain {
         //Physics
         MotionState motionState = new DefaultMotionState();
         CollisionShape shape = new HeightfieldTerrainShape(
-                width, height, heights, HEIGHT_FACTOR, 0, maxHeight, 1, false
+                width, height, heights, HEIGHT_FACTOR, 0, maxHeight, 1, true
         );
 
         RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);

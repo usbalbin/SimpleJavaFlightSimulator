@@ -78,8 +78,8 @@ public class QuadTree {
     }
 
     public void update(Vector3 cameraPosition, List<VertexPositionColorNormal> vertices, List<Integer> indices){
-        final float detailFactor = 300;
-        final short maxLevels = 8;//11;
+        final float detailFactor = 350;
+        final short maxLevels = 11;//11;
 
         generateTree(cameraPosition, detailFactor, maxLevels);
 
@@ -117,12 +117,24 @@ public class QuadTree {
 
     private void generateTree(final Vector3 cameraPos, final float detailFactor, final short maxLevels){
         //TODO: Change to length2() to save CPU
+        Vector3 center = position;
+        Vector3 left = position.add(-size / 2f, 0, 0);
+        Vector3 top = position.add(0, 0, -size / 2f);
+        Vector3 right = position.add(size / 2f, 0, 0);
+        Vector3 bottom = position.add(0, 0, size / 2f);
+
+        setHeight(center);
+        setHeight(left);
+        setHeight(top);
+        setHeight(right);
+        setHeight(bottom);
+
         final Float[] dists = {
-                cameraPos.sub(position).length(),
-                cameraPos.sub(position.add(-size / 2, 0, 0)).length(),
-                cameraPos.sub(position.add(0, 0, -size / 2)).length(),
-                cameraPos.sub(position.add(size / 2, 0, 0)).length(),
-                cameraPos.sub(position.add(0, 0, size / 2)).length()
+            cameraPos.sub(center).length(),
+            cameraPos.sub(left).length(),
+            cameraPos.sub(top).length(),
+            cameraPos.sub(right).length(),
+            cameraPos.sub(bottom).length()
         };
 
         final float dist = Collections.min(Arrays.asList(dists));
@@ -131,7 +143,7 @@ public class QuadTree {
         //TODO make working formula
         //int desiredLevelSquared = (int)((detailFactor * detailFactor) / distSquared);
         //int desiredLevel = (int)Math.max(maxLevels - (dist * dist / (detailFactor * 1000)), 0);
-        final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ (detailFactor)), 0);
+        final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
         if(desiredLevel > level && level < maxLevels){
@@ -255,7 +267,7 @@ public class QuadTree {
             setHeight(leftBottomPos);
             setHeight(rightBottomPos);
 
-
+            Vector3 color = new Vector3(0.5f);
 
             final int index = vertices.size();
 
@@ -265,10 +277,10 @@ public class QuadTree {
                 Vector3 col3 = new Vector3((leftBottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR  / 256f);
                 Vector3 col4 = new Vector3((rightBottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
 
-                vertices.add(new VertexPositionColorNormal(leftFrontPos, col1));//0
-                vertices.add(new VertexPositionColorNormal(rightFrontPos, col2));//1
-                vertices.add(new VertexPositionColorNormal(leftBottomPos, col3));//2
-                vertices.add(new VertexPositionColorNormal(rightBottomPos,col4));//3
+                vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
+                vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
+                vertices.add(new VertexPositionColorNormal(leftBottomPos, color));//2
+                vertices.add(new VertexPositionColorNormal(rightBottomPos,color));//3
 
                 indices.add(0 + index);indices.add(3 + index);indices.add(2 + index);
                 indices.add(0 + index);indices.add(1 + index);indices.add(3 + index);
@@ -287,6 +299,8 @@ public class QuadTree {
                 setHeight(rightPos);
                 setHeight(bottomPos);
 
+
+
                 Vector3 col0 = new Vector3((center.getY() + maxHeight / 2f) / HEIGHT_FACTOR / 256f);
 
                 Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2f) / HEIGHT_FACTOR / 256f);
@@ -301,23 +315,23 @@ public class QuadTree {
 
 
 
-                vertices.add(new VertexPositionColorNormal(center, col0));
+                vertices.add(new VertexPositionColorNormal(center, color));
 
-                vertices.add(new VertexPositionColorNormal(leftFrontPos, col1));
+                vertices.add(new VertexPositionColorNormal(leftFrontPos, color));
                 if(frontStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(frontPos, col5));
+                    vertices.add(new VertexPositionColorNormal(frontPos, color));
 
-                vertices.add(new VertexPositionColorNormal(rightFrontPos, col2));
+                vertices.add(new VertexPositionColorNormal(rightFrontPos, color));
                 if(rightStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(rightPos, col6));
+                    vertices.add(new VertexPositionColorNormal(rightPos, color));
 
-                vertices.add(new VertexPositionColorNormal(rightBottomPos, col3));
+                vertices.add(new VertexPositionColorNormal(rightBottomPos, color));
                 if(bottomStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(bottomPos, col7));
+                    vertices.add(new VertexPositionColorNormal(bottomPos, color));
 
-                vertices.add(new VertexPositionColorNormal(leftBottomPos, col4));
+                vertices.add(new VertexPositionColorNormal(leftBottomPos, color));
                 if(leftStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(leftPos, col8));
+                    vertices.add(new VertexPositionColorNormal(leftPos, color));
 
 
                 indices.add(index + (numVertices - 1));   //last vertex

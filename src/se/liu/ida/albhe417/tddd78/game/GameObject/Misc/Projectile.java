@@ -27,10 +27,10 @@ public class Projectile extends AbstractGameObject{
     }
 
     private void setup(Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics){
-        float mass = 1;
-        float radius = 1;
+        float mass = 0.1f;
+        float radius = 0.5f;
         Vector3 color = new Vector3(1, 0, 0);
-        int qualityFactor = 10;
+        int qualityFactor = 4;
 
         ArrayList<VertexPositionColorNormal> vertices = new ArrayList<>();
         ArrayList<Integer> indices = new ArrayList<>();

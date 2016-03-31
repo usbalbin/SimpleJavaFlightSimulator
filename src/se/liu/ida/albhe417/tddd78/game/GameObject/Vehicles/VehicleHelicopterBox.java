@@ -47,9 +47,9 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         if(input.isPressed(GLFW_KEY_S))
             deltaTrottle -= 1;
 
-        if(input.isPressed(GLFW_KEY_D))
-            yawValue += 1;
         if(input.isPressed(GLFW_KEY_A))
+            yawValue += 1;
+        if(input.isPressed(GLFW_KEY_D))
             yawValue -= 1;
 
         if(input.isPressed(GLFW_KEY_UP))
@@ -67,10 +67,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 200f;
-        final float yawSensetivity = 200f;    //N/m
-        final float pitchSensetivity = 200f;
-        final float rollSensetivity = 200f;
+        final float throttleSensetivity = 100f;
+        final float yawSensetivity = 100f;    //N/m
+        final float pitchSensetivity = 100f;
+        final float rollSensetivity = 100f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
@@ -83,7 +83,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 forcePoint = new Vector3(0, 1, 0);
         forcePoint = partMatrix.getInverse().multiply(forcePoint);
 
-        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, -yawValue * yawSensetivity, -rollValue * rollSensetivity);
+        Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
         torque = partMatrix.getInverse().multiply(torque);
 
         partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
@@ -110,17 +110,17 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 posRBF = new Vector3( SIZE,-SIZE, -SIZE);
         Vector3 posLBF = new Vector3(-SIZE,-SIZE, -SIZE);
 
-        VertexPositionColor LTR = new VertexPositionColor(posLTR, red);
-        VertexPositionColor RTR = new VertexPositionColor(posRTR, green);
-        VertexPositionColor RBR = new VertexPositionColor(posRBR, blue);
-        VertexPositionColor LBR = new VertexPositionColor(posLBR, white);
+        VertexPositionColorNormal LTR = new VertexPositionColorNormal(posLTR, red, posLTR);
+        VertexPositionColorNormal RTR = new VertexPositionColorNormal(posRTR, green, posRTR);
+        VertexPositionColorNormal RBR = new VertexPositionColorNormal(posRBR, blue, posRBR);
+        VertexPositionColorNormal LBR = new VertexPositionColorNormal(posLBR, white, posLBR);
 
-        VertexPositionColor LTF = new VertexPositionColor(posLTF, red);
-        VertexPositionColor RTF = new VertexPositionColor(posRTF, green);
-        VertexPositionColor RBF = new VertexPositionColor(posRBF, blue);
-        VertexPositionColor LBF = new VertexPositionColor(posLBF, white);
+        VertexPositionColorNormal LTF = new VertexPositionColorNormal(posLTF, red, posLTF);
+        VertexPositionColorNormal RTF = new VertexPositionColorNormal(posRTF, green, posRTF);
+        VertexPositionColorNormal RBF = new VertexPositionColorNormal(posRBF, blue, posRBF);
+        VertexPositionColorNormal LBF = new VertexPositionColorNormal(posLBF, white, posLBF);
 
-        VertexPositionColor[] vertices = {
+        VertexPositionColorNormal[] vertices = {
             LTR, RTR, RBR, LBR,
             LTF, RTF, RBF, LBF
         };

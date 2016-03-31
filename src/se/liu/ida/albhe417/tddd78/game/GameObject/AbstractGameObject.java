@@ -28,10 +28,10 @@ public abstract class AbstractGameObject
 
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int matrixId){
+    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
 
         for(GameObjectPart part : parts){
-            part.draw(cameraMatrix, matrixId);
+            part.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
         }
     }
 }

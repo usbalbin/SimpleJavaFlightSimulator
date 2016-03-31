@@ -5,6 +5,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferUShort;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -132,7 +133,7 @@ public class Helpers {
         int width = heightMapBuff.getWidth();
         int height = heightMapBuff.getHeight();
 
-        int size = Math.min(Math.min(width, height), 8192);
+        int size = Math.min(Math.min(width, height), 8193);
 
         byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
 
@@ -152,6 +153,42 @@ public class Helpers {
         return colors;
     }
 
+    public static float[] shortImageToFloatHeights(String fileName){
+        BufferedImage heightMapBuff;
+        InputStream fileStream = Helpers.class.getResourceAsStream(fileName);
+
+        if(fileStream == null)
+            throw new RuntimeException("Failed to load " + fileName);
+
+        try{
+            heightMapBuff = ImageIO.read(fileStream);
+        }catch (IOException e){
+            throw new RuntimeException("Failed to load " + fileName);
+        }
+
+        int width = heightMapBuff.getWidth();
+        int height = heightMapBuff.getHeight();
+
+        int size = Math.min(Math.min(width, height), 8193);
+
+        short[] pixels = ((DataBufferUShort)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
+
+
+        float[] colors = new float[size * size];
+
+        final int componentsPerPixel = pixels.length / (width * height);//heightMapBuff.getColorModel().getNumColorComponents();
+        int offset = componentsPerPixel == 4 ? 1 : 0;
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
+                float color = (pixels[row * width * componentsPerPixel + column * componentsPerPixel + offset] & 0x00FFFF);
+                colors[row * size + column] = color;
+            }
+        }
+
+
+        return colors;
+    }
+
     public static float byteToFloatColor(short color){
         final short toUnsigedByte = 0x00FF;
         final float unsignedByteMaxVal = 256f;
@@ -160,38 +197,12 @@ public class Helpers {
         return (color & toUnsigedByte ) / unsignedByteMaxVal;
     }
 
-    //TODO use fixed arrays
-    public static void createSphere_old(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
-        float step = (float)Math.PI / qualityFactor;
-
-        for(float alpha = 0; alpha < 2f * (float)Math.PI; alpha += step){
-            float xFactor = (float)Math.cos(alpha) * radius;
-            float zFactorAlpha = (float)Math.sin(alpha) * radius;
-
-            for(float beta = -(float)Math.PI / 2f; beta < (float)Math.PI / 2f; beta += step){
-                float yFactor = (float)Math.sin(beta) * radius;
-                float zFactorBeta = (float)Math.cos(beta);
-
-                float x = xFactor;
-                float y = yFactor;
-                float z = zFactorAlpha * zFactorBeta;
-
-                Vector3 position = new Vector3(x, y, z);
-                vertices.add(new VertexPositionColor(position, color));
-
-            }
-
-        }
-
-        setupSphereIndices(qualityFactor, indices, vertices.size());
-    }
-
     public static void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
         float step = (float)Math.PI / qualityFactor;
         for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
             for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
 
-                Vector3 position = new Vector3(0, 1, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
+                Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColor(position, color));
 
             }
@@ -206,7 +217,7 @@ public class Helpers {
         for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
             for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
 
-                Vector3 position = new Vector3(0, 1, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
+                Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColorNormal(position, color, position));
 
             }

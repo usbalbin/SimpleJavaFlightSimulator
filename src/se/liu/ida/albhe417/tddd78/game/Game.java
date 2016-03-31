@@ -20,6 +20,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Projectile;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -39,7 +40,7 @@ public class Game
 	private static final int WINDOW_POS_Y = 50;
 
 	private static final float FOV = 90 * (float)Math.PI / 180.0f;
-	private static final float DRAW_DISTANCE = 2048;
+	private static final float DRAW_DISTANCE = 3072;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
 
 	private static boolean WIRE_FRAME = false;
@@ -50,13 +51,15 @@ public class Game
 	private Matrix4x4 projectionMatrix;
 	private Matrix4x4 viewMatrix;
 	private Matrix4x4 cameraMatrix;
-	private int modelViewProjectionMatrixId;
+	private int MVPmatrixId;
+	private int modelMatrixId;
 
 	private Vector3 lightDirection;
 	private int lightDirectionId;
 
 
-	private static Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+	private static final float HEIGHT_SCALE = 0.01f;
+	private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
 	private DynamicsWorld physics;
 
 	ArrayList<AbstractGameObject> gameObjects;
@@ -115,63 +118,6 @@ public class Game
 		//TODO: Add culling stuff
     }
 
-	private void setupShaders_old(){
-		int result;
-
-		//TODO: fix layout-issue and Use normals
-		String vertexShaderCode =
-			"#version 150 core\n" +
-			"/*layout(location=0) */in vec3 position;\n" +
-			"/*layout(location=1) */in vec3 color;\n" +
-			"out vec3 vertexColor;\n" +
-			"uniform mat4 modelViewProjectionMatrix;\n" +
-			"uniform vec3 lightDirection;\n" +
-			"\n" +
-			"void main(){\n" +
-			"	vertexColor = color;\n" +
-			"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-			"}";
-
-		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShaderRef, vertexShaderCode);
-		glCompileShader(vertexShaderRef);
-		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
-		if(result != GL_TRUE){
-			throw new RuntimeException("Failed to compile vertex shader");
-		}
-
-		//TODO: Make use of normals
-		String fragmentShaderCode =
-			"#version 150 core\n" +
-			"in vec3 vertexColor;\n" +
-			"out vec4 pixelColor;\n" +
-			"\n" +
-			"void main(){\n" +
-			"	pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
-			"}";
-
-		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShaderRef, fragmentShaderCode);
-		glCompileShader(fragmentShaderRef);
-		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
-		if(result != GL_TRUE){
-			throw new RuntimeException("Failed to compile fragment shader");
-		}
-
-		shaderProgram = glCreateProgram();
-		glAttachShader(shaderProgram, vertexShaderRef);
-		glAttachShader(shaderProgram, fragmentShaderRef);
-
-		glLinkProgram(shaderProgram);
-
-		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
-		if(result != GL_TRUE){
-			throw new RuntimeException("Failed to link shader program");
-		}
-		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
-		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
-	}
-
 	private void setupShaders(){
 		int result;
 
@@ -186,12 +132,13 @@ public class Game
 				"out vec3 vertexNormal;" +
 
 				"uniform mat4 modelViewProjectionMatrix;\n" +
+				"uniform mat4 modelMatrix;\n" +
 				"\n" +
 				"\n" +
 				"void main(){\n" +
 				"	vertexColor = color;\n" +
 				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-				"	vertexNormal = normal;\n" +
+				"	vertexNormal = (modelMatrix * vec4(normal, 0.0)).xyz;\n" +
 				"}";
 
 		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
@@ -205,6 +152,7 @@ public class Game
 		//TODO: Make use of normals
 		String fragmentShaderCode =
 				"#version 150 core\n" +
+				"float ambient = 0.65; \n" +
 				"in vec3 vertexColor;\n" +
 				"in vec3 vertexNormal;\n" +
 				"uniform vec3 lightDirection;" +
@@ -216,7 +164,7 @@ public class Game
 				"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
 				"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
 				"	else\n" +
-				"		pixelColor = vec4(vertexColor.xyz, 1.0) * dot(normalize(vertexNormal), -lightDirection); \n" +
+				"		pixelColor = vec4(vertexColor.xyz, 1.0) * (ambient + dot(normalize(vertexNormal) * (1- ambient), -lightDirection));\n" +
 				"}";
 
 		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
@@ -238,7 +186,8 @@ public class Game
 		if(result != GL_TRUE){
 			throw new RuntimeException("Failed to link shader program");
 		}
-		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		MVPmatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
 		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 
 
@@ -266,13 +215,18 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(3);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), 0.1f, shaderProgram, physics);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, shaderProgram, physics);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, 1, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		gameObjects.add(new VehicleHelicopterBox(new Vector3(-122, 1, 20), -(float)Math.PI / 2.0f, shaderProgram, physics));
-		gameObjects.add(new Projectile(new Vector3(-122, 1, 22), new Vector3(), shaderProgram, physics));
+		for(int y = 0; y < 15; y++) {
+			for(int x = -5; x < 5; x++) {
+				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
+				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
+				gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics));
+			}
+		}
 		//gameObjects.add(terrain);
 
 
@@ -308,12 +262,14 @@ public class Game
 			drawable.update(deltaTime);
 		}
 
+
+		physics.stepSimulation(deltaTime, 3, 1f / 100f);
+
+
 		updateCameraMatrix();
 		Vector3 cameraPosition = currentVehicle.getCameraPosition();
 		//TODO remove cast
 		((TerrainLOD)terrain).update(cameraPosition);
-		physics.stepSimulation(deltaTime);
-
     }
 
 	private void updateCameraMatrix() {
@@ -331,10 +287,10 @@ public class Game
 		if(WIRE_FRAME)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//TODO: remove cast
-		((TerrainLOD)terrain).draw(cameraMatrix, modelViewProjectionMatrixId);
+		((TerrainLOD)terrain).draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 
 		for (AbstractGameObject drawable: gameObjects) {
-			drawable.draw(cameraMatrix, modelViewProjectionMatrixId);
+			drawable.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 		}
 
 		glfwSwapBuffers(window);

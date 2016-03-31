@@ -78,22 +78,13 @@ public class GameObjectPart
         updateData(vertices, indices);
     }
 
-    public void draw(Matrix4x4 modelMatrix, int matrixId){
-        Matrix4x4 modelViewProjectionMatrix = modelMatrix;
+    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
 
 
         glBindVertexArray(vertexArray);
         glUseProgram(shaderProgram);
 
-        setPartMatrix(modelViewProjectionMatrix, matrixId);
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
-        glUseProgram(0);
-        glBindVertexArray(0);
-    }
-
-    protected void setPartMatrix(Matrix4x4 cameraMatrix, int matrixId){
-        final int matrixRows = 4;
         Transform transform = new Transform();
         physicsObject.getWorldTransform(transform);
 
@@ -101,12 +92,26 @@ public class GameObjectPart
         transform.getMatrix(modelMatrix4f);
 
         Matrix4x4 modelMatrix = new Matrix4x4(modelMatrix4f);
+        setMatrices(modelMatrix, modelMatrixId);
+
         Matrix4x4 modelViewProjectionMatrix = cameraMatrix.multiply(modelMatrix);
+        setMatrices(modelViewProjectionMatrix, MVPmatrixId);
+
+
+
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+    }
+
+    protected void setMatrices(Matrix4x4 matrix, int matrixId){
+        final int matrixRows = 4;
 
         FloatBuffer buffer = BufferUtils.createFloatBuffer(matrixRows * matrixRows);
         for(int row = 0; row < matrixRows; row++)
             for(int column = 0; column < matrixRows; column++)
-                buffer.put(modelViewProjectionMatrix.getValueAt(column, row));
+                buffer.put(matrix.getValueAt(column, row));
         buffer.flip();
 
         glUniformMatrix4fv(matrixId, false, buffer);
