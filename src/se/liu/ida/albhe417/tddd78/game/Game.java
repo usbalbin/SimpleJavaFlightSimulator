@@ -19,6 +19,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Projectile;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -174,7 +175,7 @@ public class Game
 	private void setupShaders(){
 		int result;
 
-		//TODO: fix layout-issue and Use normals
+		//TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
 		String vertexShaderCode =
 				"#version 150 core\n" +
 				"/*layout(location=0) */in vec3 position;\n" +
@@ -267,10 +268,11 @@ public class Game
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), 0.1f, shaderProgram, physics);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, 1, 20), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, 1, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		gameObjects.add(new VehicleHelicopterBox(new Vector3(-122, 1, 20), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics));
+		gameObjects.add(new VehicleHelicopterBox(new Vector3(-122, 1, 20), -(float)Math.PI / 2.0f, shaderProgram, physics));
+		gameObjects.add(new Projectile(new Vector3(-122, 1, 22), new Vector3(), shaderProgram, physics));
 		//gameObjects.add(terrain);
 
 

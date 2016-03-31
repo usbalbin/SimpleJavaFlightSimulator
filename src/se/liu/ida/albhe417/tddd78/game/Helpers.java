@@ -161,8 +161,8 @@ public class Helpers {
     }
 
     //TODO use fixed arrays
-    public void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
-        float step = 2f * (float)Math.PI / qualityFactor;
+    public static void createSphere_old(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+        float step = (float)Math.PI / qualityFactor;
 
         for(float alpha = 0; alpha < 2f * (float)Math.PI; alpha += step){
             float xFactor = (float)Math.cos(alpha) * radius;
@@ -186,22 +186,27 @@ public class Helpers {
         setupSphereIndices(qualityFactor, indices, vertices.size());
     }
 
-    public void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+    public static void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
         float step = (float)Math.PI / qualityFactor;
+        for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
+            for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
 
-        for(float alpha = 0; alpha < 2f * (float)Math.PI; alpha += step){
-            float xFactor = (float)Math.cos(alpha) * radius;
-            float zFactorAlpha = (float)Math.sin(alpha) * radius;
+                Vector3 position = new Vector3(0, 1, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
+                vertices.add(new VertexPositionColor(position, color));
 
-            for(float beta = -(float)Math.PI / 2f; beta < (float)Math.PI / 2f; beta += step){
-                float yFactor = (float)Math.sin(beta) * radius;
-                float zFactorBeta = (float)Math.cos(beta);
+            }
 
-                float x = xFactor;
-                float y = yFactor;
-                float z = zFactorAlpha * zFactorBeta;
+        }
 
-                Vector3 position = new Vector3(x, y, z);
+        setupSphereIndices(qualityFactor, indices, vertices.size());
+    }
+
+    public static void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+        float step = (float)Math.PI / qualityFactor;
+        for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
+            for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
+
+                Vector3 position = new Vector3(0, 1, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColorNormal(position, color, position));
 
             }
@@ -211,15 +216,15 @@ public class Helpers {
         setupSphereIndices(qualityFactor, indices, vertices.size());
     }
 
-    private void setupSphereIndices(int qualityFactor, List<Integer> indices, int vertexCount){
+    private static void setupSphereIndices(int qualityFactor, List<Integer> indices, int vertexCount){
         for(int i = 0; i < vertexCount; i++){
             indices.add(i                                       );
-            indices.add((i - 1 - qualityFactor) % vertexCount   );
-            indices.add((i - 1)                 % vertexCount   );
+            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount   );
+            indices.add((i - 1                 + vertexCount) % vertexCount   );
 
             indices.add(i                                       );
-            indices.add((i - 0 - qualityFactor) % vertexCount   );
-            indices.add((i - 1 - qualityFactor) % vertexCount   );
+            indices.add((i - 0 - qualityFactor + vertexCount) % vertexCount   );
+            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount   );
         }
     }
 }

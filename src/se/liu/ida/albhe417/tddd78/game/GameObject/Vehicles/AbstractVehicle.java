@@ -9,7 +9,6 @@ import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 public abstract class AbstractVehicle extends AbstractGameObject
 {
-    protected Terrain terrain;
     protected float MASS;
     protected final float THRUST_FACTOR;
     protected float throttle = 0;
@@ -19,9 +18,8 @@ public abstract class AbstractVehicle extends AbstractGameObject
     protected GameObjectPart partBody;
 
 
-    public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor, Terrain terrain){
+    public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor){
 	    super(position, yaw);
-        this.terrain = terrain;
         this.MASS = mass;
         this.THRUST_FACTOR = thrustFactor;
         velocity = new Vector3();

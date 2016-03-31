@@ -21,9 +21,9 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class VehicleHelicopterBox_normals extends VehicleHelicopter {
 
-    public VehicleHelicopterBox_normals(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics){
+    public VehicleHelicopterBox_normals(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics){
         //TODO, add constants
-        super(position, yaw, 1000.0f, 20000.0f, terrain);
+        super(position, yaw, 1000.0f, 20000.0f);
         setup(shaderProgram, physics);
     }
 
@@ -151,14 +151,6 @@ public class VehicleHelicopterBox_normals extends VehicleHelicopter {
     }
 
     public void update(float deltaTime){
-        float airPlaneHeight = 1;
-        Vector3 position = modelMatrix.getPosition();
 
-        float terrainHeight = terrain.getHeight(position.getX(), position.getZ());
-        if( position.getY() < terrainHeight + airPlaneHeight){
-            position.setY(terrainHeight + airPlaneHeight);
-            modelMatrix.setPosition(position);
-            velocity.setY(0);
-        }
     }
 }

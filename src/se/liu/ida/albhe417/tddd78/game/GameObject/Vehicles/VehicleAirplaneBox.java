@@ -17,7 +17,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 {
 
     public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
-		super(position, yaw, 100.0f, 1.0f, terrain);
+		super(position, yaw, 100.0f, 1.0f);
 		setup(shaderProgram);
     }
 
@@ -120,13 +120,6 @@ public class VehicleAirplaneBox extends VehicleAirplane
     }
 
     public void update(float deltaTime){
-		float AirPlaneHeight = 1;
-		Vector3 position = modelMatrix.getPosition();
 
-		float terrainHeight = terrain.getHeight(position.getX(), position.getZ());
-		if( position.getY() < terrainHeight + AirPlaneHeight){
-			position.setY(terrainHeight + AirPlaneHeight);
-			modelMatrix.setPosition(position);
-		}
     }
 }
