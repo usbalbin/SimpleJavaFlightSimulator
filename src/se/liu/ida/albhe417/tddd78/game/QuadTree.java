@@ -1,5 +1,9 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import com.bulletphysics.collision.dispatch.GhostPairCallback;
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.Arrays;
@@ -116,6 +120,8 @@ public class QuadTree {
 
 
     private void generateTree(final Vector3 cameraPos, final float detailFactor, final short maxLevels){
+        leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
+
         //TODO: Change to length2() to save CPU
         Vector3 center = position;
         Vector3 left = position.add(-size / 2f, 0, 0);
@@ -146,22 +152,32 @@ public class QuadTree {
         final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-        if(desiredLevel > level && level < maxLevels){
-            final int childSize = size / 2;
-            final int halfChildSize = childSize / 2;
-            final short childLevel = (short)(1 + level);
+        if(desiredLevel <= level || level >= maxLevels) {
+            leftFront = null;
+            rightFront = null;
+            rightBottom = null;
+            leftBottom = null;
+            return;
+        }
 
+        final int childSize = size / 2;
+        final int halfChildSize = childSize / 2;
+        final short childLevel = (short)(1 + level);
+
+        if(leftFront == null && rightFront == null && leftBottom == null && rightBottom == null) {
             leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
             rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
             leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
             rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
         }
         else {
-            leftFront = null;
-            rightFront = null;
-            leftBottom = null;
-            rightBottom = null;
+            leftFront.generateTree(cameraPos, detailFactor, maxLevels);
+            rightFront.generateTree(cameraPos, detailFactor, maxLevels);
+            leftBottom.generateTree(cameraPos, detailFactor, maxLevels);
+            rightBottom.generateTree(cameraPos, detailFactor, maxLevels);
         }
+
+
     }
 
     private boolean hasChildren(){
