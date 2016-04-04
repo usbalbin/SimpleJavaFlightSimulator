@@ -83,6 +83,12 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3 forcePoint = new Vector3(0, 1, 0);
         forcePoint = partMatrix.getInverse().multiply(forcePoint);
 
+        Vector3f angularVelocity = new Vector3f();
+        partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
+
+        Vector3 airTorque = new Vector3(angularVelocity);
+        ai
+
         Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
         torque = partMatrix.getInverse().multiply(torque);
 
@@ -97,18 +103,18 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         final Vector3 blue = 	new Vector3(0, 0, 1);
         final Vector3 white = 	new Vector3(1, 1, 1);
 
-        final float SIZE = 1f;
+        final Vector3 SIZE = new Vector3(2, .5f, 2);
 
         //"LTR" = left top rear
-        Vector3 posLTR = new Vector3(-SIZE, SIZE, SIZE);
-        Vector3 posRTR = new Vector3( SIZE, SIZE, SIZE);
-        Vector3 posRBR = new Vector3( SIZE,-SIZE, SIZE);
-        Vector3 posLBR = new Vector3(-SIZE,-SIZE, SIZE);
+        Vector3 posLTR = new Vector3(-SIZE.getX(), SIZE.getY(), SIZE.getZ());
+        Vector3 posRTR = new Vector3( SIZE.getX(), SIZE.getY(), SIZE.getZ());
+        Vector3 posRBR = new Vector3( SIZE.getX(),-SIZE.getY(), SIZE.getZ());
+        Vector3 posLBR = new Vector3(-SIZE.getX(),-SIZE.getY(), SIZE.getZ());
 
-        Vector3 posLTF = new Vector3(-SIZE, SIZE, -SIZE);
-        Vector3 posRTF = new Vector3( SIZE, SIZE, -SIZE);
-        Vector3 posRBF = new Vector3( SIZE,-SIZE, -SIZE);
-        Vector3 posLBF = new Vector3(-SIZE,-SIZE, -SIZE);
+        Vector3 posLTF = new Vector3(-SIZE.getX(), SIZE.getY(), -SIZE.getZ());
+        Vector3 posRTF = new Vector3( SIZE.getX(), SIZE.getY(), -SIZE.getZ());
+        Vector3 posRBF = new Vector3( SIZE.getX(),-SIZE.getY(), -SIZE.getZ());
+        Vector3 posLBF = new Vector3(-SIZE.getX(),-SIZE.getY(), -SIZE.getZ());
 
         VertexPositionColorNormal LTR = new VertexPositionColorNormal(posLTR, red, posLTR);
         VertexPositionColorNormal RTR = new VertexPositionColorNormal(posRTR, green, posRTR);
@@ -139,7 +145,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Transform transform = new Transform(modelMatrix.toMatrix4f());
         MotionState motionState = new DefaultMotionState(transform);
 
-        CollisionShape shape = new BoxShape(new Vector3(SIZE).toVector3f());
+        CollisionShape shape = new BoxShape(SIZE.toVector3f());
         Vector3f inertia = new Vector3f();
         shape.calculateLocalInertia(MASS, inertia);
         RigidBody physicsObject = new RigidBody(MASS, motionState, shape, inertia);

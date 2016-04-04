@@ -46,9 +46,6 @@ public class QuadTree {
     private static int hmapSize;
     private static float maxHeight;
 
-    //TODO: try to get rid of me
-    private static QuadTree root;
-
     /**
      * Create Root QuadTree
      * @param fileNameHeightmap heightmap
@@ -61,7 +58,6 @@ public class QuadTree {
         this.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
-        root = this;
     }
 
     /**
@@ -456,35 +452,6 @@ public class QuadTree {
         }
     }
 
-    protected QuadTree findNode_onlyDown(final Vector3 position){
-        final Vector3 delta = position.sub(this.position);
-        final int dx = Math.round(delta.getX());
-        final int dz = Math.round(delta.getZ());
-
-        final float radius = size / 2.0f;
-
-        if(dx < -radius || radius < dx ||
-                dz < -radius || radius < dz){
-            return null;
-        }
-
-        if((dz == 0 && dx == 0) || !hasChildren())
-            return this;
-
-        if(0 > dz){
-            if(0 > dx)
-                return leftFront.findNode_onlyDown(position);
-            else
-                return rightFront.findNode_onlyDown(position);
-        }
-        else{
-            if(0 > dx)
-                return leftBottom.findNode_onlyDown(position);
-            else
-                return rightBottom.findNode_onlyDown(position);
-        }
-    }
-
     private void calculateNormals(List<VertexPositionColorNormal> vertices, List<Integer> indices){
         //For each triangle calculate its normal and add this to each of its vertices's normals
         for(int triangle = 0; triangle < indices.size() / 3; triangle++){
@@ -500,14 +467,6 @@ public class QuadTree {
             vertices.get(index1).normal = vertices.get(index1).normal.add(normal);
             vertices.get(index2).normal = vertices.get(index2).normal.add(normal);
         }
-
-        //Normalize all vertices
-        //TODO: do this on GPU instead to save CPU and heap?
-        //TODO: if done on cpu try to reduce heap usage caused
-        // by new objects craeted fro Vector3.getNormalized()
-        //for(VertexPositionColorNormal vertex : vertices)
-            //vertex.normal = vertex.normal.getNormalized();
     }
-
 
 }

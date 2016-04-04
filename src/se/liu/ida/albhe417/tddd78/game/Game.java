@@ -34,8 +34,8 @@ public class Game
 	//TODO: Needed?
     private GLFWErrorCallback errorCallback;
     private long window;//Reference to window
-    private static final int WINDOW_WIDTH = 1024;
-	private static final int WINDOW_HEIGHT = 768;
+    private static final int WINDOW_WIDTH = 1400;
+	private static final int WINDOW_HEIGHT = 800;
     private static final int WINDOW_POS_X = 50;
 	private static final int WINDOW_POS_Y = 50;
 
@@ -123,7 +123,7 @@ public class Game
 
 		//TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
 		String vertexShaderCode =
-				"#version 150 core\n" +
+				"#version 130\n" +
 				"/*layout(location=0) */in vec3 position;\n" +
 				"/*layout(location=1) */in vec3 normal;\n" +
 				"/*layout(location=2) */in vec3 color;\n" +
@@ -146,12 +146,13 @@ public class Game
 		glCompileShader(vertexShaderRef);
 		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
-			throw new RuntimeException("Failed to compile vertex shader");
+		    glGetShaderInfoLog(vertexShaderRef);
+		    throw new RuntimeException("Failed to compile vertex shader");
 		}
 
 		//TODO: Make use of normals
 		String fragmentShaderCode =
-				"#version 150 core\n" +
+				"#version 130\n" +
 				"float ambient = 0.65; \n" +
 				"in vec3 vertexColor;\n" +
 				"in vec3 vertexNormal;\n" +
@@ -170,10 +171,11 @@ public class Game
 		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShaderRef, fragmentShaderCode);
 		glCompileShader(fragmentShaderRef);
+		glGetShaderInfoLog(fragmentShaderRef);
 		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
 
-			throw new RuntimeException("Failed to compile fragment shader");
+		    throw new RuntimeException("Failed to compile fragment shader");
 		}
 
 		shaderProgram = glCreateProgram();
@@ -184,7 +186,7 @@ public class Game
 
 		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
 		if(result != GL_TRUE){
-			throw new RuntimeException("Failed to link shader program");
+		    throw new RuntimeException("Failed to link shader program");
 		}
 		MVPmatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
 		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
@@ -220,8 +222,8 @@ public class Game
 		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		for(int y = 0; y < 4; y++) {
-			for(int x = -2; x < 2; x++) {
+		for(int y = 0; y < 10; y++) {
+			for(int x = -4; x < 4; x++) {
 				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
 				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
 				gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics));

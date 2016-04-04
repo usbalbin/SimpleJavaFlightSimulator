@@ -14,8 +14,11 @@ public class Vector3
     public final float[] values;
 
     public Vector3() {
-    	this.values = new float[3];
-    	setX(0);setY(0);setZ(0);
+    	this(0, 0, 0);
+    }
+
+    public Vector3(Vector3f vector3f){
+        this(vector3f.x, vector3f.y, vector3f.z);
     }
 
     public Vector3(Vector3 vector3){
