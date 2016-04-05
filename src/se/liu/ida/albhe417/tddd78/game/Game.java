@@ -232,7 +232,8 @@ public class Game
 		//gameObjects.add(terrain);
 
 
-		lastTime = System.currentTimeMillis();
+		lastTime = System.nanoTime();
+
 	}
 
 	private void setupProjectionMatrix(){
@@ -254,8 +255,8 @@ public class Game
 	}
 
     private void update(){
-		long nowTime = System.currentTimeMillis();
-		float deltaTime = (nowTime - lastTime) / 1000.0f;
+		long nowTime = System.nanoTime();
+		float deltaTime = (nowTime - lastTime) / 1000000.0f;
 		lastTime = nowTime;
 
 		currentVehicle.handleInput(deltaTime);

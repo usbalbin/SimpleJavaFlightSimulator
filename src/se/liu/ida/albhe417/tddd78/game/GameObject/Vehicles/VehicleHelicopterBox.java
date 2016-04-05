@@ -10,6 +10,7 @@ import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import javax.vecmath.Vector3f;
 import java.util.ArrayList;
@@ -67,10 +68,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 100f;
-        final float yawSensetivity = 100f;    //N/m
-        final float pitchSensetivity = 100f;
-        final float rollSensetivity = 100f;
+        final float throttleSensetivity = 500f;
+        final float yawSensetivity = 500f;    //N/m
+        final float pitchSensetivity = 500f;
+        final float rollSensetivity = 500f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
@@ -78,21 +79,31 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
         Matrix4x4 partMatrix = partBody.getMatrix();
         Vector3 aeroForce = new Vector3(0, lift, 0);
-        aeroForce = partMatrix.getInverse().multiply(aeroForce);//
+        aeroForce = partMatrix.getInverse().multiply(aeroForce, false);//
 
         Vector3 forcePoint = new Vector3(0, 1, 0);
-        forcePoint = partMatrix.getInverse().multiply(forcePoint);
+        forcePoint = partMatrix.getInverse().multiply(forcePoint, true);
+
+        Vector3f linearVelocity = new Vector3f();
+        partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
+        Vector3 v = new Vector3(-10000f, -10000f, -10000f);
+        v = partMatrix.getInverse().multiply(v, false);
+        Vector3 linearResistence = new Vector3(linearVelocity);
+        linearResistence = linearResistence.multiply(linearResistence.abs());
+        linearResistence = linearResistence.multiply(v);
+
 
         Vector3f angularVelocity = new Vector3f();
         partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
-
-        Vector3 airTorque = new Vector3(angularVelocity);
-        ai
+        Vector3 angularResistence = new Vector3(angularVelocity);
+        angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000f, -10000f, -10000f));
 
         Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
-        torque = partMatrix.getInverse().multiply(torque);
+        torque = partMatrix.getInverse().multiply(torque, false);
 
         partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
+        partBody.getPhysicsObject().applyCentralForce(linearResistence.toVector3f());
+        partBody.getPhysicsObject().applyTorque(angularResistence.toVector3f());
         partBody.getPhysicsObject().applyTorque(torque.toVector3f());
         partBody.getPhysicsObject().activate();
     }

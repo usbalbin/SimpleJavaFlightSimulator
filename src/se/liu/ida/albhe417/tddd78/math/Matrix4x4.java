@@ -112,8 +112,9 @@ public class Matrix4x4 extends AbstractMatrix
 	}
 
 	//TODO: Remove "vector"?
-	public Vector3 multiply(Vector3 other){
-		Vector4 vector = new Vector4(other.getX(), other.getY(), other.getZ(), 1.0f);
+	public Vector3 multiply(Vector3 other, boolean isPosition){
+		float w = isPosition ? 1 : 0;
+		Vector4 vector = new Vector4(other.getX(), other.getY(), other.getZ(), w);
 		Vector4 result = new Vector4();
 
 		for(int row = 0; row < 4; row++){
@@ -191,6 +192,7 @@ public class Matrix4x4 extends AbstractMatrix
 		values[3][2] = position.getZ();
 	}
 
+	//TODO make sure this really works
 	public Matrix4x4 getInverse(){
 		float[][] values = new float[4][4];
 
@@ -220,5 +222,18 @@ public class Matrix4x4 extends AbstractMatrix
 				floats[j++] = this.getValueAt(row, col);//Res matrix has columns switched with rows
 
 		return new Matrix4f(floats);
+	}
+
+	public static void main(String[] args) {
+		Matrix4x4 m = new Matrix4x4(
+				new float[][]{
+						{1, 2, 3, 4},
+						{5, 6, 7, 8},
+						{9, 10, 11, 12},
+						{13, 14, 15, 16}
+				}
+		);
+
+		Matrix4x4 n = m.getInverse().getInverse();
 	}
 }

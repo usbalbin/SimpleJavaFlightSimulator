@@ -109,6 +109,14 @@ public class Vector3
         return (float)Math.sqrt(this.length2());
     }
 
+    public Vector3 abs(){
+        float x = Math.abs(getX());
+        float y = Math.abs(getY());
+        float z = Math.abs(getZ());
+
+        return new Vector3(x, y, z);
+    }
+
     public Vector3 getNormalized(){
         return this.divide(this.length());
     }

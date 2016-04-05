@@ -46,6 +46,9 @@ public class QuadTree {
     private static int hmapSize;
     private static float maxHeight;
 
+    //TODO: try to get rid of me
+    private static QuadTree root;
+
     /**
      * Create Root QuadTree
      * @param fileNameHeightmap heightmap
@@ -58,6 +61,7 @@ public class QuadTree {
         this.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
+        root = this;
     }
 
     /**
@@ -132,11 +136,11 @@ public class QuadTree {
         setHeight(bottom);
 
         final Float[] dists = {
-            cameraPos.sub(center).length(),
-            cameraPos.sub(left).length(),
-            cameraPos.sub(top).length(),
-            cameraPos.sub(right).length(),
-            cameraPos.sub(bottom).length()
+                cameraPos.sub(center).length(),
+                cameraPos.sub(left).length(),
+                cameraPos.sub(top).length(),
+                cameraPos.sub(right).length(),
+                cameraPos.sub(bottom).length()
         };
 
         final float dist = Collections.min(Arrays.asList(dists));
@@ -149,10 +153,7 @@ public class QuadTree {
 
 
         if(desiredLevel <= level || level >= maxLevels) {
-            leftFront = null;
-            rightFront = null;
-            rightBottom = null;
-            leftBottom = null;
+            leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
 
@@ -467,6 +468,65 @@ public class QuadTree {
             vertices.get(index1).normal = vertices.get(index1).normal.add(normal);
             vertices.get(index2).normal = vertices.get(index2).normal.add(normal);
         }
+
+        //Normalize all vertices
+        //TODO: do this on GPU instead to save CPU and heap?
+        //TODO: if done on cpu try to reduce heap usage caused
+        // by new objects craeted fro Vector3.getNormalized()
+        //for(VertexPositionColorNormal vertex : vertices)
+            //vertex.normal = vertex.normal.getNormalized();
     }
+
+    /*
+    private boolean inView(Vector3 center, Matrix4x4 MVPmatrix){
+        float halfSize = size / 2;
+        Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
+        Vector3 frontRight = position.add(0, 0, -halfSize);
+        Vector3 bottomRight = position.add(halfSize, 0, halfSize);
+        Vector3 bottomLeft = position.add(-halfSize, 0, halfSize);
+
+        setHeight(frontLeft);
+        setHeight(frontRight);
+        setHeight(bottomRight);
+        setHeight(bottomLeft);
+
+        float maxHeight = center.getY();
+        float minHeight = center.getY();
+
+        float[] heights = {frontLeft.getY(), frontRight.getY(), bottomRight.getY(), bottomLeft.getY()};
+
+        for (float height : heights) {
+            if(height > maxHeight)
+                maxHeight = height;
+            else if(height < minHeight)
+                minHeight = height;
+        }
+
+        Vector3 centerZeroHeight = new Vector3(center);
+        centerZeroHeight.setY(0);
+
+        //Corners of quads collision box
+        Vector3 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize);
+        Vector3 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize);
+        Vector3 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize);
+        Vector3 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize);
+
+        Vector3 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
+        Vector3 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize);
+        Vector3 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize);
+        Vector3 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize);
+
+
+
+        Vector3[] corners = {leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack, leftTopFront, rightTopFront, rightTopBack, leftTopBack};
+        for (Vector3 corner: corners) {
+            Vector3 transformedCorner = MVPmatrix.multiply(corner);
+            if(isInside(corner, transformedCorner))
+                return true;
+        }
+
+        return isInside(cameraPosition, box);
+    }*/
+
 
 }
