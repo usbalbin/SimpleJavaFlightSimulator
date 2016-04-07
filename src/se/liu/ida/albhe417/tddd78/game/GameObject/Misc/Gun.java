@@ -18,7 +18,7 @@ import java.util.LinkedList;
 /**
  * Created by Albin on 07/04/2016.
  */
-public class Gun implements Weapon {
+public class Gun extends Weapon {
     private AbstractVehicle owner;
     private DynamicsWorld physics;
     private Vector3 offsetPosition;
@@ -26,14 +26,15 @@ public class Gun implements Weapon {
     private final float FIRE_RATE;
     private final float BULLET_RADIUS = 0.5f;
     private final float BULLET_MASS = 1;
-    private final float MUZZLE_VELOCITY = 100;
-    private final float MAX_BULLETS_IN_AIR = 1000;
+    private final float MUZZLE_VELOCITY = 400;
+    private final float MAX_BULLETS_IN_AIR = 100;
     private float currTimeSec = 0;
 
     private LinkedList<RigidBody> bullets;
     private ProjectileMesh projectile;
 
     public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game){
+        super(offsetPosition, physics, game);
         this.offsetPosition = offsetPosition;
         this.FIRE_RATE = 0.1f; //= 1/shots per sec
         this.owner = owner;
@@ -65,7 +66,7 @@ public class Gun implements Weapon {
         RigidBody physicsObject = new RigidBody(BULLET_MASS, motionState, collisionShape, inertia);
         physicsObject.setLinearVelocity(velocity.toVector3f());
         physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
-        physicsObject.setUserPointer(owner);
+        physicsObject.setUserPointer(this);
         bullets.add(physicsObject);
         physics.addRigidBody(physicsObject);
 
@@ -87,6 +88,13 @@ public class Gun implements Weapon {
         for (RigidBody bullet: bullets) {
             projectile.setBullet(bullet);
             projectile.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+        }
+    }
+
+    public void destroy(){
+        projectile.destroy();
+        for (RigidBody bullet: bullets) {
+            physics.removeRigidBody(bullet);
         }
     }
 }

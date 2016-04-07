@@ -17,8 +17,8 @@ import java.util.ArrayList;
 public class VehicleAirplaneBox extends VehicleAirplane
 {
 
-    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics, Game game){
-		super(position, yaw, 100.0f, 1.0f, physics, game);
+    public VehicleAirplaneBox(final Vector3 position, final Terrain terrain, final int shaderProgram, DynamicsWorld physics, Game game){
+		super(position, 100.0f, 1.0f, physics, game);
 		setup(shaderProgram);
     }
 

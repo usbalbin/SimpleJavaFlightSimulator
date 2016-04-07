@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 
+import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -8,6 +9,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
+import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Gun;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Weapon;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -22,13 +24,18 @@ import static org.lwjgl.glfw.GLFW.*;
  * Created by Albin on 11/03/2016.
  */
 public class VehicleHelicopterBox extends VehicleHelicopter {
-    private Weapon weapon;
+    private Weapon weaponLeft;
+    private Weapon weaponRight;
+    private final float MAX_HEALTH = 10000;
+    private float health = MAX_HEALTH;
+    private final float DAMAGE_RESISTANCE = 1000;
 
     public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game){
         //TODO, add constants
         super(position, yaw, 1000.0f, 20000.0f, physics, game);
         setup(shaderProgram, physics);
-        this.weapon = new Gun(new Vector3(0, 0, -2), this, physics, shaderProgram, game);
+        this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game);
+        this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game);
     }
 
     private void setup(final int shaderProgram, DynamicsWorld physics){
@@ -66,8 +73,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         if(input.isPressed(GLFW_KEY_LEFT))
             rollValue -= 1;
 
-        if(input.isPressed(GLFW_KEY_SPACE))
-            weapon.fire(deltaTime);
+        if(input.isPressed(GLFW_KEY_SPACE)) {
+            weaponLeft.fire(deltaTime);
+            weaponRight.fire(deltaTime);
+        }
 
         calcAerodynamics(deltaTrottle, yawValue, pitchValue, rollValue, deltaTime);
     }
@@ -178,6 +187,21 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
     @Override public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
         super.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
-        weapon.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+        weaponLeft.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+        weaponRight.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+    }
+
+    @Override
+    public void hit(ManifoldPoint cp, AbstractGameObject other) {
+        health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);
+        if(health <= 0)
+            destroy();
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        weaponLeft.destroy();
+        weaponRight.destroy();
     }
 }

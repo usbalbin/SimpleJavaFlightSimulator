@@ -22,8 +22,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class GameObjectPart
-{
+public class GameObjectPart {
     /*
      *  TODO: add these
      *  partMatrix
@@ -50,7 +49,7 @@ public class GameObjectPart
         setup(vertices, indices);
     }
 
-    protected void setupEmpty(Vertex templateVertex){
+    protected void setupEmpty(Vertex templateVertex) {
 
 
         vertexArray = glGenVertexArrays();
@@ -64,7 +63,7 @@ public class GameObjectPart
         glBindVertexArray(0);
     }
 
-    protected void setup(Vertex[] vertices, int[] indices){
+    protected void setup(Vertex[] vertices, int[] indices) {
 
 
         vertexArray = glGenVertexArrays();
@@ -80,7 +79,7 @@ public class GameObjectPart
         updateData(vertices, indices);
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
+    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId) {
 
 
         glBindVertexArray(vertexArray);
@@ -100,34 +99,33 @@ public class GameObjectPart
         setMatrices(modelViewProjectionMatrix, MVPmatrixId);
 
 
-
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
         glUseProgram(0);
         glBindVertexArray(0);
     }
 
-    protected void setMatrices(Matrix4x4 matrix, int matrixId){
+    protected void setMatrices(Matrix4x4 matrix, int matrixId) {
         final int matrixRows = 4;
 
         FloatBuffer buffer = BufferUtils.createFloatBuffer(matrixRows * matrixRows);
-        for(int row = 0; row < matrixRows; row++)
-            for(int column = 0; column < matrixRows; column++)
+        for (int row = 0; row < matrixRows; row++)
+            for (int column = 0; column < matrixRows; column++)
                 buffer.put(matrix.getValueAt(column, row));
         buffer.flip();
 
         glUniformMatrix4fv(matrixId, false, buffer);
     }
 
-    public void setPhysicsObject(RigidBody physicsObject){
+    public void setPhysicsObject(RigidBody physicsObject) {
         this.physicsObject = physicsObject;
     }
 
-    public RigidBody getPhysicsObject(){
+    public RigidBody getPhysicsObject() {
         return this.physicsObject;
     }
 
-    public Matrix4x4 getMatrix(){
+    public Matrix4x4 getMatrix() {
         Transform transform = new Transform();
         Matrix4f matrix4f = new Matrix4f();
         physicsObject.getWorldTransform(transform);
@@ -135,10 +133,10 @@ public class GameObjectPart
         return new Matrix4x4(matrix4f);
     }
 
-    public void updateData(Vertex[] vertices, int[] indices){
+    public void updateData(Vertex[] vertices, int[] indices) {
         final int floatsPerVector = 3;
 
-        if(vertices == null || indices == null)
+        if (vertices == null || indices == null)
             return;
 
         glBindVertexArray(vertexArray);
@@ -169,14 +167,14 @@ public class GameObjectPart
         glBindVertexArray(0);
     }
 
-    private void vertexToFloatBuffer(Vertex[] vertices){
-        if(vertexBufferData == null)
+    private void vertexToFloatBuffer(Vertex[] vertices) {
+        if (vertexBufferData == null)
             vertexBufferData = BufferUtils.createFloatBuffer(vertices.length * vertices[0].getFloatCount());
         else
             vertexBufferData.clear();
 
-        for(Vertex vertex : vertices){
-            if(vertex == null)
+        for (Vertex vertex : vertices) {
+            if (vertex == null)
                 break;
             vertexBufferData.put(vertex.getFloats());
         }
@@ -184,10 +182,14 @@ public class GameObjectPart
         vertexBufferData.flip();
     }
 
-    public void destroy(DynamicsWorld physics){
+    public void destroyGraphics(){
         glDeleteBuffers(vertexBuffer);
         glDeleteBuffers(indexBuffer);
         glDeleteVertexArrays(vertexArray);
+    }
+
+    public void destroy(DynamicsWorld physics){
+        destroyGraphics();
         physics.removeRigidBody(physicsObject);
     }
 }

@@ -20,17 +20,19 @@
 
 - 9	Implementera flygplansfysik samt lägg till så att kollision med mark ger GameOver(behöver inte vara exakt).
 
-###Att göra
-
 - 10	Lägg till möjlighet att respawna.
 
 - 11	Lägg till någon form av skjutvapen som kan tilldelas till fordon. Skapa möjligheten att med hjälp av dessa kunna skjuta projektiler.
 
 - 12	Skapa måltavlor som spawnar random på banan. Självklart ärver även dessa från ”utritningsbart 3D-objekt”.  Lägg till funktionalitet för att kontrollera om dessa träffats av eventuell avfyrad projektil.
 
-- 13	Implementera poängsystem likt i tetrisprojektet
-
 - 14	(Vid behov)Förfina markkollisionshanteringen. Lägg till möjlighet att kunna starta och landa planet på marken(utan GameOver).
+
+
+###Att göra
+
+
+- 13	Implementera poängsystem likt i tetrisprojektet
 
 - 15	Lägga till flera flygplan/helikoptrar.
 

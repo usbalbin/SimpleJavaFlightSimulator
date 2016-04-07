@@ -23,10 +23,11 @@ public class ProjectileMesh extends AbstractGameObject{
     public ProjectileMesh(float radius, final int shaderProgram, DynamicsWorld physics, Game game){
         super(new Vector3(), physics, game);
         setup(radius, shaderProgram);
+
     }
 
     private void setup(float radius, final int shaderProgram){
-        Vector3 color = new Vector3(1, 0, 0);
+        Vector3 color = new Vector3(1, 1, 0);
         int qualityFactor = 4;
 
         ArrayList<VertexPositionColorNormal> vertices = new ArrayList<>();
@@ -51,5 +52,13 @@ public class ProjectileMesh extends AbstractGameObject{
 
     public void hit(Target target){
 
+    }
+
+    @Override
+    public void destroy() {
+        for (GameObjectPart part : parts) {
+            part.destroyGraphics();
+        }
+        game.remove(this);
     }
 }

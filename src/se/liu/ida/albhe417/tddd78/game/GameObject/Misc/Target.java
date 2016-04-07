@@ -64,7 +64,7 @@ public class Target extends AbstractGameObject{
     @Override
     public void hit(ManifoldPoint cp, AbstractGameObject other){
 
-        if(cp.appliedImpulse > 1 || cp.appliedImpulse == 0) {
+        if(cp.appliedImpulse > 1) {
             destroy();
             System.out.println("Target hit with impulse: " + cp.appliedImpulse);
         }

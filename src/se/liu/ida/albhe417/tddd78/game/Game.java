@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.glfw.Callbacks.*;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
@@ -17,7 +18,9 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import org.lwjgl.BufferUtils;
+
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
@@ -33,9 +36,10 @@ public class Game
 {
 	//TODO: Needed?
     private GLFWErrorCallback errorCallback;
+	private GLFWWindowSizeCallback windowSizeCallback;
     private long window;//Reference to window
-    private static final int WINDOW_WIDTH = 1400;
-	private static final int WINDOW_HEIGHT = 800;
+    private static int WINDOW_WIDTH = 1400;
+	private static int WINDOW_HEIGHT = 800;
     private static final int WINDOW_POS_X = 50;
 	private static final int WINDOW_POS_Y = 50;
 
@@ -83,6 +87,8 @@ public class Game
 
     private void setupGraphics(){
 		errorCallback = GLFWErrorCallback.createPrint(System.err);//Bind error output to console
+		glfwSetErrorCallback(errorCallback);
+
 
 		long res = glfwInit();
 		if(res != GL_TRUE){
@@ -94,12 +100,21 @@ public class Game
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(OPENGL_VERSION * 10) % 10);
 
 
-
 		window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title, NULL, NULL);
 
 		if(window == NULL){
 			throw new RuntimeException("Failed to create window");
 		}
+
+		glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
+			@Override
+			public void invoke(long window, int width, int height) {
+				WINDOW_WIDTH = width;
+				WINDOW_HEIGHT = height;
+				glViewport(0, 0, width, height);
+				projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float)WINDOW_WIDTH / WINDOW_HEIGHT, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
+			}
+		});
 
 		glfwSetKeyCallback(window, InputHandler.getInstance());
 
@@ -220,9 +235,7 @@ public class Game
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics, this);
 
-		gameObjects.add(currentVehicle);
 		for(int y = 0; y < 4; y++) {
 			for(int x = -2; x < 2; x++) {
 				//gameObjects.add(new ProjectileMesh(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
@@ -257,12 +270,22 @@ public class Game
 
 	public void remove(AbstractGameObject gameObject){
 		gameObjects.remove(gameObject);
+		if(gameObject == currentVehicle)
+			currentVehicle = null;
+	}
+
+	public void respawn(){
+		currentVehicle = new VehicleHelicopterBox(new Vector3(-225, -316.1f, 20), -(float)Math.PI / 2.0f, shaderProgram, physics, this);
+		gameObjects.add(currentVehicle);
 	}
 
     private void update(){
 		long nowTime = System.nanoTime();
 		float deltaTime = (nowTime - lastTime) / 1000000.0f;
 		lastTime = nowTime;
+
+		if(currentVehicle == null)
+			respawn();
 
 		currentVehicle.handleInput(deltaTime);
 
@@ -271,8 +294,10 @@ public class Game
 		}
 
 
-		physics.stepSimulation(deltaTime);
+		physics.stepSimulation(deltaTime, 10, 1f/60f/10f);
 
+		if(currentVehicle == null)
+			return;
 
 		updateCameraMatrix();
 		Vector3 cameraPosition = currentVehicle.getCameraPosition();
