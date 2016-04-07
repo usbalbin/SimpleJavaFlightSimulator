@@ -6,6 +6,7 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
@@ -75,13 +76,13 @@ public class TerrainLOD extends Terrain {
 
 
 
-    public void update(Vector3 cameraPos){
-
+    public void update(Vector3 cameraPos, Matrix4x4 cameraMatrix){
+        Matrix4x4 MVPmatrix = cameraMatrix.multiply(new Matrix4x4());
 
         vertices.clear();
         indices.clear();
 
-        quadTree.update(cameraPos, vertices, indices);
+        quadTree.update(cameraPos, MVPmatrix, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
             vertexArray = new VertexPositionColorNormal[vertices.size()];

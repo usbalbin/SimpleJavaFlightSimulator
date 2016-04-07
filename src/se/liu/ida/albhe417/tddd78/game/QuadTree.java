@@ -5,6 +5,7 @@ import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,13 +46,14 @@ public class QuadTree {
     private static int rootSize;
     private static int hmapSize;
     private static float maxHeight;
+    private static Matrix4x4 MVPmatrix;
 
     //TODO: try to get rid of me
     private static QuadTree root;
 
     /**
      * Create Root QuadTree
-     * @param fileNameHeightmap heightmap
+     * @param heightmap heightmap
      */
     public QuadTree(float[] heightmap, final float heightFactor, float maxHeight){
         this.HEIGHT_FACTOR = heightFactor;
@@ -81,9 +83,10 @@ public class QuadTree {
         generateTree(cameraPos, detailFactor, maxLevels);
     }
 
-    public void update(Vector3 cameraPosition, List<VertexPositionColorNormal> vertices, List<Integer> indices){
+    public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
         final float detailFactor = 350;
         final short maxLevels = 11;//11;
+        this.MVPmatrix = MVPmatrix;
 
         generateTree(cameraPosition, detailFactor, maxLevels);
 
@@ -152,7 +155,7 @@ public class QuadTree {
         final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-        if(desiredLevel <= level || level >= maxLevels) {
+        if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPmatrix)) {
             leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
@@ -477,7 +480,7 @@ public class QuadTree {
             //vertex.normal = vertex.normal.getNormalized();
     }
 
-    /*
+
     private boolean inView(Vector3 center, Matrix4x4 MVPmatrix){
         float halfSize = size / 2;
         Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
@@ -506,27 +509,56 @@ public class QuadTree {
         centerZeroHeight.setY(0);
 
         //Corners of quads collision box
-        Vector3 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize);
-        Vector3 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize);
-        Vector3 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize);
-        Vector3 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize);
+        Vector3 leftBottomFront =   centerZeroHeight.add(-halfSize, minHeight, -halfSize);
+        Vector3 rightBottomFront =  centerZeroHeight.add(halfSize, minHeight, -halfSize);
+        Vector3 rightBottomBack =   centerZeroHeight.add(halfSize, minHeight, halfSize);
+        Vector3 leftBottomBack =    centerZeroHeight.add(-halfSize, minHeight, halfSize);
 
-        Vector3 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
-        Vector3 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize);
-        Vector3 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize);
-        Vector3 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize);
+        Vector3 leftTopFront =      centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
+        Vector3 rightTopFront =     centerZeroHeight.add(halfSize, maxHeight, -halfSize);
+        Vector3 rightTopBack =      centerZeroHeight.add(halfSize, maxHeight, halfSize);
+        Vector3 leftTopBack =       centerZeroHeight.add(-halfSize, maxHeight, halfSize);
 
+        Vector3[] corners = {
+            leftBottomFront,    rightBottomFront,   rightBottomBack,    leftBottomBack,
+            leftTopFront,       rightTopFront,      rightTopBack,       leftTopBack
+        };
 
+        for (int i = 0; i < corners.length; i++)
+            corners[i] = MVPmatrix.multiply(corners[i], true);
 
-        Vector3[] corners = {leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack, leftTopFront, rightTopFront, rightTopBack, leftTopBack};
-        for (Vector3 corner: corners) {
-            Vector3 transformedCorner = MVPmatrix.multiply(corner);
-            if(isInside(corner, transformedCorner))
-                return true;
+        for (int i = 0; i < 3; i++) {
+            boolean cornerInside;
+
+            cornerInside = false;
+            for (Vector3 corner: corners) {
+                if(corner.values[i] < +1) {
+                    cornerInside = true;
+                    break;
+                }
+            }
+
+            if(!cornerInside)
+                //All corners are outside view, no intersection
+                return false;
+
+            //
+
+            cornerInside = false;
+            for (Vector3 corner: corners) {
+                if(corner.values[i] > -1){
+                    cornerInside = true;
+                    break;
+                }
+            }
+
+            if(!cornerInside)
+                //All corners are outside view, no intersection
+                return false;
         }
 
-        return isInside(cameraPosition, box);
-    }*/
-
+        //All corners are inside some sides, thus box is either intersecting or completely inside the frustrum
+        return true;
+    }
 
 }

@@ -86,8 +86,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
         Vector3f linearVelocity = new Vector3f();
         partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
-        Vector3 v = new Vector3(-10000f, -10000f, -10000f);
-        v = partMatrix.getInverse().multiply(v, false);
+        Vector3 v = new Vector3(-10f);
         Vector3 linearResistence = new Vector3(linearVelocity);
         linearResistence = linearResistence.multiply(linearResistence.abs());
         linearResistence = linearResistence.multiply(v);

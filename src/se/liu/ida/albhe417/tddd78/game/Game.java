@@ -222,13 +222,13 @@ public class Game
 		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
 
 		gameObjects.add(currentVehicle);
-		for(int y = 0; y < 10; y++) {
+		/*for(int y = 0; y < 10; y++) {
 			for(int x = -4; x < 4; x++) {
 				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
 				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
 				gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics));
 			}
-		}
+		}*/
 		//gameObjects.add(terrain);
 
 
@@ -266,13 +266,13 @@ public class Game
 		}
 
 
-		physics.stepSimulation(deltaTime, 3, 1f / 100f);
+		physics.stepSimulation(deltaTime);
 
 
 		updateCameraMatrix();
 		Vector3 cameraPosition = currentVehicle.getCameraPosition();
 		//TODO remove cast
-		((TerrainLOD)terrain).update(cameraPosition);
+		((TerrainLOD)terrain).update(cameraPosition, cameraMatrix);
     }
 
 	private void updateCameraMatrix() {
