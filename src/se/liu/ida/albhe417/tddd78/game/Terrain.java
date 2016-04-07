@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -14,8 +15,8 @@ abstract public class Terrain extends AbstractGameObject {
 
     protected final int shaderProgram;
 
-    protected Terrain(Vector3 position, final float height_factor, final int shaderProgram){
-        super(position, 0);
+    protected Terrain(Vector3 position, final float height_factor, final int shaderProgram, DynamicsWorld physics, Game game){
+        super(position, 0, physics, game);
         HEIGHT_FACTOR = height_factor;
         this.shaderProgram = shaderProgram;
     }

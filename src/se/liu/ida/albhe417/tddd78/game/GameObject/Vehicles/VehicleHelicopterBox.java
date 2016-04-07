@@ -22,9 +22,9 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class VehicleHelicopterBox extends VehicleHelicopter {
 
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics){
+    public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game){
         //TODO, add constants
-        super(position, yaw, 1000.0f, 20000.0f);
+        super(position, yaw, 1000.0f, 20000.0f, physics, game);
         setup(shaderProgram, physics);
     }
 
@@ -160,6 +160,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3f inertia = new Vector3f();
         shape.calculateLocalInertia(MASS, inertia);
         RigidBody physicsObject = new RigidBody(MASS, motionState, shape, inertia);
+        physicsObject.setUserPointer(this);
 
         physics.addRigidBody(physicsObject);
 

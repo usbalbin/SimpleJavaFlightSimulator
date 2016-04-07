@@ -3,6 +3,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 public class VehicleAirplaneBox extends VehicleAirplane
 {
 
-    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram){
-		super(position, yaw, 100.0f, 1.0f);
+    public VehicleAirplaneBox(final Vector3 position, float yaw, final Terrain terrain, final int shaderProgram, DynamicsWorld physics, Game game){
+		super(position, yaw, 100.0f, 1.0f, physics, game);
 		setup(shaderProgram);
     }
 

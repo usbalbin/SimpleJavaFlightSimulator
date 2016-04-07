@@ -35,8 +35,8 @@ public class Game
 	//TODO: Needed?
     private GLFWErrorCallback errorCallback;
     private long window;//Reference to window
-    private static final int WINDOW_WIDTH = 1400;
-	private static final int WINDOW_HEIGHT = 800;
+    private static final int WINDOW_WIDTH = 1024;
+	private static final int WINDOW_HEIGHT = 768;
     private static final int WINDOW_POS_X = 50;
 	private static final int WINDOW_POS_Y = 50;
 
@@ -219,16 +219,16 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(3);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, shaderProgram, physics);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
-		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics);
+		currentVehicle = new VehicleHelicopterBox(new Vector3(-120, -310, 20), -(float)Math.PI / 2.0f, shaderProgram, physics, this);
 
 		gameObjects.add(currentVehicle);
-		for(int y = 0; y < 10; y++) {
-			for(int x = -4; x < 4; x++) {
-				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
-				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics));
-				gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics));
+		for(int y = 0; y < 4; y++) {
+			for(int x = -2; x < 2; x++) {
+				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
+				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics, this));
+				//gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics, this));
 			}
 		}
 		//gameObjects.add(terrain);
@@ -256,8 +256,8 @@ public class Game
 		glUseProgram(0);
 	}
 
-	public void hit(Target target){
-		gameObjects.remove(target);
+	public void remove(AbstractGameObject gameObject){
+		gameObjects.remove(gameObject);
 	}
 
     private void update(){

@@ -5,6 +5,7 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
+import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Projectile;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 
@@ -25,29 +26,11 @@ public class TargetHitCallback extends ContactProcessedCallback {
         CollisionObject collisionObject0 = (CollisionObject)body0;
         CollisionObject collisionObject1 = (CollisionObject)body1;
 
-        Projectile projectile;
-        Target target;
+        AbstractGameObject gameObject0 = (AbstractGameObject)collisionObject0.getUserPointer();
+        AbstractGameObject gameObject1 = (AbstractGameObject)collisionObject1.getUserPointer();
 
-        if((collisionObject0.getCollisionFlags() &
-            CollisionFlags.CUSTOM_MATERIAL_CALLBACK) !=
-            0)
-        {
-
-            projectile = (Projectile)collisionObject0.getUserPointer();
-            target = (Target)collisionObject1.getUserPointer();
-        }
-        else {
-            projectile = (Projectile)collisionObject1.getUserPointer();
-            target = (Target)collisionObject0.getUserPointer();
-        }
-
-
-
-        if(projectile != null)
-            projectile.hit(target);
-        if(target != null)
-            target.hit(physics);
-        game.hit(target);
+        gameObject0.hit(cp, gameObject1);
+        gameObject1.hit(cp, gameObject0);
 
         System.out.println("Hej hopp");
 

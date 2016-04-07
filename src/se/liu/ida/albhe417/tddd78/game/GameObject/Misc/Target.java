@@ -1,11 +1,13 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
 
+import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
+import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Helpers;
@@ -20,8 +22,8 @@ import java.util.ArrayList;
  * Created by Albin_Hedman on 2016-03-30.
  */
 public class Target extends AbstractGameObject{
-    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics){
-        super(position, 0);
+    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game){
+        super(position, 0, physics, game);
         setup(position, shaderProgram, physics);
     }
 
@@ -59,9 +61,9 @@ public class Target extends AbstractGameObject{
         parts.add(part);
     }
 
-    public void hit(DynamicsWorld physics){
-        if(parts.size() == 0)
-            return;
-        physics.removeRigidBody(parts.get(0).getPhysicsObject());
+    @Override
+    public void hit(ManifoldPoint cp, AbstractGameObject other){
+        if(cp.appliedImpulse > 1)
+            destroy();
     }
 }

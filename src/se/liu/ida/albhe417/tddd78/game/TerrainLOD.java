@@ -30,12 +30,12 @@ public class TerrainLOD extends Terrain {
 
     private static final int MAX_EXPECTED_VERT_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram, DynamicsWorld physic) {
-        super(position, heightFactor, shaderProgram);
+    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram, DynamicsWorld physics, Game game) {
+        super(position, heightFactor, shaderProgram, physics, game);
         this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERT_COUNT];
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
         this.indices = new ArrayList<>(150000);
-        this.physics = physic;
+        this.physics = physics;
         setup();
     }
 
@@ -56,6 +56,7 @@ public class TerrainLOD extends Terrain {
         );
 
         RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);
+        physicsObjectMain.setUserPointer(this);
         partMain.setPhysicsObject(physicsObjectMain);
         physics.addRigidBody(physicsObjectMain);
     }

@@ -7,11 +7,8 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
+import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
-import se.liu.ida.albhe417.tddd78.game.Helpers;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColor;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -22,8 +19,8 @@ import java.util.ArrayList;
  * Created by Albin_Hedman on 2016-03-30.
  */
 public class Projectile extends AbstractGameObject{
-    public Projectile(final Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics){
-        super(position, 0);
+    public Projectile(final Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics, Game game){
+        super(position, 0, physics, game);
         setup(position, velocity, shaderProgram, physics);
     }
 

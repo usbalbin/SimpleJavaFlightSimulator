@@ -260,7 +260,7 @@ public class PersistentManifold {
 	public void removeContactPoint(int index) {
 		clearUserCache(pointCache[index]);
 
-		int lastUsedIndex = getNumContacts() - 1;
+		int lastUsedIndex = Math.max(getNumContacts() - 1, 0);
 //		m_pointCache[index] = m_pointCache[lastUsedIndex];
 		if (index != lastUsedIndex) {
 			// TODO: possible bug
