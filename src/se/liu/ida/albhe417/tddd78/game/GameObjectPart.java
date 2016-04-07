@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
@@ -18,6 +19,7 @@ import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class GameObjectPart
@@ -180,5 +182,12 @@ public class GameObjectPart
         }
 
         vertexBufferData.flip();
+    }
+
+    public void destroy(DynamicsWorld physics){
+        glDeleteBuffers(vertexBuffer);
+        glDeleteBuffers(indexBuffer);
+        glDeleteVertexArrays(vertexArray);
+        physics.removeRigidBody(physicsObject);
     }
 }

@@ -1,5 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 
+import com.bulletphysics.dynamics.DynamicsWorld;
+import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Terrain;
@@ -18,8 +20,8 @@ public abstract class AbstractVehicle extends AbstractGameObject
     protected GameObjectPart partBody;
 
 
-    public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor){
-	    super(position, yaw);
+    public AbstractVehicle(Vector3 position, float yaw, float mass, float thrustFactor, DynamicsWorld physics, Game game){
+	    super(position, yaw, physics, game);
         this.MASS = mass;
         this.THRUST_FACTOR = thrustFactor;
         velocity = new Vector3();
