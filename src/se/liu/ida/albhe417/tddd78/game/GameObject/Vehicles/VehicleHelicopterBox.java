@@ -23,7 +23,7 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * Created by Albin on 11/03/2016.
  */
-public class VehicleHelicopterBox extends VehicleHelicopter {
+public class VehicleHelicopterBox extends AbstractVehicle{
     private Weapon weaponLeft;
     private Weapon weaponRight;
     private final float MAX_HEALTH = 10000;
@@ -32,7 +32,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
     public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game){
         //TODO, add constants
-        super(position, yaw, 1000.0f, 20000.0f, physics, game);
+        super(position, 1000.0f, 20000.0f, physics, game);
         setup(shaderProgram, physics);
         this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game);
         this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game);

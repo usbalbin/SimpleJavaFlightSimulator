@@ -20,10 +20,6 @@ public abstract class AbstractGameObject
     protected List<GameObjectPart> parts;
 
     public AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game){
-    	/*this.position = position;
-        this.yaw = 0;
-        this.pitch = 0;
-        this.roll = 0;*/
         modelMatrix = new Matrix4x4();
         modelMatrix = modelMatrix.getTranslated(position);
         this.physics = physics;

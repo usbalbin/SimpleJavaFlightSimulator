@@ -24,6 +24,7 @@ import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplaneBox;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -275,8 +276,8 @@ public class Game
 	}
 
 	public void respawn(){
-		final Vector3 spawnPos = new Vector3(-225, -316.1f, 20);
-		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
+		final Vector3 spawnPos = new Vector3(-225, /*-316.1f*/0, 20);
+		currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
 		gameObjects.add(currentVehicle);
 	}
 
