@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
+import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionConfiguration;
@@ -210,6 +211,7 @@ public class Game
 		ConstraintSolver solver = new SequentialImpulseConstraintSolver();
 		physics = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 		physics.setGravity(GRAVITY.toVector3f());
+		BulletGlobals.setContactProcessedCallback(new TargetHitCallback(this, physics));
 	}
 
 	private void setupGameObjects(){
@@ -223,7 +225,7 @@ public class Game
 		for(int y = 0; y < 4; y++) {
 			for(int x = -2; x < 2; x++) {
 				gameObjects.add(new Projectile(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
-				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), new Vector3(), shaderProgram, physics));
+				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics));
 				gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics));
 			}
 		}
@@ -249,6 +251,10 @@ public class Game
 		glUseProgram(shaderProgram);
 		glUniform3fv(lightDirectionId, buffer);
 		glUseProgram(0);
+	}
+
+	public void hit(Target target){
+		gameObjects.remove(target);
 	}
 
     private void update(){

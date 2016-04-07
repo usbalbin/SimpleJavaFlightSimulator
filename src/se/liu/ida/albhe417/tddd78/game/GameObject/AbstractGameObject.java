@@ -1,5 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject;
 
+import com.bulletphysics.dynamics.DynamicsWorld;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -34,4 +36,6 @@ public abstract class AbstractGameObject
             part.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
         }
     }
+
+    public void hit(DynamicsWorld physics, Target target){};
 }

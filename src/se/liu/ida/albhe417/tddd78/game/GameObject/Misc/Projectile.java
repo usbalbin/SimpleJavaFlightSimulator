@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -53,10 +54,16 @@ public class Projectile extends AbstractGameObject{
         collisionShape.calculateLocalInertia(mass, inertia);
         RigidBody physicsObject = new RigidBody(mass, motionState, collisionShape, inertia);
         physicsObject.setLinearVelocity(velocity.toVector3f());
+        physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
+        physicsObject.setUserPointer(this);
         physics.addRigidBody(physicsObject);
 
         GameObjectPart part = new GameObjectPart(vertexArray, indexArray, shaderProgram, physicsObject);
         parts = new ArrayList<>(1);
         parts.add(part);
+    }
+
+    public void hit(Target target){
+
     }
 }

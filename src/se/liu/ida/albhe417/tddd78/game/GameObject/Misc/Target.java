@@ -20,12 +20,12 @@ import java.util.ArrayList;
  * Created by Albin_Hedman on 2016-03-30.
  */
 public class Target extends AbstractGameObject{
-    public Target(final Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics){
+    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics){
         super(position, 0);
-        setup(position, velocity, shaderProgram, physics);
+        setup(position, shaderProgram, physics);
     }
 
-    private void setup(Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics){
+    private void setup(Vector3 position, final int shaderProgram, DynamicsWorld physics){
         float mass = 1;
         float radius = 1;
         Vector3 color = new Vector3(0, 1, 0);
@@ -51,11 +51,17 @@ public class Target extends AbstractGameObject{
         Vector3f inertia = new Vector3f();
         collisionShape.calculateLocalInertia(mass, inertia);
         RigidBody physicsObject = new RigidBody(mass, motionState, collisionShape, inertia);
-        physicsObject.setLinearVelocity(velocity.toVector3f());
+        physicsObject.setUserPointer(this);
         physics.addRigidBody(physicsObject);
 
         GameObjectPart part = new GameObjectPart(vertexArray, indexArray, shaderProgram, physicsObject);
         parts = new ArrayList<>(1);
         parts.add(part);
+    }
+
+    public void hit(DynamicsWorld physics){
+        if(parts.size() == 0)
+            return;
+        physics.removeRigidBody(parts.get(0).getPhysicsObject());
     }
 }
