@@ -2,11 +2,8 @@ package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
@@ -16,7 +13,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 public abstract class AbstractVehicle extends AbstractGameObject
 {
-    protected float MASS;
+    protected final float MASS;
     protected final float THRUST_FACTOR;
     protected float throttle = 0;
     protected Vector3 velocity;
@@ -37,8 +34,9 @@ public abstract class AbstractVehicle extends AbstractGameObject
 
     public Matrix4x4 getViewMatrix(){
         Matrix4x4 modelMatrix = partBody.getMatrix();
+        final Vector3 cameraOffset = new Vector3(0, 5.0f, 15.0f);
 
-        cameraPosition = modelMatrix.getInverse().multiply(new Vector3(0, 5f, 15f), false);
+        cameraPosition = modelMatrix.getInverse().multiply(cameraOffset, false);
         cameraPosition = cameraPosition.add(modelMatrix.getPosition());
 
         Vector3 cameraTarget = modelMatrix.getPosition();
@@ -52,13 +50,13 @@ public abstract class AbstractVehicle extends AbstractGameObject
     }
 
     protected void changeThrottle(float deltaThrottle){
-        final float MAX_THROTTLE = 1.0f;
-        final float MIN_THROTTLE = -1.0f;
-        final float THROTTLE_SETTLE = 0.99f;
+        final float maxThrottle = 1.0f;
+        final float minThrottle = -1.0f;
+        final float throttleSettle = 0.99f;
 
         throttle += deltaThrottle;
-        throttle = Math.max(MIN_THROTTLE, Math.min(throttle, MAX_THROTTLE));
-        throttle *= THROTTLE_SETTLE;
+        throttle = Math.max(minThrottle, Math.min(throttle, maxThrottle));
+        throttle *= throttleSettle;
     }
 
     public Vector3 getCameraPosition(){

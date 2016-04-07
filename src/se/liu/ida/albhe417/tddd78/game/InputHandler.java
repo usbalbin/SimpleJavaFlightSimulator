@@ -18,6 +18,8 @@ public class InputHandler extends GLFWKeyCallback {
 
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods) {
+        if(key == -1)
+            return;
         keys[key] = action != GLFW_RELEASE;
     }
 

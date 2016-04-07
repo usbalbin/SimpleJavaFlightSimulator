@@ -7,7 +7,7 @@ import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractGameObject
 {
@@ -17,7 +17,7 @@ public abstract class AbstractGameObject
     protected DynamicsWorld physics;
     protected Game game;
 
-    protected ArrayList<GameObjectPart> parts;
+    protected List<GameObjectPart> parts;
 
     public AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game){
     	/*this.position = position;

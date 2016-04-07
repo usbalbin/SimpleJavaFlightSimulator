@@ -2,7 +2,6 @@ package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.Terrain;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 public abstract class VehicleAirplane extends AbstractVehicle

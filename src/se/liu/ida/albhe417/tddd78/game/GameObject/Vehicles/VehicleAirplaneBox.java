@@ -72,7 +72,7 @@ public class VehicleAirplaneBox extends VehicleAirplane
 		final Vector3 blue = 	new Vector3(0, 0, 1);
 		final Vector3 white = 	new Vector3(1, 1, 1);
 
-		final float SIZE = 1f;
+		final float SIZE = 1.0f;
 
 		//"LTR" = left top rear
 		Vector3 posLTR = new Vector3(-SIZE, SIZE, SIZE);

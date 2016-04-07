@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.math;
 
-import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
 public class Vector4

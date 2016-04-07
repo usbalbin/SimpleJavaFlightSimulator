@@ -13,6 +13,7 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Vector3f;
+import java.util.Deque;
 import java.util.LinkedList;
 
 /**
@@ -27,10 +28,10 @@ public class Gun extends Weapon {
     private final float BULLET_RADIUS = 0.5f;
     private final float BULLET_MASS = 1;
     private final float MUZZLE_VELOCITY = 400;
-    private final float MAX_BULLETS_IN_AIR = 100;
+    private final float MAX_BULLETS_IN_AIR = 50;
     private float currTimeSec = 0;
 
-    private LinkedList<RigidBody> bullets;
+    private Deque<RigidBody> bullets;
     private ProjectileMesh projectile;
 
     public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game){

@@ -5,7 +5,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
-import static org.lwjgl.glfw.Callbacks.*;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
@@ -31,6 +30,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Game
 {
@@ -38,19 +38,19 @@ public class Game
     private GLFWErrorCallback errorCallback;
 	private GLFWWindowSizeCallback windowSizeCallback;
     private long window;//Reference to window
-    private static int WINDOW_WIDTH = 1400;
-	private static int WINDOW_HEIGHT = 800;
+    private int windowWidth = 1400;
+	private int windowHeight = 800;
     private static final int WINDOW_POS_X = 50;
 	private static final int WINDOW_POS_Y = 50;
 
 	private static final float FOV = 90 * (float)Math.PI / 180.0f;
 	private static final float DRAW_DISTANCE = 3072;
-	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1f;
+	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1.0f;
 
-	private static boolean WIRE_FRAME = false;
-    private static int AA_LEVEL = 16;
-	private static float OPENGL_VERSION = 3.0f;
-    private static String title = "Simple Java Flight Simulator";
+	private static final boolean WIRE_FRAME = false;
+    private static final int AA_LEVEL = 16;
+	private static final float OPENGL_VERSION = 3.0f;
+    private static final String TITLE = "Simple Java Flight Simulator";
 
 	private Matrix4x4 projectionMatrix;
 	private Matrix4x4 viewMatrix;
@@ -66,9 +66,9 @@ public class Game
 	private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
 	private DynamicsWorld physics;
 
-	ArrayList<AbstractGameObject> gameObjects;
-	AbstractVehicle currentVehicle;
-	TerrainLOD terrain;
+	private List<AbstractGameObject> gameObjects;
+	private AbstractVehicle currentVehicle;
+	private TerrainLOD terrain;
 	private int shaderProgram;
 
 	private long lastTime;
@@ -100,7 +100,7 @@ public class Game
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(OPENGL_VERSION * 10) % 10);
 
 
-		window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title, NULL, NULL);
+		window = glfwCreateWindow(windowWidth, windowHeight, TITLE, NULL, NULL);
 
 		if(window == NULL){
 			throw new RuntimeException("Failed to create window");
@@ -109,10 +109,10 @@ public class Game
 		glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
-				WINDOW_WIDTH = width;
-				WINDOW_HEIGHT = height;
+				windowWidth = width;
+				windowHeight = height;
 				glViewport(0, 0, width, height);
-				projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float)WINDOW_WIDTH / WINDOW_HEIGHT, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
+				projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float) windowWidth / windowHeight, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
 			}
 		});
 
@@ -251,7 +251,7 @@ public class Game
 	}
 
 	private void setupProjectionMatrix(){
-		projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float)WINDOW_WIDTH / WINDOW_HEIGHT, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
+		projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float) windowWidth / windowHeight, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
 	}
 
 	private void setupLight(){
@@ -275,14 +275,20 @@ public class Game
 	}
 
 	public void respawn(){
-		currentVehicle = new VehicleHelicopterBox(new Vector3(-225, -316.1f, 20), -(float)Math.PI / 2.0f, shaderProgram, physics, this);
+		final Vector3 spawnPos = new Vector3(-225, -316.1f, 20);
+		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
 		gameObjects.add(currentVehicle);
 	}
 
     private void update(){
+		final float nanoToSec = 1000000000.0f;
+		final float preferredTimeStep = 1.0f / 60.0f / 10.0f;
+
+
 		long nowTime = System.nanoTime();
-		float deltaTime = (nowTime - lastTime) / 1000000.0f;
+		float deltaTime = (nowTime - lastTime) / nanoToSec;
 		lastTime = nowTime;
+		System.out.println(deltaTime);
 
 		if(currentVehicle == null)
 			respawn();
@@ -294,7 +300,7 @@ public class Game
 		}
 
 
-		physics.stepSimulation(deltaTime, 10, 1f/60f/10f);
+		physics.stepSimulation(deltaTime, 10, preferredTimeStep);
 
 		if(currentVehicle == null)
 			return;
@@ -322,7 +328,7 @@ public class Game
 		//TODO: remove cast
 		((TerrainLOD)terrain).draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 
-		for (AbstractGameObject drawable: gameObjects) {
+		for (AbstractGameObject drawable : gameObjects) {
 			drawable.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 		}
 

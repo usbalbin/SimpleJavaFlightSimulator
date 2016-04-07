@@ -5,7 +5,6 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
-import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Matrix4f;
 import java.nio.FloatBuffer;
@@ -13,11 +12,8 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
@@ -149,20 +145,18 @@ public class GameObjectPart {
 
 
         //Setup index buffer
-        {
-            IntBuffer indexBufferData = BufferUtils.createIntBuffer(indices.length);
-            indexBufferData.put(indices);
-            indexBufferData.flip();
+        IntBuffer indexBufferData = BufferUtils.createIntBuffer(indices.length);
+        indexBufferData.put(indices);
+        indexBufferData.flip();
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW for nonchanging objects
-            indexCount = indices.length;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW for nonchanging objects
+        indexCount = indices.length;
 
-            //Show gpu how to interprete the vertex data
-            vertices[0].setupVertexAttribs();
-            vertices = null;
-            indices = null;
-        }
+        //Show gpu how to interprete the vertex data
+        vertices[0].setupVertexAttribs();
+        vertices = null;
+        indices = null;
 
         glBindVertexArray(0);
     }

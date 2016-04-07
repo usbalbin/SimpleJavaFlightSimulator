@@ -1,7 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
-import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;

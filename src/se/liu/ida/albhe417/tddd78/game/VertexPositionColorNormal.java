@@ -4,7 +4,6 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import static org.lwjgl.opengl.GL20.*;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class VertexPositionColorNormal implements Vertex
 {
@@ -59,8 +58,8 @@ public class VertexPositionColorNormal implements Vertex
     public void setupVertexAttribs() {
         //Show gpu how to interprete the vertex data
         int floatsPerVector = 3;
-        glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 0);
-        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 1);
-        glVertexAttribPointer(NORMAL_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, floatsPerVector * Float.BYTES * 2);
+        glVertexAttribPointer(POSITION_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 0);
+        glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 1);
+        glVertexAttribPointer(NORMAL_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 2);
     }
 }

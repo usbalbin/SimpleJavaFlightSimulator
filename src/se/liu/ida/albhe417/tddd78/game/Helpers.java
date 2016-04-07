@@ -191,7 +191,7 @@ public class Helpers {
 
     public static float byteToFloatColor(short color){
         final short toUnsigedByte = 0x00FF;
-        final float unsignedByteMaxVal = 256f;
+        final float unsignedByteMaxVal = 256.0f;
 
         //Interprete color as unsigned byte(colors are represented by unsigned byte)
         return (color & toUnsigedByte ) / unsignedByteMaxVal;
@@ -199,8 +199,8 @@ public class Helpers {
 
     public static void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
         float step = (float)Math.PI / qualityFactor;
-        for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
-            for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
+        for(float pitch = 0; pitch < 2.0f * (float)Math.PI; pitch += step){
+            for(float yaw = -(float)Math.PI / 2.0f; yaw <= (float)Math.PI / 2.0f; yaw += step){
 
                 Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColor(position, color));
@@ -214,8 +214,8 @@ public class Helpers {
 
     public static void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
         float step = (float)Math.PI / qualityFactor;
-        for(float pitch = 0; pitch < 2f * (float)Math.PI; pitch += step){
-            for(float yaw = -(float)Math.PI / 2f; yaw <= (float)Math.PI / 2f; yaw += step){
+        for(float pitch = 0; pitch < 2.0f * (float)Math.PI; pitch += step){
+            for(float yaw = -(float)Math.PI / 2.0f; yaw <= (float)Math.PI / 2.0f; yaw += step){
 
                 Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColorNormal(position, color, position));

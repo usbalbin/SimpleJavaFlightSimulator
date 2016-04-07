@@ -1,7 +1,6 @@
 package se.liu.ida.albhe417.tddd78.math;
 
 import javax.vecmath.Vector3f;
-import java.util.Arrays;
 
 public class Vector3
 {

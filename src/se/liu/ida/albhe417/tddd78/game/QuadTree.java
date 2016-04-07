@@ -1,11 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import com.bulletphysics.collision.dispatch.GhostPairCallback;
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
-import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -127,10 +123,10 @@ public class QuadTree {
 
         //TODO: Change to length2() to save CPU
         Vector3 center = position;
-        Vector3 left = position.add(-size / 2f, 0, 0);
-        Vector3 top = position.add(0, 0, -size / 2f);
-        Vector3 right = position.add(size / 2f, 0, 0);
-        Vector3 bottom = position.add(0, 0, size / 2f);
+        Vector3 left = position.add(-size / 2.0f, 0, 0);
+        Vector3 top = position.add(0, 0, -size / 2.0f);
+        Vector3 right = position.add(size / 2.0f, 0, 0);
+        Vector3 bottom = position.add(0, 0, size / 2.0f);
 
         setHeight(center);
         setHeight(left);
@@ -269,7 +265,7 @@ public class QuadTree {
         }
 
         else{
-            float halfSide = size / 2;
+            int halfSide = size / 2;
 
             Vector3 leftFrontPos = position.add(-halfSide, 0, -halfSide);
             Vector3 rightFrontPos = position.add(+halfSide, 0, -halfSide);
@@ -288,10 +284,10 @@ public class QuadTree {
             final int index = vertices.size();
 
             if(!isStitched()){
-                Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2f)/ HEIGHT_FACTOR / 256f);
-                Vector3 col2 = new Vector3((rightFrontPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
-                Vector3 col3 = new Vector3((leftBottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR  / 256f);
-                Vector3 col4 = new Vector3((rightBottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
+                Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2.0f)/ HEIGHT_FACTOR / 256.0f);
+                Vector3 col2 = new Vector3((rightFrontPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                Vector3 col3 = new Vector3((leftBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR  / 256.0f);
+                Vector3 col4 = new Vector3((rightBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
 
                 vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
                 vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
@@ -317,17 +313,17 @@ public class QuadTree {
 
 
 
-                Vector3 col0 = new Vector3((center.getY() + maxHeight / 2f) / HEIGHT_FACTOR / 256f);
+                Vector3 col0 = new Vector3((center.getY() + maxHeight / 2.0f) / HEIGHT_FACTOR / 256.0f);
 
-                Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2f) / HEIGHT_FACTOR / 256f);
-                Vector3 col2 = new Vector3((rightFrontPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
-                Vector3 col3 = new Vector3((rightBottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
-                Vector3 col4 = new Vector3((leftBottomPos.getY() + maxHeight / 2f) /HEIGHT_FACTOR / 256f);
+                Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2.0f) / HEIGHT_FACTOR / 256.0f);
+                Vector3 col2 = new Vector3((rightFrontPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                Vector3 col3 = new Vector3((rightBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                Vector3 col4 = new Vector3((leftBottomPos.getY() + maxHeight / 2.0f) /HEIGHT_FACTOR / 256.0f);
 
-                Vector3 col5 = new Vector3((frontPos.getY() + maxHeight / 2f)/ HEIGHT_FACTOR / 256f);
-                Vector3 col6 = new Vector3((rightPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
-                Vector3 col7 = new Vector3((bottomPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
-                Vector3 col8 = new Vector3((leftPos.getY() + maxHeight / 2f)/HEIGHT_FACTOR / 256f);
+                Vector3 col5 = new Vector3((frontPos.getY() + maxHeight / 2.0f)/ HEIGHT_FACTOR / 256.0f);
+                Vector3 col6 = new Vector3((rightPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                Vector3 col7 = new Vector3((bottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                Vector3 col8 = new Vector3((leftPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
 
 
 
@@ -396,7 +392,7 @@ public class QuadTree {
         int x = rootSize / 2 + (int)position.getX();
         int z = rootSize / 2 + (int)position.getZ();
         float y =  heightmap[z * hmapSize + x];// & 0x00FF;
-        position.setY(- maxHeight / 2f + y * HEIGHT_FACTOR);
+        position.setY(- maxHeight / 2.0f + y * HEIGHT_FACTOR);
     }
 
     public int getSize(){
@@ -482,7 +478,7 @@ public class QuadTree {
 
 
     private boolean inView(Vector3 center, Matrix4x4 MVPmatrix){
-        float halfSize = size / 2;
+        int halfSize = size / 2;
         Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
         Vector3 frontRight = position.add(0, 0, -halfSize);
         Vector3 bottomRight = position.add(halfSize, 0, halfSize);

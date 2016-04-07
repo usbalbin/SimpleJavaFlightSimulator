@@ -47,7 +47,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
 
         //TODO: byta ut allt mot global modelMatrix
-        float deltaTrottle = 0f;
+        float deltaTrottle = 0.0f;
         float yawValue = 0;
         float pitchValue = 0;
         float rollValue = 0;
@@ -82,10 +82,10 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
     }
 
     private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-        final float throttleSensetivity = 500f;
-        final float yawSensetivity = 500f;    //N/m
-        final float pitchSensetivity = 500f;
-        final float rollSensetivity = 500f;
+        final float throttleSensetivity = 500.0f;
+        final float yawSensetivity = 500.0f;    //N/m
+        final float pitchSensetivity = 500.0f;
+        final float rollSensetivity = 500.0f;
 
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
@@ -100,7 +100,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
 
         Vector3f linearVelocity = new Vector3f();
         partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
-        Vector3 v = new Vector3(-10f);
+        Vector3 v = new Vector3(-10.0f);
         Vector3 linearResistence = new Vector3(linearVelocity);
         linearResistence = linearResistence.multiply(linearResistence.abs());
         linearResistence = linearResistence.multiply(v);
@@ -109,7 +109,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         Vector3f angularVelocity = new Vector3f();
         partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
         Vector3 angularResistence = new Vector3(angularVelocity);
-        angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000f, -10000f, -10000f));
+        angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000.0f, -10000.0f, -10000.0f));
 
         Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
         torque = partMatrix.getInverse().multiply(torque, false);
@@ -127,7 +127,7 @@ public class VehicleHelicopterBox extends VehicleHelicopter {
         final Vector3 blue = 	new Vector3(0, 0, 1);
         final Vector3 white = 	new Vector3(1, 1, 1);
 
-        final Vector3 SIZE = new Vector3(2, .5f, 2);
+        final Vector3 SIZE = new Vector3(2, 0.5f, 2);
 
         //"LTR" = left top rear
         Vector3 posLTR = new Vector3(-SIZE.getX(), SIZE.getY(), SIZE.getZ());
