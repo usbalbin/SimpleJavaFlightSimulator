@@ -10,7 +10,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  */
 abstract class VehicleHelicopter extends AbstractVehicle {
     public VehicleHelicopter(final Vector3 position, float yaw, float mass, float thrustFactor, DynamicsWorld physics, Game game) {
-        super(position, yaw, mass, thrustFactor, physics, game);
+        super(position, mass, thrustFactor, physics, game);
     }
 
     //TODO: implement me

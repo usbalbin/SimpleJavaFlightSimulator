@@ -18,15 +18,14 @@ import java.util.ArrayList;
 /**
  * Created by Albin_Hedman on 2016-03-30.
  */
-public class Projectile extends AbstractGameObject{
-    public Projectile(final Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics, Game game){
-        super(position, 0, physics, game);
-        setup(position, velocity, shaderProgram, physics);
+public class ProjectileMesh extends AbstractGameObject{
+    private GameObjectPart part;
+    public ProjectileMesh(float radius, final int shaderProgram, DynamicsWorld physics, Game game){
+        super(new Vector3(), physics, game);
+        setup(radius, shaderProgram);
     }
 
-    private void setup(Vector3 position, Vector3 velocity, final int shaderProgram, DynamicsWorld physics){
-        float mass = 0.1f;
-        float radius = 0.5f;
+    private void setup(float radius, final int shaderProgram){
         Vector3 color = new Vector3(1, 0, 0);
         int qualityFactor = 4;
 
@@ -41,23 +40,13 @@ public class Projectile extends AbstractGameObject{
         vertices.toArray(vertexArray);
         indexArray = indices.stream().mapToInt(i -> i).toArray();
 
-        //Physics
-        Matrix4x4 matrix = Matrix4x4.createTranslation(position);
-        Transform transform = new Transform(matrix.toMatrix4f());
-        MotionState motionState = new DefaultMotionState(transform);
-        SphereShape collisionShape = new SphereShape(radius);
-
-        Vector3f inertia = new Vector3f();
-        collisionShape.calculateLocalInertia(mass, inertia);
-        RigidBody physicsObject = new RigidBody(mass, motionState, collisionShape, inertia);
-        physicsObject.setLinearVelocity(velocity.toVector3f());
-        physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
-        physicsObject.setUserPointer(this);
-        physics.addRigidBody(physicsObject);
-
-        GameObjectPart part = new GameObjectPart(vertexArray, indexArray, shaderProgram, physicsObject);
+        part = new GameObjectPart(vertexArray, indexArray, shaderProgram, null);
         parts = new ArrayList<>(1);
         parts.add(part);
+    }
+
+    public void setBullet(RigidBody bullet){
+        part.setPhysicsObject(bullet);
     }
 
     public void hit(Target target){

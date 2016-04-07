@@ -23,13 +23,13 @@ import java.util.ArrayList;
  */
 public class Target extends AbstractGameObject{
     public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game){
-        super(position, 0, physics, game);
+        super(position, physics, game);
         setup(position, shaderProgram, physics);
     }
 
     private void setup(Vector3 position, final int shaderProgram, DynamicsWorld physics){
-        float mass = 1;
-        float radius = 1;
+        float mass = 0;
+        float radius = 5;
         Vector3 color = new Vector3(0, 1, 0);
         int qualityFactor = 10;
 
@@ -63,7 +63,11 @@ public class Target extends AbstractGameObject{
 
     @Override
     public void hit(ManifoldPoint cp, AbstractGameObject other){
-        if(cp.appliedImpulse > 1)
+
+        if(cp.appliedImpulse > 1 || cp.appliedImpulse == 0) {
             destroy();
+            System.out.println("Target hit with impulse: " + cp.appliedImpulse);
+        }
+
     }
 }

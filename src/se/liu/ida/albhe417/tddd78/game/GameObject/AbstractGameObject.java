@@ -19,14 +19,13 @@ public abstract class AbstractGameObject
 
     protected ArrayList<GameObjectPart> parts;
 
-    public AbstractGameObject(Vector3 position, float yaw, DynamicsWorld physics, Game game){
+    public AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game){
     	/*this.position = position;
         this.yaw = 0;
         this.pitch = 0;
         this.roll = 0;*/
         modelMatrix = new Matrix4x4();
         modelMatrix = modelMatrix.getTranslated(position);
-        modelMatrix = modelMatrix.getRotated(yaw, 0, 0);
         this.physics = physics;
         this.game = game;
     }

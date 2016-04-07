@@ -155,7 +155,7 @@ public class QuadTree {
         final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-        if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPmatrix)) {
+        if(desiredLevel <= level || level >= maxLevels/* || !inView(center, MVPmatrix)*/) {
             leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
