@@ -136,11 +136,11 @@ public class QuadTree {
         setHeight(bottom);
 
         final Float[] dists = {
-            cameraPos.sub(center).length(),
-            cameraPos.sub(left).length(),
-            cameraPos.sub(top).length(),
-            cameraPos.sub(right).length(),
-            cameraPos.sub(bottom).length()
+                cameraPos.sub(center).length(),
+                cameraPos.sub(left).length(),
+                cameraPos.sub(top).length(),
+                cameraPos.sub(right).length(),
+                cameraPos.sub(bottom).length()
         };
 
         final float dist = Collections.min(Arrays.asList(dists));
@@ -153,10 +153,7 @@ public class QuadTree {
 
 
         if(desiredLevel <= level || level >= maxLevels) {
-            leftFront = null;
-            rightFront = null;
-            rightBottom = null;
-            leftBottom = null;
+            leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
 
@@ -456,35 +453,6 @@ public class QuadTree {
         }
     }
 
-    protected QuadTree findNode_onlyDown(final Vector3 position){
-        final Vector3 delta = position.sub(this.position);
-        final int dx = Math.round(delta.getX());
-        final int dz = Math.round(delta.getZ());
-
-        final float radius = size / 2.0f;
-
-        if(dx < -radius || radius < dx ||
-                dz < -radius || radius < dz){
-            return null;
-        }
-
-        if((dz == 0 && dx == 0) || !hasChildren())
-            return this;
-
-        if(0 > dz){
-            if(0 > dx)
-                return leftFront.findNode_onlyDown(position);
-            else
-                return rightFront.findNode_onlyDown(position);
-        }
-        else{
-            if(0 > dx)
-                return leftBottom.findNode_onlyDown(position);
-            else
-                return rightBottom.findNode_onlyDown(position);
-        }
-    }
-
     private void calculateNormals(List<VertexPositionColorNormal> vertices, List<Integer> indices){
         //For each triangle calculate its normal and add this to each of its vertices's normals
         for(int triangle = 0; triangle < indices.size() / 3; triangle++){
@@ -508,6 +476,57 @@ public class QuadTree {
         //for(VertexPositionColorNormal vertex : vertices)
             //vertex.normal = vertex.normal.getNormalized();
     }
+
+    /*
+    private boolean inView(Vector3 center, Matrix4x4 MVPmatrix){
+        float halfSize = size / 2;
+        Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
+        Vector3 frontRight = position.add(0, 0, -halfSize);
+        Vector3 bottomRight = position.add(halfSize, 0, halfSize);
+        Vector3 bottomLeft = position.add(-halfSize, 0, halfSize);
+
+        setHeight(frontLeft);
+        setHeight(frontRight);
+        setHeight(bottomRight);
+        setHeight(bottomLeft);
+
+        float maxHeight = center.getY();
+        float minHeight = center.getY();
+
+        float[] heights = {frontLeft.getY(), frontRight.getY(), bottomRight.getY(), bottomLeft.getY()};
+
+        for (float height : heights) {
+            if(height > maxHeight)
+                maxHeight = height;
+            else if(height < minHeight)
+                minHeight = height;
+        }
+
+        Vector3 centerZeroHeight = new Vector3(center);
+        centerZeroHeight.setY(0);
+
+        //Corners of quads collision box
+        Vector3 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize);
+        Vector3 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize);
+        Vector3 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize);
+        Vector3 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize);
+
+        Vector3 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
+        Vector3 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize);
+        Vector3 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize);
+        Vector3 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize);
+
+
+
+        Vector3[] corners = {leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack, leftTopFront, rightTopFront, rightTopBack, leftTopBack};
+        for (Vector3 corner: corners) {
+            Vector3 transformedCorner = MVPmatrix.multiply(corner);
+            if(isInside(corner, transformedCorner))
+                return true;
+        }
+
+        return isInside(cameraPosition, box);
+    }*/
 
 
 }

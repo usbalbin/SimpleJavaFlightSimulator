@@ -48,7 +48,7 @@ public abstract class AbstractVehicle extends AbstractGameObject
 
     protected void changeThrottle(float deltaThrottle){
         final float MAX_THROTTLE = 1.0f;
-        final float MIN_THROTTLE = -0.25f;
+        final float MIN_THROTTLE = -1.0f;
         final float THROTTLE_SETTLE = 0.99f;
 
         throttle += deltaThrottle;
