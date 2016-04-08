@@ -105,6 +105,7 @@ public class Game
 
 
 		window = glfwCreateWindow(windowWidth, windowHeight, TITLE, NULL, NULL);
+		//glfwHideWindow(window);
 
 		if(window == NULL){
 			throw new RuntimeException("Failed to create window");
@@ -128,7 +129,7 @@ public class Game
 
 		GL.createCapabilities();
 
-		glfwShowWindow(window);
+
 		glClearColor(1.0f, 0.6f, 0.75f, 1.0f);
 
 		glEnable(GL_DEPTH_TEST);
@@ -371,12 +372,17 @@ public class Game
     }
 
     public void run(){
-
+		//glfwShowWindow(window);
 		while(glfwWindowShouldClose(window) != GL_TRUE){
 			glfwPollEvents();
 
 			update();
 			draw();
 		}
-    }
+		while (gameObjects.size() > 0) {
+			gameObjects.get(0).destroy();
+		}
+
+		glfwDestroyWindow(window);
+	}
 }

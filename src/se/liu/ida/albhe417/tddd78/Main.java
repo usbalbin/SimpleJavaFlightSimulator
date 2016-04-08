@@ -1,4 +1,6 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78;
+
+import se.liu.ida.albhe417.tddd78.game.Game;
 
 import java.io.File;
 

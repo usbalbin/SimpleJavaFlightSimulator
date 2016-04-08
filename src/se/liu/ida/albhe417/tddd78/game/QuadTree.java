@@ -3,9 +3,7 @@ package se.liu.ida.albhe417.tddd78.game;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Albin_Hedman on 2016-03-14.
@@ -19,6 +17,16 @@ public class QuadTree {
     private QuadTree leftBottom;
     private QuadTree rightBottom;
     private QuadTree parent;
+
+    protected VertexPositionColorNormal leftFrontVertex;
+    protected VertexPositionColorNormal rightFrontVertex;
+    protected VertexPositionColorNormal leftBottomVertex;
+    protected VertexPositionColorNormal rightBottomVertex;
+
+    protected VertexPositionColorNormal leftVertex;
+    protected VertexPositionColorNormal frontVertex;
+    protected VertexPositionColorNormal rightVertex;
+    protected VertexPositionColorNormal bottomVertex;
 
     /*private QuadTree neighborLF;
     private QuadTree neighborRF;
@@ -43,9 +51,9 @@ public class QuadTree {
     private static int hmapSize;
     private static float maxHeight;
     private static Matrix4x4 MVPmatrix;
+    private static Map<Vector3, Integer> positionMap;
+    public static int detailFactor = 350;
 
-    //TODO: try to get rid of me
-    private static QuadTree root;
 
     /**
      * Create Root QuadTree
@@ -59,7 +67,7 @@ public class QuadTree {
         this.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
-        root = this;
+        this.positionMap = new HashMap<>();
     }
 
     /**
@@ -80,9 +88,10 @@ public class QuadTree {
     }
 
     public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
-        final float detailFactor = 350;
+        final float detailFactor = this.detailFactor;
         final short maxLevels = 11;//11;
         this.MVPmatrix = MVPmatrix;
+        this.positionMap.clear();
 
         generateTree(cameraPosition, detailFactor, maxLevels);
 
@@ -289,13 +298,36 @@ public class QuadTree {
                 Vector3 col3 = new Vector3((leftBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR  / 256.0f);
                 Vector3 col4 = new Vector3((rightBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
 
-                vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
-                vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
-                vertices.add(new VertexPositionColorNormal(leftBottomPos, color));//2
-                vertices.add(new VertexPositionColorNormal(rightBottomPos,color));//3
+                Integer leftFrontIndex = positionMap.get(leftFrontPos);
+                if(leftFrontIndex == null) {
+                    vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
+                    leftFrontIndex = vertices.size() - 1;
+                    positionMap.put(leftFrontPos, leftFrontIndex);
+                }
 
-                indices.add(0 + index);indices.add(3 + index);indices.add(2 + index);
-                indices.add(0 + index);indices.add(1 + index);indices.add(3 + index);
+                Integer rightFrontIndex = positionMap.get(rightFrontPos);
+                if(rightFrontIndex == null) {
+                    vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
+                    rightFrontIndex = vertices.size() - 1;
+                    positionMap.put(rightFrontPos, rightFrontIndex);
+                }
+
+                Integer leftBottomIndex = positionMap.get(leftBottomPos);
+                if(leftBottomIndex == null) {
+                    vertices.add(new VertexPositionColorNormal(leftBottomPos, color));//2
+                    leftBottomIndex = vertices.size() - 1;
+                    positionMap.put(leftBottomPos, leftBottomIndex);
+                }
+
+                Integer rightBottomIndex = positionMap.get(rightBottomPos);
+                if(rightBottomIndex == null) {
+                    vertices.add(new VertexPositionColorNormal(rightBottomPos, color));//3
+                    rightBottomIndex = vertices.size() - 1;
+                    positionMap.put(rightBottomPos, rightBottomIndex);
+                }
+
+                indices.add(leftFrontIndex);indices.add(rightBottomIndex);indices.add(leftBottomIndex);
+                indices.add(leftFrontIndex);indices.add(rightFrontIndex);indices.add(rightBottomIndex);
             }else{
                 final int numVertices = 5 + numStitchPnts();
 
@@ -325,35 +357,81 @@ public class QuadTree {
                 Vector3 col7 = new Vector3((bottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
                 Vector3 col8 = new Vector3((leftPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
 
-
+                int i = 0;
+                Integer[] quadsIndices = new Integer[numVertices];
 
                 vertices.add(new VertexPositionColorNormal(center, color));
+                quadsIndices[i] = vertices.size() - 1;
 
-                vertices.add(new VertexPositionColorNormal(leftFrontPos, color));
-                if(frontStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(frontPos, color));
+                quadsIndices[++i] = positionMap.get(leftFrontPos);
+                if(quadsIndices[i] == null) {
+                    vertices.add(new VertexPositionColorNormal(leftFrontPos, color));
+                    quadsIndices[i] = vertices.size() - 1;
+                    positionMap.put(leftFrontPos, quadsIndices[i]);
+                }
 
-                vertices.add(new VertexPositionColorNormal(rightFrontPos, color));
-                if(rightStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(rightPos, color));
+                if(frontStitchPnt) {
+                    quadsIndices[++i] = positionMap.get(frontPos);
+                    if(quadsIndices[i] == null) {
+                        vertices.add(new VertexPositionColorNormal(frontPos, color));
+                        quadsIndices[i] = vertices.size() - 1;
+                        positionMap.put(frontPos, quadsIndices[i]);
+                    }
+                }
 
-                vertices.add(new VertexPositionColorNormal(rightBottomPos, color));
-                if(bottomStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(bottomPos, color));
+                quadsIndices[++i] = positionMap.get(rightFrontPos);
+                if(quadsIndices[i] == null) {
+                    vertices.add(new VertexPositionColorNormal(rightFrontPos, color));
+                    quadsIndices[i] = vertices.size() - 1;
+                    positionMap.put(rightFrontPos, quadsIndices[i]);
+                }
+                if(rightStitchPnt) {
+                    quadsIndices[++i] = positionMap.get(rightPos);
+                    if(quadsIndices[i] == null) {
+                        vertices.add(new VertexPositionColorNormal(rightPos, color));
+                        quadsIndices[i] = vertices.size() - 1;
+                        positionMap.put(rightPos, quadsIndices[i]);
+                    }
+                }
 
-                vertices.add(new VertexPositionColorNormal(leftBottomPos, color));
-                if(leftStitchPnt)
-                    vertices.add(new VertexPositionColorNormal(leftPos, color));
+                quadsIndices[++i] = positionMap.get(rightBottomPos);
+                if(quadsIndices[i] == null) {
+                    vertices.add(new VertexPositionColorNormal(rightBottomPos, color));
+                    quadsIndices[i] = vertices.size() - 1;
+                    positionMap.put(rightBottomPos, quadsIndices[i]);
+                }
+                if(bottomStitchPnt) {
+                    quadsIndices[++i] = positionMap.get(bottomPos);
+                    if(quadsIndices[i] == null) {
+                        vertices.add(new VertexPositionColorNormal(bottomPos, color));
+                        quadsIndices[i] = vertices.size() - 1;
+                        positionMap.put(bottomPos, quadsIndices[i]);
+                    }
+                }
 
+                quadsIndices[++i] = positionMap.get(leftBottomPos);
+                if(quadsIndices[i] == null) {
+                    vertices.add(new VertexPositionColorNormal(leftBottomPos, color));
+                    quadsIndices[i] = vertices.size() - 1;
+                    positionMap.put(leftBottomPos, quadsIndices[i]);
+                }
+                if(leftStitchPnt) {
+                    quadsIndices[++i] = positionMap.get(leftPos);
+                    if(quadsIndices[i] == null) {
+                        vertices.add(new VertexPositionColorNormal(leftPos, color));
+                        quadsIndices[i] = vertices.size() - 1;
+                        positionMap.put(leftPos, quadsIndices[i]);
+                    }
+                }
 
-                indices.add(index + (numVertices - 1));   //last vertex
-                indices.add(index + 1);         //First vertex
-                indices.add(index + 0);         //Center
+                indices.add(quadsIndices[numVertices - 1]);   //last vertex
+                indices.add(quadsIndices[1]);         //First vertex
+                indices.add(quadsIndices[0]);         //Center
 
-                for(int i = 0; i < numVertices - 1; i++){
-                    indices.add(index + i);
-                    indices.add(index + i + 1);
-                    indices.add(index + 0);
+                for(int j = 0; j < numVertices - 1; j++){
+                    indices.add(quadsIndices[j]);
+                    indices.add(quadsIndices[j + 1]);
+                    indices.add(quadsIndices[0]);
                 }
             }
         }
@@ -463,17 +541,11 @@ public class QuadTree {
             Vector3 sideB = vertices.get(index0).position.sub(vertices.get(index1).position);
             Vector3 normal = sideA.cross(sideB);
 
-            vertices.get(index0).normal = vertices.get(index0).normal.add(normal);
-            vertices.get(index1).normal = vertices.get(index1).normal.add(normal);
-            vertices.get(index2).normal = vertices.get(index2).normal.add(normal);
+            vertices.get(index0).normal.increase(normal);
+            vertices.get(index1).normal.increase(normal);
+            vertices.get(index2).normal.increase(normal);
         }
 
-        //Normalize all vertices
-        //TODO: do this on GPU instead to save CPU and heap?
-        //TODO: if done on cpu try to reduce heap usage caused
-        // by new objects craeted fro Vector3.getNormalized()
-        //for(VertexPositionColorNormal vertex : vertices)
-            //vertex.normal = vertex.normal.getNormalized();
     }
 
 
@@ -556,5 +628,4 @@ public class QuadTree {
         //All corners are inside some sides, thus box is either intersecting or completely inside the frustrum
         return true;
     }
-
 }
