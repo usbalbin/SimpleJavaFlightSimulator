@@ -19,7 +19,7 @@ public class TerrainLOD extends Terrain {
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 
-    private QuadTree quadTree;
+    private QuadTree_SmoothNormals_Faster quadTree;
 
     //TODO: kolla upp
     float[] heights;
@@ -44,7 +44,7 @@ public class TerrainLOD extends Terrain {
         float maxHeight = 256f * 256f * HEIGHT_FACTOR;
 
         heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
-        quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight);
+        quadTree = new QuadTree_SmoothNormals_Faster(heights, HEIGHT_FACTOR, maxHeight);
         height = width = quadTree.getHmapSize();
 
         this.parts = new ArrayList<>(1);
@@ -91,12 +91,11 @@ public class TerrainLOD extends Terrain {
         }
         vertices.toArray(vertexArray);
         indexArray = indices.stream().mapToInt(i -> i).toArray();
-
-
-        partMain.updateData(vertexArray, indexArray);
     }
 
-
+    public void updateGraphics(){
+        partMain.updateData(vertexArray, indexArray);
+    }
 
 
     //TODO: Make this accurate
