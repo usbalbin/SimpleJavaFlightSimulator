@@ -1,6 +1,10 @@
 package se.liu.ida.albhe417.tddd78.math;
 
+import se.liu.ida.albhe417.tddd78.game.Helpers;
+import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+
 import javax.vecmath.Vector3f;
+import java.util.Arrays;
 
 public class Vector3
 {
@@ -96,6 +100,11 @@ public class Vector3
         return this.add(new Vector3(otherX, otherY, otherZ));
     }
 
+    public void increase(Vector3 other){
+        for (int i = 0; i < values.length; i++)
+            this.values[i] += other.values[i];
+    }
+
     public Vector3 sub(Vector3 other){
         return new Vector3(this.getX() - other.getX(), this.getY() - other.getY(), this.getZ() - other.getZ());
     }
@@ -164,5 +173,25 @@ public class Vector3
 
     public Vector3f toVector3f(){
         return new Vector3f(this.values);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Vector3 other = (Vector3)obj;
+        return Helpers.fEquals(this.getX(), other.getX()) &&
+                //Helpers.fEquals(this.getY(), other.getY()) &&
+                Helpers.fEquals(this.getZ(), other.getZ());
+    }
+
+    @Override
+    public int hashCode() {
+        int x = Math.round(getX());
+        int y = Math.round(getY());
+        int z = Math.round(getZ());
+
+        int result = x;
+        result = 31 * result + y;
+        result = 31 * result + z;
+        return result;
     }
 }

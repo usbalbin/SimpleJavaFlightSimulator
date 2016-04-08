@@ -32,6 +32,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 public class Game
 {
@@ -49,6 +50,7 @@ public class Game
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1.0f;
 
 	private static final boolean WIRE_FRAME = false;
+	private static final boolean THREADED = true;
     private static final int AA_LEVEL = 16;
 	private static final float OPENGL_VERSION = 3.0f;
     private static final String TITLE = "Simple Java Flight Simulator";
@@ -61,6 +63,7 @@ public class Game
 
 	private Vector3 lightDirection;
 	private int lightDirectionId;
+	private Vector3 cameraPosition = new Vector3();
 
 
 	private static final float HEIGHT_SCALE = 0.01f;
@@ -281,6 +284,19 @@ public class Game
 		gameObjects.add(currentVehicle);
 	}
 
+	public void updateCameraPosition(){
+		if(currentVehicle != null)
+			cameraPosition = currentVehicle.getCameraPosition();
+	}
+
+	private void updateCameraMatrix() {
+
+		viewMatrix = currentVehicle.getViewMatrix();
+
+		cameraMatrix = projectionMatrix.multiply(viewMatrix);
+
+	}
+
     private void update(){
 		final float nanoToSec = 1000000000.0f;
 		final float preferredTimeStep = 1.0f / 60.0f / 10.0f;
@@ -291,8 +307,9 @@ public class Game
 		lastTime = nowTime;
 		System.out.println(deltaTime);
 
-		if(currentVehicle == null)
+		if(currentVehicle == null) {
 			respawn();
+		}
 
 		currentVehicle.handleInput(deltaTime);
 
@@ -300,25 +317,40 @@ public class Game
 			drawable.update(deltaTime);
 		}
 
-
-		physics.stepSimulation(deltaTime, 10, preferredTimeStep);
-
-		if(currentVehicle == null)
-			return;
-
+		updateCameraPosition();
 		updateCameraMatrix();
-		Vector3 cameraPosition = currentVehicle.getCameraPosition();
-		//TODO remove cast
-		((TerrainLOD)terrain).update(cameraPosition, cameraMatrix);
+
+		if(THREADED){
+			Thread threadP = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					physics.stepSimulation(deltaTime, 10, preferredTimeStep);
+				}
+			});
+			threadP.start();
+
+			Thread threadT = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					terrain.update(cameraPosition, cameraMatrix);
+				}
+			});
+			threadT.start();
+
+			try {
+				threadP.join();
+				threadT.join();
+			}catch (InterruptedException e){
+
+			}
+		}else {
+			physics.stepSimulation(deltaTime, 10, preferredTimeStep);
+			terrain.update(cameraPosition, cameraMatrix);
+		}
+		//terrain.update(cameraPosition, cameraMatrix);
+		terrain.updateGraphics();
+
     }
-
-	private void updateCameraMatrix() {
-
-		viewMatrix = currentVehicle.getViewMatrix();
-
-		cameraMatrix = projectionMatrix.multiply(viewMatrix);
-
-	}
 
     private void draw(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

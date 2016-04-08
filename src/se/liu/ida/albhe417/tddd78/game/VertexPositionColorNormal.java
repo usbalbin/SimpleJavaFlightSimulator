@@ -62,4 +62,11 @@ public class VertexPositionColorNormal implements Vertex
         glVertexAttribPointer(COLOR_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 1);
         glVertexAttribPointer(NORMAL_INDEX, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 2);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        VertexPositionColorNormal other = (VertexPositionColorNormal)obj;
+        return this.position.equals(other.position);
+    }
+
 }

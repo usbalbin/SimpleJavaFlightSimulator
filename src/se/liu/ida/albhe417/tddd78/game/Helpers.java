@@ -238,4 +238,9 @@ public class Helpers {
             indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount   );
         }
     }
+
+    public static boolean fEquals(float left, float right){
+        final float epsilon = 0.1f;
+        return Math.abs(left - right) < epsilon;
+    }
 }
