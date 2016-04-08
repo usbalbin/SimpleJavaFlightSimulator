@@ -52,14 +52,14 @@ public class QuadTree {
     private static float maxHeight;
     private static Matrix4x4 MVPmatrix;
     private static Map<Vector3, Integer> positionMap;
-    public static int detailFactor = 350;
+    private static int detailFactor;
 
 
     /**
      * Create Root QuadTree
      * @param heightmap heightmap
      */
-    public QuadTree(float[] heightmap, final float heightFactor, float maxHeight){
+    public QuadTree(float[] heightmap, final float heightFactor, float maxHeight, int detailFactor){
         this.HEIGHT_FACTOR = heightFactor;
         this.heightmap = heightmap;
         this.hmapSize = this.rootSize = this.size = (int)Math.sqrt(heightmap.length);
@@ -68,6 +68,7 @@ public class QuadTree {
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
         this.positionMap = new HashMap<>();
+        this.detailFactor = detailFactor;
     }
 
     /**
@@ -98,6 +99,7 @@ public class QuadTree {
         stitch(null, null, null, null);
         generateVerticesAndIndices(vertices, indices);
         calculateNormals(vertices, indices);
+        System.out.println(vertices.size() + ", " + vertices.size() / (detailFactor * detailFactor * detailFactor));
     }
 
 

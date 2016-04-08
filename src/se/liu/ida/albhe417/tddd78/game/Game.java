@@ -48,6 +48,7 @@ public class Game
 	private static final float FOV = 90 * (float)Math.PI / 180.0f;
 	private static final float DRAW_DISTANCE = 3072;
 	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1.0f;
+	private int detailFactor;
 
 	private static final boolean WIRE_FRAME = false;
 	private static final boolean THREADED = true;
@@ -77,7 +78,9 @@ public class Game
 
 	private long lastTime;
 
-    public Game(){
+    public Game(int detailFactor){
+		this.detailFactor = detailFactor;
+
 		//TODO: Move to render-class?
 		setupGraphics();
 		setupShaders();
@@ -238,7 +241,7 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(3);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, shaderProgram, physics, this);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, detailFactor, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
 		for(int y = 0; y < 4; y++) {
@@ -280,7 +283,7 @@ public class Game
 	}
 
 	public void respawn(){
-		final Vector3 spawnPos = new Vector3(-225, /*-316.1f*/0, 20);
+		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
 		currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
 		gameObjects.add(currentVehicle);
 	}
@@ -306,7 +309,7 @@ public class Game
 		long nowTime = System.nanoTime();
 		float deltaTime = (nowTime - lastTime) / nanoToSec;
 		lastTime = nowTime;
-		System.out.println(deltaTime);
+		//System.out.println(deltaTime);
 
 		if(currentVehicle == null) {
 			respawn();

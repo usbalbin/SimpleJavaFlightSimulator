@@ -21,7 +21,7 @@ public class MenuFrame extends JFrame {
     private Game game;
 
     private int maxDrawDistance;
-    private int qualityFactor;
+    private int qualityFactor = 350;
     private int tickPerFrame = 10;
     private float tickSize = 1/60.0f/tickPerFrame;
 
@@ -88,7 +88,7 @@ public class MenuFrame extends JFrame {
     }
 
     private void setupQualityFactorSlider(Object constraints){
-        final int min = 100, max = 500;
+        final int min = 50, max = 1000;
         final int defaultValue = 350;
 
         JSlider qualityFactorSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
@@ -96,7 +96,7 @@ public class MenuFrame extends JFrame {
         JLabel label = new JLabel("Quality factor: " + defaultValue);
 
         labels.put(min, new JLabel(min + " m"));
-        labels.put((max - min) / 1, label);
+        labels.put((max - min) / 2, label);
         labels.put(max, new JLabel(max + " m"));
         qualityFactorSlider.setLabelTable(labels);
         qualityFactorSlider.setPaintLabels(true);
@@ -106,7 +106,6 @@ public class MenuFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 qualityFactor = qualityFactorSlider.getValue();
                 label.setText("Quality factor: " + qualityFactor);
-                QuadTree.detailFactor = qualityFactor;
             }
         };
         qualityFactorSlider.addChangeListener(sliderListener);
@@ -157,7 +156,7 @@ public class MenuFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                game = new Game();
+                game = new Game(qualityFactor);
                 game.run();
             }
         };

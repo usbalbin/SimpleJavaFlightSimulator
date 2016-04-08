@@ -162,7 +162,7 @@ public class GameObjectPart {
     }
 
     private void vertexToFloatBuffer(Vertex[] vertices) {
-        if (vertexBufferData == null)
+        if (vertexBufferData == null || vertices.length * vertices[0].getFloatCount() > vertexBufferData.capacity())
             vertexBufferData = BufferUtils.createFloatBuffer(vertices.length * vertices[0].getFloatCount());
         else
             vertexBufferData.clear();

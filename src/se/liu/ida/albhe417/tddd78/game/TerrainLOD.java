@@ -28,14 +28,16 @@ public class TerrainLOD extends Terrain {
     private VertexPositionColorNormal[] vertexArray;
     private List<VertexPositionColorNormal> vertices;
     private List<Integer> indices;
+    private int detailFactor;
 
     private static final int MAX_EXPECTED_VERT_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final float heightFactor, final int shaderProgram, DynamicsWorld physics, Game game) {
+    public TerrainLOD(Vector3 position, final float heightFactor, int detailFactor, final int shaderProgram, DynamicsWorld physics, Game game) {
         super(position, heightFactor, shaderProgram, physics, game);
+        this.detailFactor = detailFactor;
         this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERT_COUNT];
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
-        this.indices = new ArrayList<>(150000);
+        this.indices = new ArrayList<>(1000);
         this.physics = physics;
         setup();
     }
@@ -44,7 +46,7 @@ public class TerrainLOD extends Terrain {
         float maxHeight = 256f * 256f * HEIGHT_FACTOR;
 
         heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
-        quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight);
+        quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight, detailFactor);
         height = width = quadTree.getHmapSize();
 
         this.parts = new ArrayList<>(1);
@@ -86,7 +88,7 @@ public class TerrainLOD extends Terrain {
         quadTree.update(cameraPos, MVPmatrix, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
-            vertexArray = new VertexPositionColorNormal[vertices.size()];
+            vertexArray = new VertexPositionColorNormal[(int)(vertices.size() * 1.1)];
             System.out.println("Warning had to expand vertex array!!!");
         }
         vertices.toArray(vertexArray);
