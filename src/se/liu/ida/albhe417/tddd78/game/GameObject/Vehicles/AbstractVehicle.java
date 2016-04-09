@@ -11,6 +11,8 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class AbstractVehicle extends AbstractGameObject
 {
     protected final float MASS;
@@ -19,13 +21,16 @@ public abstract class AbstractVehicle extends AbstractGameObject
     protected Vector3 velocity;
     protected Vector3 cameraPosition;
     protected GameObjectPart partBody;
+    protected AtomicInteger score;
 
 
     public AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, Game game){
 	    super(position, physics, game);
         this.MASS = mass;
+        this.score = new AtomicInteger(0);
         this.THRUST_FACTOR = thrustFactor;
-        velocity = new Vector3();
+        this.velocity = new Vector3();
+        this.cameraPosition = new Vector3();
     }
 
     abstract public void handleInput(float deltaTime);
@@ -81,6 +86,10 @@ public abstract class AbstractVehicle extends AbstractGameObject
 
         direction = modelMatrix.getInverse().multiply(direction, false);
         return direction;
+    }
+
+    public int getScore(){
+        return score.get();
     }
 
     public Matrix4x4 getModelMatrix(){

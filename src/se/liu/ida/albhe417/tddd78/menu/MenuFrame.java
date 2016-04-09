@@ -3,6 +3,7 @@ package se.liu.ida.albhe417.tddd78.menu;
 import net.miginfocom.swing.MigLayout;
 import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.QuadTree;
+import se.liu.ida.albhe417.tddd78.game.Settings;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -18,17 +19,13 @@ import java.util.Objects;
  * Created by Albin on 08/04/2016.
  */
 public class MenuFrame extends JFrame {
+    private Settings settings;
     private Game game;
-
-    private int maxDrawDistance;
-    private int qualityFactor = 350;
-    private int tickPerFrame = 10;
-    private float tickSize = 1/60.0f/tickPerFrame;
-
 
 
     public MenuFrame(){
         super("Title");
+        this.settings = new Settings();
         this.setLayout(new MigLayout(
                 "",
                 "[][grow][]",
@@ -79,10 +76,12 @@ public class MenuFrame extends JFrame {
         ChangeListener sliderListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                maxDrawDistance = maxDrawDistanceSlider.getValue();
+                float maxDrawDistance = maxDrawDistanceSlider.getValue();
+                settings.setDrawDistance(maxDrawDistance);
                 label.setText("Draw distance: " + maxDrawDistance);
             }
         };
+        sliderListener.stateChanged(null);
         maxDrawDistanceSlider.addChangeListener(sliderListener);
         this.add(maxDrawDistanceSlider, constraints);
     }
@@ -104,10 +103,12 @@ public class MenuFrame extends JFrame {
         ChangeListener sliderListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                qualityFactor = qualityFactorSlider.getValue();
+                int qualityFactor = qualityFactorSlider.getValue();
+                settings.setDetailFactor(qualityFactor);
                 label.setText("Quality factor: " + qualityFactor);
             }
         };
+        sliderListener.stateChanged(null);
         qualityFactorSlider.addChangeListener(sliderListener);
         this.add(qualityFactorSlider, constraints);
     }
@@ -129,22 +130,39 @@ public class MenuFrame extends JFrame {
         ChangeListener sliderListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                tickPerFrame = ticksPerFrameSlider.getValue();
-                tickSize = 1/60.0f/tickPerFrame;
+                int tickPerFrame = ticksPerFrameSlider.getValue();
+                settings.setTicksPerFrame(tickPerFrame);
                 label.setText("Ticks / frame: " + tickPerFrame);
             }
         };
+        sliderListener.stateChanged(null);
         ticksPerFrameSlider.addChangeListener(sliderListener);
         this.add(ticksPerFrameSlider, constraints);
     }
 
     private void setupWireFrameBox(Object constraints){
         JCheckBox wireFrameCheckBox = new JCheckBox("Enable wire frame");
+        ActionListener listener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setWireFrame(wireFrameCheckBox.isSelected());
+            }
+        };
+        listener.actionPerformed(null);
+        wireFrameCheckBox.addActionListener(listener);
         this.add(wireFrameCheckBox, constraints);
     }
 
     private void setupThreadingBox(Object constraints){
-        JCheckBox threadingCheckBox = new JCheckBox("Threading frame");
+        JCheckBox threadingCheckBox = new JCheckBox("Multi threading");
+        ChangeListener listener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                settings.setThreaded(threadingCheckBox.isSelected());
+            }
+        };
+        listener.stateChanged(null);
+        threadingCheckBox.addChangeListener(listener);
         this.add(threadingCheckBox, constraints);
     }
 
@@ -156,8 +174,9 @@ public class MenuFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                game = new Game(qualityFactor);
-                game.run();
+                game = new Game(settings);
+                Thread gameThread = new Thread(game);
+                gameThread.start();
             }
         };
         startButton.addActionListener(listener);

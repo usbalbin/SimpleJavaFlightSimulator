@@ -32,28 +32,16 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.RunnableFuture;
 
-public class Game
+public class Game implements Runnable
 {
+	private Settings settings;
+
 	//TODO: Needed?
     private GLFWErrorCallback errorCallback;
 	private GLFWWindowSizeCallback windowSizeCallback;
     private long window;//Reference to window
-    private int windowWidth = 1400;
-	private int windowHeight = 800;
-    private static final int WINDOW_POS_X = 50;
-	private static final int WINDOW_POS_Y = 50;
 
-	private static final float FOV = 90 * (float)Math.PI / 180.0f;
-	private static final float DRAW_DISTANCE = 3072;
-	private static final float DRAW_DISTANCE_NEAR_LIMIT = 1.0f;
-	private int detailFactor;
-
-	private static final boolean WIRE_FRAME = false;
-	private static final boolean THREADED = true;
-    private static final int AA_LEVEL = 16;
-	private static final float OPENGL_VERSION = 3.0f;
     private static final String TITLE = "Simple Java Flight Simulator";
 
 	private Matrix4x4 projectionMatrix;
@@ -78,19 +66,18 @@ public class Game
 
 	private long lastTime;
 
-    public Game(int detailFactor){
-		this.detailFactor = detailFactor;
+    public Game(Settings settings){
+		this.settings = settings;
+    }
 
-		//TODO: Move to render-class?
+
+	private void setup(){
 		setupGraphics();
 		setupShaders();
 		setupPhysics();
 		setupGameObjects();
-		setupProjectionMatrix();
 		setupLight();
-    }
-
-
+	}
 
     private void setupGraphics(){
 		errorCallback = GLFWErrorCallback.createPrint(System.err);//Bind error output to console
@@ -102,12 +89,12 @@ public class Game
 			throw new RuntimeException("Failed to initialize!");
 		}
 
-		glfwWindowHint(GLFW_SAMPLES, AA_LEVEL);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)OPENGL_VERSION);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(OPENGL_VERSION * 10) % 10);
+		glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
 
 
-		window = glfwCreateWindow(windowWidth, windowHeight, TITLE, NULL, NULL);
+		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
 		//glfwHideWindow(window);
 
 		if(window == NULL){
@@ -117,16 +104,16 @@ public class Game
 		glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
-				windowWidth = width;
-				windowHeight = height;
+				settings.setWindowWidth(width);
+				settings.setWindowHeight(height);
 				glViewport(0, 0, width, height);
-				projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float) windowWidth / windowHeight, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
+				projectionMatrix = Matrix4x4.createProjectionMatrix(settings.getFov(), settings.getAspectRatio(), settings.getDrawDistanceNearLimit(), settings.getDrawDistance());
 			}
 		});
 
 		glfwSetKeyCallback(window, InputHandler.getInstance());
 
-		glfwSetWindowPos(window, WINDOW_POS_X, WINDOW_POS_Y);
+		glfwSetWindowPos(window, settings.getWindowPosX(), settings.getWindowPosY());
 		glfwMakeContextCurrent(window);
 
 
@@ -241,7 +228,7 @@ public class Game
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>(3);
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, detailFactor, shaderProgram, physics, this);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
 		for(int y = 0; y < 4; y++) {
@@ -258,10 +245,6 @@ public class Game
 
 	}
 
-	private void setupProjectionMatrix(){
-		projectionMatrix = Matrix4x4.createProjectionMatrix(FOV, (float) windowWidth / windowHeight, DRAW_DISTANCE_NEAR_LIMIT, DRAW_DISTANCE);
-	}
-
 	private void setupLight(){
 		lightDirection = new Vector3(-1, -1, -1);
 		int numVectorElements = 3;
@@ -276,6 +259,10 @@ public class Game
 		glUseProgram(0);
 	}
 
+	public int getScore(){
+		return currentVehicle.getScore();
+	}
+
 	public void remove(AbstractGameObject gameObject){
 		gameObjects.remove(gameObject);
 		if(gameObject == currentVehicle)
@@ -284,7 +271,7 @@ public class Game
 
 	public void respawn(){
 		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
-		currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
+		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
 		gameObjects.add(currentVehicle);
 	}
 
@@ -297,13 +284,13 @@ public class Game
 
 		viewMatrix = currentVehicle.getViewMatrix();
 
+		Matrix4x4 projectionMatrix = Matrix4x4.createProjectionMatrix(settings.getFov(), settings.getAspectRatio(), settings.getDrawDistanceNearLimit(), settings.getDrawDistance());
 		cameraMatrix = projectionMatrix.multiply(viewMatrix);
 
 	}
 
     private void update(){
 		final float nanoToSec = 1000000000.0f;
-		final float preferredTimeStep = 1.0f / 60.0f / 10.0f;
 
 
 		long nowTime = System.nanoTime();
@@ -324,11 +311,11 @@ public class Game
 		updateCameraPosition();
 		updateCameraMatrix();
 
-		if(THREADED){
+		if(settings.isThreaded()){
 			Thread threadP = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					physics.stepSimulation(deltaTime, 10, preferredTimeStep);
+					physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
 				}
 			});
 			threadP.start();
@@ -348,7 +335,7 @@ public class Game
 
 			}
 		}else {
-			physics.stepSimulation(deltaTime, 10, preferredTimeStep);
+			physics.stepSimulation(deltaTime, 10, settings.getPreferredTimeStep());
 			terrain.update(cameraPosition, cameraMatrix);
 		}
 		//terrain.update(cameraPosition, cameraMatrix);
@@ -360,8 +347,10 @@ public class Game
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Wireframe
-		if(WIRE_FRAME)
+		if(settings.isWireFrame())
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		//TODO: remove cast
 		((TerrainLOD)terrain).draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 
@@ -374,7 +363,10 @@ public class Game
 
     }
 
+
+
     public void run(){
+		setup();
 		//glfwShowWindow(window);
 		while(glfwWindowShouldClose(window) != GL_TRUE){
 			glfwPollEvents();

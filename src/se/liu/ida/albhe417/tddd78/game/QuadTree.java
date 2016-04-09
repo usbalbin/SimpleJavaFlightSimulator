@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import se.liu.ida.albhe417.tddd78.game.Settings;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -45,6 +46,7 @@ public class QuadTree {
     private int size;
     private short level;
 
+    private static se.liu.ida.albhe417.tddd78.game.Settings settings;
     private static float[] heightmap;
     private static float HEIGHT_FACTOR;
     private static int rootSize;
@@ -59,7 +61,7 @@ public class QuadTree {
      * Create Root QuadTree
      * @param heightmap heightmap
      */
-    public QuadTree(float[] heightmap, final float heightFactor, float maxHeight, int detailFactor){
+    public QuadTree(float[] heightmap, final float heightFactor, float maxHeight, Settings settings){
         this.HEIGHT_FACTOR = heightFactor;
         this.heightmap = heightmap;
         this.hmapSize = this.rootSize = this.size = (int)Math.sqrt(heightmap.length);
@@ -68,7 +70,7 @@ public class QuadTree {
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
         this.positionMap = new HashMap<>();
-        this.detailFactor = detailFactor;
+        this.settings = settings;
     }
 
     /**
@@ -80,12 +82,12 @@ public class QuadTree {
      * @param detailFactor
      * @param maxLevels max LOD-levels
      */
-    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, final float detailFactor, final short maxLevels, QuadTree parent) {
+    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, int detailFactor, final short maxLevels, QuadTree parent) {
         this.position = position;
         this.size = size;
         this.level = level;
         this.parent = parent;
-        generateTree(cameraPos, detailFactor, maxLevels);
+        generateTree(cameraPos, maxLevels);
     }
 
     public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
@@ -93,8 +95,9 @@ public class QuadTree {
         final short maxLevels = 11;//11;
         this.MVPmatrix = MVPmatrix;
         this.positionMap.clear();
+        this.detailFactor = settings.getDetailFactor();
 
-        generateTree(cameraPosition, detailFactor, maxLevels);
+        generateTree(cameraPosition, maxLevels);
 
         stitch(null, null, null, null);
         generateVerticesAndIndices(vertices, indices);
@@ -129,7 +132,7 @@ public class QuadTree {
 
 
 
-    private void generateTree(final Vector3 cameraPos, final float detailFactor, final short maxLevels){
+    private void generateTree(final Vector3 cameraPos, final short maxLevels){
         leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
 
         //TODO: Change to length2() to save CPU
@@ -178,10 +181,10 @@ public class QuadTree {
             rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
         }
         else {
-            leftFront.generateTree(cameraPos, detailFactor, maxLevels);
-            rightFront.generateTree(cameraPos, detailFactor, maxLevels);
-            leftBottom.generateTree(cameraPos, detailFactor, maxLevels);
-            rightBottom.generateTree(cameraPos, detailFactor, maxLevels);
+            leftFront.generateTree(cameraPos, maxLevels);
+            rightFront.generateTree(cameraPos, maxLevels);
+            leftBottom.generateTree(cameraPos, maxLevels);
+            rightBottom.generateTree(cameraPos, maxLevels);
         }
 
 
