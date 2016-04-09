@@ -351,8 +351,8 @@ public class Game implements Runnable
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		//TODO: remove cast
-		((TerrainLOD)terrain).draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+
+		terrain.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 
 		for (AbstractGameObject drawable : gameObjects) {
 			drawable.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
