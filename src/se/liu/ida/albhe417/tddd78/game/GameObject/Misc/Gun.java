@@ -28,7 +28,7 @@ public class Gun extends Weapon {
     private final float BULLET_RADIUS = 0.5f;
     private final float BULLET_MASS = 1;
     private final float MUZZLE_VELOCITY = 400;
-    private final float MAX_BULLETS_IN_AIR = 50;
+    private final float MAX_BULLETS_IN_AIR = 100;
     private float currTimeSec = 0;
 
     private Deque<RigidBody> bullets;

@@ -7,13 +7,13 @@ import static org.lwjgl.glfw.GLFW.*;
  * Created by Albin on 10/03/2016.
  */
 public class InputHandler extends GLFWKeyCallback {
-    private static int NUMBER_OF_KEYS = 1 << 16;
     private static final InputHandler INSTANCE = new InputHandler();
 
     private boolean[] keys;
 
     private InputHandler(){
-        keys = new boolean[NUMBER_OF_KEYS];
+        int numberOfKeys = 1 << 16;
+        keys = new boolean[numberOfKeys];
     }
 
     @Override

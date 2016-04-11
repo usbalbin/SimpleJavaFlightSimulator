@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.game.Settings;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -19,30 +18,19 @@ public class QuadTree {
     private QuadTree rightBottom;
     private QuadTree parent;
 
-    protected VertexPositionColorNormal leftFrontVertex;
-    protected VertexPositionColorNormal rightFrontVertex;
-    protected VertexPositionColorNormal leftBottomVertex;
-    protected VertexPositionColorNormal rightBottomVertex;
-
-    protected VertexPositionColorNormal leftVertex;
-    protected VertexPositionColorNormal frontVertex;
-    protected VertexPositionColorNormal rightVertex;
-    protected VertexPositionColorNormal bottomVertex;
-
     /*private QuadTree neighborLF;
     private QuadTree neighborRF;
     private QuadTree neighborLB;
     private QuadTree neighborRB;
     */
 
-    //TODO replace with bitfield to save some space
     private boolean leftStitchPnt = false;
     private boolean frontStitchPnt = false;
     private boolean rightStitchPnt = false;
     private boolean bottomStitchPnt = false;
 
     //TODO: Check need for precision
-    private Vector3 position;
+    private final Vector3 position;
     private int size;
     private short level;
 
@@ -52,7 +40,6 @@ public class QuadTree {
     private static int rootSize;
     private static int hmapSize;
     private static float maxHeight;
-    private static Matrix4x4 MVPmatrix;
     private static Map<Vector3, Integer> positionMap;
     private static int detailFactor;
 
@@ -62,15 +49,15 @@ public class QuadTree {
      * @param heightmap heightmap
      */
     public QuadTree(float[] heightmap, final float heightFactor, float maxHeight, Settings settings){
-        this.HEIGHT_FACTOR = heightFactor;
-        this.heightmap = heightmap;
-        this.hmapSize = this.rootSize = this.size = (int)Math.sqrt(heightmap.length);
-        this.rootSize = this.size -= size % 2;//Make sure size is even
-        this.maxHeight = maxHeight;
+        HEIGHT_FACTOR = heightFactor;
+        QuadTree.heightmap = heightmap;
+        hmapSize = rootSize = this.size = (int)Math.sqrt(heightmap.length);
+        rootSize = this.size -= size % 2;//Make sure size is even
+        QuadTree.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
-        this.positionMap = new HashMap<>();
-        this.settings = settings;
+        positionMap = new HashMap<>();
+        QuadTree.settings = settings;
     }
 
     /**
@@ -91,11 +78,10 @@ public class QuadTree {
     }
 
     public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
-        final float detailFactor = this.detailFactor;
+        final float detailFactor = QuadTree.detailFactor;
         final short maxLevels = 11;//11;
-        this.MVPmatrix = MVPmatrix;
-        this.positionMap.clear();
-        this.detailFactor = settings.getDetailFactor();
+        positionMap.clear();
+        QuadTree.detailFactor = settings.getDetailFactor();
 
         generateTree(cameraPosition, maxLevels);
 
@@ -133,14 +119,15 @@ public class QuadTree {
 
 
     private void generateTree(final Vector3 cameraPos, final short maxLevels){
+        final int halfSize = size / 2;
         leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
 
-        //TODO: Change to length2() to save CPU
+
         Vector3 center = position;
-        Vector3 left = position.add(-size / 2.0f, 0, 0);
-        Vector3 top = position.add(0, 0, -size / 2.0f);
-        Vector3 right = position.add(size / 2.0f, 0, 0);
-        Vector3 bottom = position.add(0, 0, size / 2.0f);
+        Vector3 left = position.add(-halfSize, 0, 0);
+        Vector3 top = position.add(0, 0, -halfSize);
+        Vector3 right = position.add(halfSize, 0, 0);
+        Vector3 bottom = position.add(0, 0, halfSize);
 
         setHeight(center);
         setHeight(left);
@@ -148,15 +135,16 @@ public class QuadTree {
         setHeight(right);
         setHeight(bottom);
 
+        //TODO: Change to length2() to save CPU
         final Float[] dists = {
-                cameraPos.sub(center).length(),
-                cameraPos.sub(left).length(),
-                cameraPos.sub(top).length(),
-                cameraPos.sub(right).length(),
-                cameraPos.sub(bottom).length()
+                cameraPos.sub(center).length2(),
+                cameraPos.sub(left).length2(),
+                cameraPos.sub(top).length2(),
+                cameraPos.sub(right).length2(),
+                cameraPos.sub(bottom).length2()
         };
 
-        final float dist = Collections.min(Arrays.asList(dists));
+        final float dist = (float)Math.sqrt(Collections.min(Arrays.asList(dists)));
 
 
         //TODO make working formula
@@ -170,11 +158,11 @@ public class QuadTree {
             return;
         }
 
-        final int childSize = size / 2;
+        final int childSize = halfSize;
         final int halfChildSize = childSize / 2;
         final short childLevel = (short)(1 + level);
 
-        if(leftFront == null && rightFront == null && leftBottom == null && rightBottom == null) {
+        if(leftFront == null || rightFront == null || leftBottom == null || rightBottom == null) {
             leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
             rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
             leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
@@ -192,17 +180,17 @@ public class QuadTree {
 
     private boolean hasChildren(){
         return
-                leftFront != null &&
-                        rightFront != null &&
-                        leftBottom != null &&
-                        rightBottom != null;
+            leftFront != null &&
+            rightFront != null &&
+            leftBottom != null &&
+            rightBottom != null;
     }
 
     /**
      * Make sure that adjacent quads have same LOD at their common border
      */
     //TODO fix me
-    protected void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
+    private void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
         //Stuff....
         //..
         //..
@@ -270,7 +258,7 @@ public class QuadTree {
         bottomNeighbor.addFrontStitchPnt();
     }
 
-    protected void generateVerticesAndIndices(final List<VertexPositionColorNormal> vertices, final List<Integer> indices){
+    private void generateVerticesAndIndices(final List<VertexPositionColorNormal> vertices, final List<Integer> indices){
         if(hasChildren()){
             leftFront.generateVerticesAndIndices(vertices, indices);
             rightFront.generateVerticesAndIndices(vertices, indices);
@@ -295,13 +283,14 @@ public class QuadTree {
 
             Vector3 color = new Vector3(0.5f);
 
-            final int index = vertices.size();
 
             if(!isStitched()){
+                /*
                 Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2.0f)/ HEIGHT_FACTOR / 256.0f);
                 Vector3 col2 = new Vector3((rightFrontPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
                 Vector3 col3 = new Vector3((leftBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR  / 256.0f);
                 Vector3 col4 = new Vector3((rightBottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
+                */
 
                 Integer leftFrontIndex = positionMap.get(leftFrontPos);
                 if(leftFrontIndex == null) {
@@ -349,7 +338,7 @@ public class QuadTree {
                 setHeight(bottomPos);
 
 
-
+                /*
                 Vector3 col0 = new Vector3((center.getY() + maxHeight / 2.0f) / HEIGHT_FACTOR / 256.0f);
 
                 Vector3 col1 = new Vector3((leftFrontPos.getY() + maxHeight / 2.0f) / HEIGHT_FACTOR / 256.0f);
@@ -361,7 +350,7 @@ public class QuadTree {
                 Vector3 col6 = new Vector3((rightPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
                 Vector3 col7 = new Vector3((bottomPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
                 Vector3 col8 = new Vector3((leftPos.getY() + maxHeight / 2.0f)/HEIGHT_FACTOR / 256.0f);
-
+                */
                 int i = 0;
                 Integer[] quadsIndices = new Integer[numVertices];
 
@@ -442,31 +431,31 @@ public class QuadTree {
         }
     }
 
-    protected void addLeftStitchPnt(){
+    private void addLeftStitchPnt(){
         leftStitchPnt = true;
     }
 
-    protected void addFrontStitchPnt(){
+    private void addFrontStitchPnt(){
         frontStitchPnt = true;
     }
 
-    protected void addRightStitchPnt(){
+    private void addRightStitchPnt(){
         rightStitchPnt = true;
     }
 
-    protected void addBottomStitchPnt(){
+    private void addBottomStitchPnt(){
         bottomStitchPnt = true;
     }
 
-    protected boolean isStitched(){
+    private boolean isStitched(){
         return leftStitchPnt || frontStitchPnt || rightStitchPnt || bottomStitchPnt;
     }
 
-    protected boolean isRoot(){
+    private boolean isRoot(){
         return size == rootSize;
     }
 
-    protected int numStitchPnts(){
+    private int numStitchPnts(){
         return (leftStitchPnt ? 1 : 0) + (frontStitchPnt ? 1 : 0) + (rightStitchPnt ? 1 : 0) + (bottomStitchPnt ? 1 : 0);
     }
 
@@ -503,7 +492,7 @@ public class QuadTree {
 }*/
 
     //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
-    protected QuadTree findNode(final Vector3 position){
+    private QuadTree findNode(final Vector3 position){
         final Vector3 delta = position.sub(this.position);
         final int dx = Math.round(delta.getX());
         final int dz = Math.round(delta.getZ());

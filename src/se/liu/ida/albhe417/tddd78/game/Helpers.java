@@ -33,7 +33,7 @@ public class Helpers {
         byte[] pixels = ((DataBufferByte)heightMapBuff.getRaster().getDataBuffer()).getData();//Access buffers pixel array
 
 
-        Vector3[][] colors = new Vector3[height][width];;
+        Vector3[][] colors = new Vector3[height][width];
 
         final int componentsPerPixel = heightMapBuff.getColorModel().getNumColorComponents();
 
@@ -54,7 +54,7 @@ public class Helpers {
                 }
                 break;
             case 3:
-            case 4://TODO kolla att alpha sköter sig på 4-kanaliga bilder
+            case 4://TODO make sure alpha behaves as expected on 4-chanel images
                 for (int row = 0; row < height; row++) {
                     for (int column = 0; column < width; column++) {
                         colors[row][column] = new Vector3(
@@ -74,7 +74,7 @@ public class Helpers {
     }
 
     /**
-     * Returns symetrical 2d array of byte-values representing heightvalues in heightmap.
+     * Returns symmetrical 2d array of byte-values representing height values in heightmap.
      * Observe that real values will have to be read using value | 0x00FF to compensate for overflow caused by java having signed bytes.
      * @param fileName
      * @return
@@ -189,12 +189,12 @@ public class Helpers {
         return colors;
     }
 
-    public static float byteToFloatColor(short color){
-        final short toUnsigedByte = 0x00FF;
+    private static float byteToFloatColor(short color){
+        final short toUnsignedByte = 0x00FF;
         final float unsignedByteMaxVal = 256.0f;
 
         //Interprete color as unsigned byte(colors are represented by unsigned byte)
-        return (color & toUnsigedByte ) / unsignedByteMaxVal;
+        return (color & toUnsignedByte ) / unsignedByteMaxVal;
     }
 
     public static void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){

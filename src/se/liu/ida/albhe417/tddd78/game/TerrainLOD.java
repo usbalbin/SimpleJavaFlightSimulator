@@ -16,27 +16,27 @@ import java.util.List;
  * Created by Albin on 14/03/2016.
  */
 public class TerrainLOD extends Terrain {
-    private se.liu.ida.albhe417.tddd78.game.Settings settings;
+    private final se.liu.ida.albhe417.tddd78.game.Settings settings;
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 
     private QuadTree quadTree;
 
     //TODO: kolla upp
-    float[] heights;
+    private float[] heights;
 
     private int[] indexArray;
     private VertexPositionColorNormal[] vertexArray;
     private List<VertexPositionColorNormal> vertices;
-    private List<Integer> indices;
+    private final List<Integer> indices;
 
-    private static final int MAX_EXPECTED_VERT_COUNT = 100000;
+    private static final int MAX_EXPECTED_VERTEX_COUNT = 100000;
 
     public TerrainLOD(Vector3 position, final float heightFactor, Settings settings, final int shaderProgram, DynamicsWorld physics, Game game) {
         super(position, heightFactor, shaderProgram, physics, game);
         this.settings = settings;
-        this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERT_COUNT];
-        this.vertices = new ArrayList<>(MAX_EXPECTED_VERT_COUNT);
+        this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERTEX_COUNT];
+        this.vertices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT);
         this.indices = new ArrayList<>(1000);
         this.physics = physics;
         setup();
@@ -50,7 +50,7 @@ public class TerrainLOD extends Terrain {
         height = width = quadTree.getHmapSize();
 
         this.parts = new ArrayList<>(1);
-        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERT_COUNT, new VertexPositionColorNormal());
+        partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERTEX_COUNT, new VertexPositionColorNormal());
         this.parts.add(partMain);
         //Physics
         MotionState motionState = new DefaultMotionState();
