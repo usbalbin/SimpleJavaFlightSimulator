@@ -20,7 +20,7 @@ public class TerrainLOD extends Terrain {
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 
-    private QuadTree quadTree;
+    private QuadTree_MT quadTree;
 
     //TODO: kolla upp
     private float[] heights;
@@ -46,7 +46,7 @@ public class TerrainLOD extends Terrain {
         float maxHeight = 256f * 256f * HEIGHT_FACTOR;
 
         heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
-        quadTree = new QuadTree(heights, HEIGHT_FACTOR, maxHeight, settings);
+        quadTree = new QuadTree_MT(heights, HEIGHT_FACTOR, maxHeight, settings);
         height = width = quadTree.getHmapSize();
 
         this.parts = new ArrayList<>(1);
@@ -85,7 +85,7 @@ public class TerrainLOD extends Terrain {
         vertices.clear();
         indices.clear();
 
-        quadTree.update(cameraPos, MVPmatrix, vertices, indices);
+        quadTree.update(cameraPos, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
             vertexArray = new VertexPositionColorNormal[(int)(vertices.size() * 1.1)];

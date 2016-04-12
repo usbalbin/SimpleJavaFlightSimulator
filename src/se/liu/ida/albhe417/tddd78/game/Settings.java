@@ -17,6 +17,7 @@ public class Settings {
     private AtomicInteger drawDistance = new AtomicInteger();// = new AtomicInteger(Float.floatToIntBits(3072));
     private AtomicInteger drawDistanceNearLimit = new AtomicInteger(Float.floatToIntBits(1.0f));
     private AtomicInteger detailFactor = new AtomicInteger();
+    private AtomicInteger maxLevels = new AtomicInteger(11);
     private AtomicInteger ticksPerFrame = new AtomicInteger();
     private AtomicInteger preferredTimeStep = new AtomicInteger();
 
@@ -84,6 +85,10 @@ public class Settings {
 
     public int getDetailFactor() {
         return detailFactor.get();
+    }
+
+    public int getMaxLevels(){
+        return maxLevels.get();
     }
 
     public void setDetailFactor(int detailFactor) {

@@ -4,25 +4,22 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.RecursiveAction;
 
 /**
  * Created by Albin_Hedman on 2016-03-14.
  */
-public class QuadTree {
+public class QuadTree_MT extends RecursiveAction{
     //TODO implement me
     //Info: http://victorbush.com/2015/01/tessellated-terrain/
 
-    private QuadTree leftFront;
-    private QuadTree rightFront;
-    private QuadTree leftBottom;
-    private QuadTree rightBottom;
-    private QuadTree parent;
-
-    /*private QuadTree neighborLF;
-    private QuadTree neighborRF;
-    private QuadTree neighborLB;
-    private QuadTree neighborRB;
-    */
+    private QuadTree_MT leftFront;
+    private QuadTree_MT rightFront;
+    private QuadTree_MT leftBottom;
+    private QuadTree_MT rightBottom;
+    private QuadTree_MT parent;
 
     private boolean leftStitchPnt = false;
     private boolean frontStitchPnt = false;
@@ -34,30 +31,36 @@ public class QuadTree {
     private int size;
     private short level;
 
-    private static se.liu.ida.albhe417.tddd78.game.Settings settings;
+    private static Settings settings;
     private static float[] heightmap;
     private static float HEIGHT_FACTOR;
     private static int rootSize;
     private static int hmapSize;
     private static float maxHeight;
     private static Map<Vector3, Integer> positionMap;
+
     private static int detailFactor;
+    private static int maxLevels;
+    private static boolean isThreaded;
+    private static Vector3 cameraPos;
+    private static ForkJoinPool workerPool;
 
 
     /**
      * Create Root QuadTree
      * @param heightmap heightmap
      */
-    public QuadTree(float[] heightmap, final float heightFactor, float maxHeight, Settings settings){
+    public QuadTree_MT(float[] heightmap, final float heightFactor, float maxHeight, Settings settings){
         HEIGHT_FACTOR = heightFactor;
-        QuadTree.heightmap = heightmap;
+        QuadTree_MT.heightmap = heightmap;
         hmapSize = rootSize = this.size = (int)Math.sqrt(heightmap.length);
         rootSize = this.size -= size % 2;//Make sure size is even
-        QuadTree.maxHeight = maxHeight;
+        QuadTree_MT.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
+        this.workerPool = new ForkJoinPool(11);
         positionMap = new HashMap<>();
-        QuadTree.settings = settings;
+        QuadTree_MT.settings = settings;
     }
 
     /**
@@ -69,21 +72,30 @@ public class QuadTree {
      * @param detailFactor
      * @param maxLevels max LOD-levels
      */
-    private QuadTree(final Vector3 position, final int size, final short level, final Vector3 cameraPos, int detailFactor, final short maxLevels, QuadTree parent) {
+    private QuadTree_MT(final Vector3 position, final int size, final short level, QuadTree_MT parent) {
         this.position = position;
         this.size = size;
         this.level = level;
         this.parent = parent;
-        generateTree(cameraPos, maxLevels);
     }
 
     public void update(Vector3 cameraPosition, List<VertexPositionColorNormal> vertices, List<Integer> indices){
-        final float detailFactor = QuadTree.detailFactor;
-        final short maxLevels = 11;//11;
+        final float detailFactor = QuadTree_MT.detailFactor;
         positionMap.clear();
-        QuadTree.detailFactor = settings.getDetailFactor();
+        this.cameraPos = cameraPosition;
+        this.detailFactor = settings.getDetailFactor();
+        this.maxLevels = settings.getMaxLevels();
+        this.isThreaded = settings.isThreaded();
 
-        generateTree(cameraPosition, maxLevels);
+        if(isThreaded) {
+            //ForkJoinPool.commonPool().invoke(this);//Generate tree
+            workerPool.invoke(this);
+
+            this.reinitialize();
+        }
+        else
+            compute();
+
 
         stitch(null, null, null, null);
         generateVerticesAndIndices(vertices, indices);
@@ -98,10 +110,7 @@ public class QuadTree {
 
 
 
-
-
-
-    private void generateTree(final Vector3 cameraPos, final short maxLevels){
+    protected void compute(){
         final int halfSize = size / 2;
         leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
 
@@ -120,11 +129,11 @@ public class QuadTree {
 
         //TODO: Change to length2() to save CPU
         final Float[] dists = {
-                cameraPos.sub(center).length2(),
-                cameraPos.sub(left).length2(),
-                cameraPos.sub(top).length2(),
-                cameraPos.sub(right).length2(),
-                cameraPos.sub(bottom).length2()
+            cameraPos.sub(center).length2(),
+            cameraPos.sub(left).length2(),
+            cameraPos.sub(top).length2(),
+            cameraPos.sub(right).length2(),
+            cameraPos.sub(bottom).length2()
         };
 
         final float dist = (float)Math.sqrt(Collections.min(Arrays.asList(dists)));
@@ -146,18 +155,36 @@ public class QuadTree {
         final short childLevel = (short)(1 + level);
 
         if(!hasChildren()) {
-            leftFront = new QuadTree(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            rightFront = new QuadTree(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            leftBottom = new QuadTree(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-            rightBottom = new QuadTree(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, cameraPos, detailFactor, maxLevels, this);
-        }
-        else {
-            leftFront.generateTree(cameraPos, maxLevels);
-            rightFront.generateTree(cameraPos, maxLevels);
-            leftBottom.generateTree(cameraPos, maxLevels);
-            rightBottom.generateTree(cameraPos, maxLevels);
+            leftFront = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, this);
+            rightFront = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, this);
+            leftBottom = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, this);
+            rightBottom = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, this);
+        }else if(isThreaded){
+            leftFront.reinitialize();
+            rightFront.reinitialize();
+            leftBottom.reinitialize();
         }
 
+        if(isThreaded) {
+            //Start child processes
+            leftFront.fork();
+            rightFront.fork();
+            leftBottom.fork();
+
+            //Run last computation self
+            rightBottom.compute();
+
+            //Wait for child threads to finish
+            leftFront.join();
+            rightFront.join();
+            leftBottom.join();
+
+        }else {
+            leftFront.compute();
+            rightFront.compute();
+            leftBottom.compute();
+            rightBottom.compute();
+        }
 
     }
 
@@ -173,7 +200,7 @@ public class QuadTree {
      * Make sure that adjacent quads have same LOD at their common border
      */
     //TODO fix me
-    private void stitch(QuadTree neighborLeft, QuadTree neighborFront, QuadTree neighborRight, QuadTree neighborBottom){
+    private void stitch(QuadTree_MT neighborLeft, QuadTree_MT neighborFront, QuadTree_MT neighborRight, QuadTree_MT neighborBottom){
         //Stuff....
         //..
         //..
@@ -209,7 +236,7 @@ public class QuadTree {
     }
 
     //TODO: reuse code better
-    private void stitchLeft(final QuadTree leftNeighbor){
+    private void stitchLeft(final QuadTree_MT leftNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(leftNeighbor.hasChildren())
@@ -217,7 +244,7 @@ public class QuadTree {
         leftNeighbor.addRightStitchPnt();
     }
 
-    private void stitchFront(final QuadTree frontNeighbor){
+    private void stitchFront(final QuadTree_MT frontNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(frontNeighbor.hasChildren())
@@ -225,7 +252,7 @@ public class QuadTree {
         frontNeighbor.addBottomStitchPnt();
     }
 
-    private void stitchRight(final QuadTree rightNeighbor){
+    private void stitchRight(final QuadTree_MT rightNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(rightNeighbor.hasChildren())
@@ -233,7 +260,7 @@ public class QuadTree {
         rightNeighbor.addLeftStitchPnt();
     }
 
-    private void stitchBottom(final QuadTree bottomNeighbor){
+    private void stitchBottom(final QuadTree_MT bottomNeighbor){
         //If our neighbor has children then either the matching quad has same(do nothing) or higher
         // LOD-level(neighbor will do the stitching)
         if(bottomNeighbor.hasChildren())
@@ -475,7 +502,7 @@ public class QuadTree {
 }*/
 
     //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
-    private QuadTree findNode(final Vector3 position){
+    private QuadTree_MT findNode(final Vector3 position){
         final Vector3 delta = position.sub(this.position);
         final int dx = Math.round(delta.getX());
         final int dz = Math.round(delta.getZ());
