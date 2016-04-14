@@ -24,10 +24,12 @@ import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplaneBox;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import javax.swing.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -234,13 +236,13 @@ public class Game implements Runnable
 		for(int y = 0; y < 4; y++) {
 			for(int x = -2; x < 2; x++) {
 				//gameObjects.add(new ProjectileMesh(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
-				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics, this));
+				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics, this, x + "; " + y));
 				//gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics, this));
 			}
 		}
 		//gameObjects.add(terrain);
 
-
+		respawn();
 		lastTime = System.nanoTime();
 
 	}
@@ -265,13 +267,23 @@ public class Game implements Runnable
 
 	public void remove(AbstractGameObject gameObject){
 		gameObjects.remove(gameObject);
-		if(gameObject == currentVehicle)
+		if(gameObject == currentVehicle) {
+			glfwHideWindow(window);
+			if(currentVehicle.killedBy == null)
+				JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
+			else
+				JOptionPane.showMessageDialog(null,
+						"Score: " + currentVehicle.getScore() + "\n" +
+								"Killed by " + currentVehicle.killedBy.playerName
+				);
 			currentVehicle = null;
+			glfwShowWindow(window);
+		}
 	}
 
 	public void respawn(){
 		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
-		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this);
+		currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
 		gameObjects.add(currentVehicle);
 	}
 

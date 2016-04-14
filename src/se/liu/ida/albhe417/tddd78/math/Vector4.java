@@ -78,6 +78,18 @@ public class Vector4
         return new Vector4(this.getX() * other, this.getY() * other, this.getZ() * other, this.getW() * other);
     }
 
+    public Vector4 divide(float other){
+        return new Vector4(this.getX() / other, this.getY() / other, this.getZ() / other, this.getW() / other);
+    }
+
+    public Vector4 add(Vector4 other){
+        return new Vector4(this.getX() + other.getX(), this.getY() + other.getY(), this.getZ() + other.getZ(), this.getW() + other.getW());
+    }
+
+    public Vector4 add(float otherX, float otherY, float otherZ, float otherW){
+        return this.add(new Vector4(otherX, otherY, otherZ, otherW));
+    }
+
     public float[] getNewFloats(){
         float x = getX();
         float y = getY();

@@ -2,6 +2,7 @@ package se.liu.ida.albhe417.tddd78.game;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by Albin on 09/04/2016.
@@ -25,6 +26,9 @@ public class Settings {
     private AtomicBoolean threaded = new AtomicBoolean(false);// = true;
     public final int AA_LEVEL = 16;
     public final float OPENGL_VERSION = 3.0f;
+
+    private String playerName = "Player1";
+    private AtomicReference<String> rPlayerName = new AtomicReference<>(playerName);
 
 
     public Settings() {
@@ -126,6 +130,14 @@ public class Settings {
 
     public void setThreaded(boolean threaded) {
         this.threaded.set(threaded);
+    }
+
+    public String getPlayerName(){
+        return rPlayerName.get();
+    }
+
+    public void setPlayerName(String playerName){
+        rPlayerName.set(playerName);
     }
 
     private void setFloat(float value, AtomicInteger res){

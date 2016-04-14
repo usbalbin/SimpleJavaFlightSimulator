@@ -593,28 +593,28 @@ public class QuadTree_MT extends RecursiveAction{
         minHeight -= 50;
         maxHeight += 50;
 
-        Vector3 centerZeroHeight = new Vector3(center);
+        Vector4 centerZeroHeight = new Vector4(center, 1);
         centerZeroHeight.setY(0);
 
         //Corners of quads collision box
-        Vector3 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize);
-        Vector3 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize);
-        Vector3 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize);
-        Vector3 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize);
+        Vector4 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize, 1);
+        Vector4 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize, 1);
+        Vector4 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize, 1);
+        Vector4 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize, 1);
 
-        Vector3 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
-        Vector3 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize);
-        Vector3 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize);
-        Vector3 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize);
+        Vector4 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize, 1);
+        Vector4 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize, 1);
+        Vector4 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize, 1);
+        Vector4 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize, 1);
 
         Vector4[] corners = {
-                new Vector4(leftBottomFront, 1), new Vector4(rightBottomFront, 1), new Vector4(rightBottomBack, 1), new Vector4(leftBottomBack, 1),
-                new Vector4(leftTopFront, 1), new Vector4(rightTopFront, 1), new Vector4(rightTopBack, 1), new Vector4(leftTopBack, 1)
+                leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack,
+                leftTopFront, rightTopFront, rightTopBack, leftTopBack
         };
 
         for (int i = 0; i < corners.length; i++){
             corners[i] = MVPmatrix.multiply(corners[i]);
-            corners[i] = corners[i].multiply(1 / corners[i].getW());//Compensate for things getting smaller farther away
+            corners[i] = corners[i].divide(corners[i].getW());//Compensate for things getting smaller farther away
         }
 
         for (int i = 0; i < 3; i++) {

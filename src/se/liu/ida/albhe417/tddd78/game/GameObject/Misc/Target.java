@@ -22,8 +22,8 @@ import java.util.ArrayList;
  * Created by Albin_Hedman on 2016-03-30.
  */
 public class Target extends AbstractGameObject{
-    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game){
-        super(position, physics, game);
+    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game, String targetName){
+        super(position, physics, game, 1, targetName);
         setup(position, shaderProgram, physics);
     }
 
@@ -61,13 +61,13 @@ public class Target extends AbstractGameObject{
         parts.add(part);
     }
 
-    @Override
-    public void hit(ManifoldPoint cp, AbstractGameObject other){
+    /*@Override
+    public void hitCalculation(ManifoldPoint cp, AbstractGameObject other){
 
-        if(cp.appliedImpulse > 0.5f) {
+        if(cp.appliedImpulse > 0.1f) {
             destroy();
             System.out.println("Target hit with impulse: " + cp.appliedImpulse);
         }
 
-    }
+    }*/
 }

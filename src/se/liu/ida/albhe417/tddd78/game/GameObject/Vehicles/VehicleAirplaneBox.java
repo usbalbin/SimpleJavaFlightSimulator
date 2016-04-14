@@ -30,12 +30,12 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 	private float health = MAX_HEALTH;
 	private final float DAMAGE_RESISTANCE = 1000;
 
-	public VehicleAirplaneBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game){
+	public VehicleAirplaneBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game, String playerName){
 		//TODO, add constants
-		super(position, 1000.0f, 20000.0f, physics, game);
+		super(position, 1000.0f, 20000.0f, physics, game, 20000, playerName);
 		setup(shaderProgram, physics);
-		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game);
-		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game);
+		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game, playerName + "'s left gun");
+		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game, playerName + "'s right gun");
 	}
 
 	private void setup(final int shaderProgram, DynamicsWorld physics){
@@ -90,17 +90,18 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 		changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
 		float lift = throttle * THRUST_FACTOR;
+		Matrix4x4 modelMatrix = partBody.getMatrix();
 
 		Matrix4x4 partMatrix = partBody.getMatrix();
 		Vector3 aeroForce = new Vector3(0, 0, -lift);
-		aeroForce = partMatrix.getInverse().multiply(aeroForce, false);//
+		aeroForce = modelMatrix.multiply(aeroForce, false);//
 
 		Vector3 forcePoint = new Vector3(0, 0, 0);
-		forcePoint = partMatrix.getInverse().multiply(forcePoint, true);
+		forcePoint = modelMatrix.multiply(forcePoint, false);
 
 		Vector3f linearVelocity = new Vector3f();
 		partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
-		Vector3 v = new Vector3(-10.0f);
+		Vector3 v = new Vector3(-25, -100, -0.25f);
 		Vector3 linearResistence = new Vector3(linearVelocity);
 		linearResistence = linearResistence.multiply(linearResistence.abs());
 		linearResistence = linearResistence.multiply(v);
@@ -112,10 +113,10 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 		angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000.0f, -10000.0f, -10000.0f));
 
 		Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
-		torque = partMatrix.getInverse().multiply(torque, false);
+		torque = partMatrix.multiply(torque, false);
 
 		partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
-		partBody.getPhysicsObject().applyCentralForce(linearResistence.toVector3f());
+		partBody.getPhysicsObject().applyForce(linearResistence.toVector3f(), modelMatrix.multiply(new Vector3(0, 0, 0.0f), false).toVector3f());
 		partBody.getPhysicsObject().applyTorque(angularResistence.toVector3f());
 		partBody.getPhysicsObject().applyTorque(torque.toVector3f());
 		partBody.getPhysicsObject().activate();
@@ -189,13 +190,6 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 		super.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 		weaponLeft.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
 		weaponRight.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
-	}
-
-	@Override
-	public void hit(ManifoldPoint cp, AbstractGameObject other) {
-		health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);
-		if(health <= 0)
-			destroy();
 	}
 
 	@Override

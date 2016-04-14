@@ -8,6 +8,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.Game;
+import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -34,8 +35,8 @@ public class Gun extends Weapon {
     private Deque<RigidBody> bullets;
     private ProjectileMesh projectile;
 
-    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game){
-        super(offsetPosition, physics, game);
+    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game, String playerName){
+        super(offsetPosition, physics, game, Float.POSITIVE_INFINITY, playerName);
         this.offsetPosition = offsetPosition;
         this.FIRE_RATE = 0.1f; //= 1/shots per sec
         this.owner = owner;
@@ -96,5 +97,11 @@ public class Gun extends Weapon {
         for (RigidBody bullet: bullets) {
             physics.removeRigidBody(bullet);
         }
+    }
+
+    @Override
+    public void hitScore(AbstractGameObject other) {
+        if(other.shouldDie())
+            owner.score.incrementAndGet();
     }
 }

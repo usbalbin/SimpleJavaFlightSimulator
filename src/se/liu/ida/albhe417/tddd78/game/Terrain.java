@@ -16,7 +16,7 @@ abstract public class Terrain extends AbstractGameObject {
     protected final int shaderProgram;
 
     protected Terrain(Vector3 position, final float height_factor, final int shaderProgram, DynamicsWorld physics, Game game){
-        super(position, physics, game);
+        super(position, physics, game, Float.POSITIVE_INFINITY, "Ground");
         HEIGHT_FACTOR = height_factor;
         this.shaderProgram = shaderProgram;
     }

@@ -11,8 +11,8 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  */
 public abstract class Weapon extends AbstractGameObject{
 
-    public Weapon(Vector3 position, DynamicsWorld physics, Game game){
-        super(position, physics, game);
+    public Weapon(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String gunName){
+        super(position, physics, game, maxHealth, gunName);
     }
 
     abstract public void fire(float currTimeSec);

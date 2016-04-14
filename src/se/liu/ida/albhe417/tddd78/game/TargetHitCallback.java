@@ -26,8 +26,15 @@ public class TargetHitCallback extends ContactProcessedCallback {
         AbstractGameObject gameObject0 = (AbstractGameObject)collisionObject0.getUserPointer();
         AbstractGameObject gameObject1 = (AbstractGameObject)collisionObject1.getUserPointer();
 
-        gameObject0.hit(cp, gameObject1);
-        gameObject1.hit(cp, gameObject0);
+        gameObject0.hitCalculation(cp, gameObject1);
+        gameObject1.hitCalculation(cp, gameObject0);
+
+        gameObject0.hitScore(gameObject1);
+        gameObject1.hitScore(gameObject0);
+
+        gameObject0.hit();
+        gameObject1.hit();
+
 
 
         return true;

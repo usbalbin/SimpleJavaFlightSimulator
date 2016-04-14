@@ -26,16 +26,13 @@ import static org.lwjgl.glfw.GLFW.*;
 public class VehicleHelicopterBox extends AbstractVehicle{
     private Weapon weaponLeft;
     private Weapon weaponRight;
-    private final float MAX_HEALTH = 10000;
-    private float health = MAX_HEALTH;
-    private final float DAMAGE_RESISTANCE = 1000;
 
-    public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game){
+    public VehicleHelicopterBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game, String playerName){
         //TODO, add constants
-        super(position, 1000.0f, 20000.0f, physics, game);
+        super(position, 1000.0f, 20000.0f, physics, game, 10000, playerName + "s' HelicopterBox");
         setup(shaderProgram, physics);
-        this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game);
-        this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game);
+        this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game, playerName + "'s left gun");
+        this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game, playerName + "'s right gun");
     }
 
     private void setup(final int shaderProgram, DynamicsWorld physics){
@@ -192,12 +189,7 @@ public class VehicleHelicopterBox extends AbstractVehicle{
         weaponRight.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
     }
 
-    @Override
-    public void hit(ManifoldPoint cp, AbstractGameObject other) {
-        health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);
-        if(health <= 0)
-            destroy();
-    }
+
 
     @Override
     public void destroy() {

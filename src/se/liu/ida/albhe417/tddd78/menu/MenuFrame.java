@@ -10,6 +10,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Hashtable;
@@ -169,6 +170,7 @@ public class MenuFrame extends JFrame {
     private void startButton(Object constraints){
 
         JButton startButton = new JButton("Start game");
+        startButton.setMnemonic(KeyEvent.VK_ACCEPT);
 
         ActionListener listener = new ActionListener() {
 
