@@ -90,13 +90,14 @@ public class VehicleHelicopterBox extends AbstractVehicle{
         changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
 
         float lift = throttle * THRUST_FACTOR;
+        Matrix4x4 modelMatrix = partBody.getMatrix();
 
         Matrix4x4 partMatrix = partBody.getMatrix();
         Vector3 aeroForce = new Vector3(0, lift, 0);
-        aeroForce = partMatrix.getInverse().multiply(aeroForce, false);//
+        aeroForce = modelMatrix.multiply(aeroForce, false);//
 
         Vector3 forcePoint = new Vector3(0, 1, 0);
-        forcePoint = partMatrix.getInverse().multiply(forcePoint, true);
+        forcePoint = modelMatrix.multiply(forcePoint, false);
 
         Vector3f linearVelocity = new Vector3f();
         partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
@@ -112,7 +113,7 @@ public class VehicleHelicopterBox extends AbstractVehicle{
         angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000.0f, -10000.0f, -10000.0f));
 
         Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
-        torque = partMatrix.getInverse().multiply(torque, false);
+        torque = partMatrix.multiply(torque, false);
 
         partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
         partBody.getPhysicsObject().applyCentralForce(linearResistence.toVector3f());

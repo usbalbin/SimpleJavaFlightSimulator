@@ -20,7 +20,7 @@ public class Matrix4x4 extends AbstractMatrix
 		float[][] floats = this.values;
 		int j = 0;
 		for(int row = 0; row < 4; row++)
-			for (int col = 0; col < 4; col++)
+			//for (int col = 0; col < 4; col++)
 				matrix.getColumn(row, floats[row]);//Res matrix has columns switched with rows
 	}
 
@@ -119,7 +119,7 @@ public class Matrix4x4 extends AbstractMatrix
 
 		for(int row = 0; row < 4; row++){
 			for (int column = 0; column < 4; column++){
-				result.values[row] += this.values[row][column] * vector.values[column];
+				result.values[row] += this.values[column][row] * vector.values[column];
 			}
 		}
 		return result.toVector3();
@@ -183,7 +183,7 @@ public class Matrix4x4 extends AbstractMatrix
 	}
 
 	public Vector3 getPosition(){
-		return new Vector3(values[3][0], values[3][1], values[3][2]);
+		return new Vector3(values[3][0], values[3][1], values[3][2]);//Vector3(values[0][3], values[1][3], values[2][3]);
 	}
 
 	public void setPosition(Vector3 position){
@@ -224,7 +224,7 @@ public class Matrix4x4 extends AbstractMatrix
 		return new Matrix4f(floats);
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		Matrix4x4 m = new Matrix4x4(
 				new float[][]{
 						{1, 2, 3, 4},
@@ -235,5 +235,11 @@ public class Matrix4x4 extends AbstractMatrix
 		);
 
 		Matrix4x4 n = m.getInverse().getInverse();
+	}*/
+
+	public static void main(String[] args) {
+		Matrix4x4 m = Matrix4x4.createTranslation(new Vector3(1, 1, 1));
+		Vector3 pos = m.multiply(new Vector3(), true);
+		System.out.println(pos);
 	}
 }

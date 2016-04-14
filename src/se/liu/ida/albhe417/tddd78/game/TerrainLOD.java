@@ -80,12 +80,11 @@ public class TerrainLOD extends Terrain {
 
 
     public void update(Vector3 cameraPos, Matrix4x4 cameraMatrix){
-        Matrix4x4 MVPmatrix = cameraMatrix.multiply(new Matrix4x4());
 
         vertices.clear();
         indices.clear();
 
-        quadTree.update(cameraPos, vertices, indices);
+        quadTree.update(cameraPos, cameraMatrix, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
             vertexArray = new VertexPositionColorNormal[(int)(vertices.size() * 1.1)];
@@ -93,6 +92,7 @@ public class TerrainLOD extends Terrain {
         }
         vertices.toArray(vertexArray);
         indexArray = indices.stream().mapToInt(i -> i).toArray();
+
     }
 
     public void updateGraphics(){
@@ -132,4 +132,5 @@ public class TerrainLOD extends Terrain {
 
         return height * HEIGHT_FACTOR;
     }
+
 }

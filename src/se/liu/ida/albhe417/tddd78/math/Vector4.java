@@ -70,6 +70,14 @@ public class Vector4
     	return values[3];
     }
 
+    public Vector4 multiply(Vector4 other){
+        return new Vector4(this.getX() * other.getX(), this.getY() * other.getY(), this.getZ() * other.getZ(), this.getW() * other.getW());
+    }
+
+    public Vector4 multiply(float other){
+        return new Vector4(this.getX() * other, this.getY() * other, this.getZ() * other, this.getW() * other);
+    }
+
     public float[] getNewFloats(){
         float x = getX();
         float y = getY();

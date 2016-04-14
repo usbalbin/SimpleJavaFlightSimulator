@@ -110,6 +110,7 @@ public class QuadTree_MT_faster{
             final int halfSize = size / 2;
             leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
 
+
             Vector3 center = position;
             Vector3 left = position.add(-halfSize, 0, 0);
             Vector3 top = position.add(0, 0, -halfSize);
@@ -124,11 +125,11 @@ public class QuadTree_MT_faster{
 
             //TODO: Change to length2() to save CPU
             final Float[] dists = {
-                cameraPos.sub(center).length2(),
-                cameraPos.sub(left).length2(),
-                cameraPos.sub(top).length2(),
-                cameraPos.sub(right).length2(),
-                cameraPos.sub(bottom).length2()
+                    cameraPos.sub(center).length2(),
+                    cameraPos.sub(left).length2(),
+                    cameraPos.sub(top).length2(),
+                    cameraPos.sub(right).length2(),
+                    cameraPos.sub(bottom).length2()
             };
 
             final float dist = (float)Math.sqrt(Collections.min(Arrays.asList(dists)));
@@ -149,90 +150,101 @@ public class QuadTree_MT_faster{
             final int halfChildSize = childSize / 2;
             final short childLevel = (short)(1 + level);
 
+
+            //TODO: move
+            boolean isThreaded = true;
+
+
             if(!hasChildren()) {
                 leftFront = new QuadTree_MT_faster(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, QuadTree_MT_faster.this);
                 rightFront = new QuadTree_MT_faster(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, QuadTree_MT_faster.this);
                 leftBottom = new QuadTree_MT_faster(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, QuadTree_MT_faster.this);
                 rightBottom = new QuadTree_MT_faster(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, QuadTree_MT_faster.this);
+            }else if(isThreaded){
+                leftFront.treeGenerator.reinitialize();
+                rightFront.treeGenerator.reinitialize();
+                leftBottom.treeGenerator.reinitialize();
             }
 
+            if(isThreaded) {
+                //Start child processes
+                leftFront.treeGenerator.fork();
+                rightFront.treeGenerator.fork();
+                leftBottom.treeGenerator.fork();
 
-            TreeGenerator[] treeGenerators = new TreeGenerator[]{leftFront.treeGenerator, rightFront.treeGenerator, leftBottom.treeGenerator};
+                //Run last computation self
+                rightBottom.treeGenerator.compute();
 
-            for(TreeGenerator worker : treeGenerators )
-                worker.fork();
+                //Wait for child threads to finish
+                leftFront.treeGenerator.join();
+                rightFront.treeGenerator.join();
+                leftBottom.treeGenerator.join();
 
-            rightBottom.treeGenerator.compute();
-
-            for(TreeGenerator worker : treeGenerators )
-                worker.join();
-
+            }else {
+                leftFront.treeGenerator.compute();
+                rightFront.treeGenerator.compute();
+                leftBottom.treeGenerator.compute();
+                rightBottom.treeGenerator.compute();
+            }
         }
     }
 
     private void stitch(){
         //ForkJoinPool.commonPool().invoke(new Stitcher(null, null, null, null));
-        new Stitcher(null, null, null, null).compute();
+        new Stitcher().compute(null, null, null, null);
     }
 
-    private class Stitcher extends RecursiveAction{
-        private QuadTree_MT_faster neighborLeft;
-        private QuadTree_MT_faster neighborFront;
-        private QuadTree_MT_faster neighborRight;
-        private QuadTree_MT_faster neighborBottom;
+    private class Stitcher{
+        //private QuadTree_MT_faster neighborLeft;
+        //private QuadTree_MT_faster neighborFront;
+        //private QuadTree_MT_faster neighborRight;
+        //private QuadTree_MT_faster neighborBottom;
 
-        public Stitcher(QuadTree_MT_faster neighborLeft, QuadTree_MT_faster neighborFront, QuadTree_MT_faster neighborRight, QuadTree_MT_faster neighborBottom) {
-            this.neighborLeft = neighborLeft;
-            this.neighborFront = neighborFront;
-            this.neighborRight = neighborRight;
-            this.neighborBottom = neighborBottom;
+        public Stitcher() {
+            //this.neighborLeft = neighborLeft;
+            //this.neighborFront = neighborFront;
+            //this.neighborRight = neighborRight;
+            //this.neighborBottom = neighborBottom;
         }
 
-        protected void compute(){
-            //Stuff....
-            //..
-            //..
-            if(hasChildren()){
+        protected void compute(QuadTree_MT_faster neighborLeft, QuadTree_MT_faster neighborFront, QuadTree_MT_faster neighborRight, QuadTree_MT_faster neighborBottom){
+            if(QuadTree_MT_faster.this.hasChildren()){
                 //                left front   right      bottom
-                leftFront.stitcher = new Stitcher(null, null, rightFront, leftBottom);
-                rightFront.stitcher = new Stitcher(leftFront, null, null, rightBottom);
-                leftBottom.stitcher = new Stitcher(null, leftFront, rightBottom, null);
-                rightBottom.stitcher = new Stitcher(leftBottom, rightFront, null, null);
+                if(QuadTree_MT_faster.this.leftFront.stitcher == null)
+                    QuadTree_MT_faster.this.leftFront.stitcher = new Stitcher();//null, null, rightFront, leftBottom);
+                if(QuadTree_MT_faster.this.rightFront.stitcher == null)
+                    QuadTree_MT_faster.this.rightFront.stitcher = new Stitcher();//leftFront, null, null, rightBottom);
+                if(QuadTree_MT_faster.this.leftBottom.stitcher == null)
+                    QuadTree_MT_faster.this.leftBottom.stitcher = new Stitcher();//null, leftFront, rightBottom, null);
+                if(QuadTree_MT_faster.this.rightBottom.stitcher == null)
+                    QuadTree_MT_faster.this.rightBottom.stitcher = new Stitcher();//leftBottom, rightFront, null, null);
 
-                Stitcher[] stitchers = new Stitcher[]{leftFront.stitcher, rightFront.stitcher, leftBottom.stitcher, rightBottom.stitcher};
+                //leftFront.stitcher.compute(null, null, QuadTree_MT_faster.this.rightFront, QuadTree_MT_faster.this.leftBottom);
+                //rightFront.stitcher.compute(QuadTree_MT_faster.this.leftFront, null, null, QuadTree_MT_faster.this.rightBottom);
+                //leftBottom.stitcher.compute(null, QuadTree_MT_faster.this.leftFront, QuadTree_MT_faster.this.rightBottom, null);
+                QuadTree_MT_faster.this.rightBottom.stitcher.compute(QuadTree_MT_faster.this.leftBottom, QuadTree_MT_faster.this.rightFront, null, null);
 
-                //for(Stitcher stitcher : stitchers)
-                //    stitcher.compute();
 
-                leftFront.stitcher.compute();
-                rightFront.stitcher.compute();
-                leftBottom.stitcher.compute();
-                rightBottom.stitcher.compute();
-
-                //leftFront.stitcher.compute();
-
-                //for(Stitcher stitcher : stitchers)
-                    //stitcher.join();
             }
             else {
                 if(neighborLeft == null)
-                    neighborLeft = findNode(position.add(-size, 0, 0));
-                if(neighborLeft != null && neighborLeft.level + 1 == level)
+                    neighborLeft = findNode(QuadTree_MT_faster.this.position.add(-size, 0, 0));
+                if(neighborLeft != null && neighborLeft.level + 1 == QuadTree_MT_faster.this.level)
                     stitchLeft(neighborLeft);
 
                 if(neighborFront == null)
-                    neighborFront = findNode(position.add(0, 0, -size));
-                if(neighborFront != null && neighborFront.level + 1 == level)
+                    neighborFront = findNode(QuadTree_MT_faster.this.position.add(0, 0, -size));
+                if(neighborFront != null && neighborFront.level + 1 == QuadTree_MT_faster.this.level)
                     stitchFront(neighborFront);
 
                 if(neighborRight == null)
-                    neighborRight = findNode(position.add(size, 0, 0));
-                if(neighborRight != null && neighborRight.level + 1 == level)
+                    neighborRight = findNode(QuadTree_MT_faster.this.position.add(size, 0, 0));
+                if(neighborRight != null && neighborRight.level + 1 == QuadTree_MT_faster.this.level)
                     stitchRight(neighborRight);
 
                 if(neighborBottom == null)
-                    neighborBottom = findNode(position.add(0, 0, size));
-                if(neighborBottom != null && neighborBottom.level + 1 == level)
+                    neighborBottom = findNode(QuadTree_MT_faster.this.position.add(0, 0, size));
+                if(neighborBottom != null && neighborBottom.level + 1 == QuadTree_MT_faster.this.level)
                     stitchBottom(neighborBottom);
             }
         }

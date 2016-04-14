@@ -121,11 +121,22 @@ public class GameObjectPart {
         return this.physicsObject;
     }
 
-    public Matrix4x4 getMatrix() {
+    public Matrix4f getMatrix4f() {
         Transform transform = new Transform();
         Matrix4f matrix4f = new Matrix4f();
         physicsObject.getWorldTransform(transform);
         transform.getMatrix(matrix4f);
+        return matrix4f;
+    }
+
+    public Matrix4x4 getMatrix() {
+        Matrix4f matrix4f = getMatrix4f();
+        return new Matrix4x4(matrix4f);
+    }
+
+    public Matrix4x4 getInvertedMatrix() {
+        Matrix4f matrix4f = getMatrix4f();
+        matrix4f.invert();
         return new Matrix4x4(matrix4f);
     }
 

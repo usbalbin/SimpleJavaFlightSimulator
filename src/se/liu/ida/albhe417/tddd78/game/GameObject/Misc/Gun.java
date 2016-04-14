@@ -51,8 +51,7 @@ public class Gun extends Weapon {
             return;
 
         Matrix4x4 modelMatrix = owner.getModelMatrix();
-        Vector3 position = modelMatrix.getInverse().multiply(offsetPosition, false);
-        position = position.add(modelMatrix.getPosition());
+        Vector3 position = modelMatrix.multiply(offsetPosition, true);
         Vector3 velocity = owner.getDirection().multiply(MUZZLE_VELOCITY);
         velocity.add(owner.getVelocity());
 

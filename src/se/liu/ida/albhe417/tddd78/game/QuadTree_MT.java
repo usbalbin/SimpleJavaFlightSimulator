@@ -2,6 +2,7 @@ package se.liu.ida.albhe417.tddd78.game;
 
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
@@ -43,6 +44,7 @@ public class QuadTree_MT extends RecursiveAction{
     private static int maxLevels;
     private static boolean isThreaded;
     private static Vector3 cameraPos;
+    private static Matrix4x4 MVPmatrix;
     private static ForkJoinPool workerPool;
 
 
@@ -79,14 +81,16 @@ public class QuadTree_MT extends RecursiveAction{
         this.parent = parent;
     }
 
-    public void update(Vector3 cameraPosition, List<VertexPositionColorNormal> vertices, List<Integer> indices){
+    public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
         final float detailFactor = QuadTree_MT.detailFactor;
         positionMap.clear();
         this.cameraPos = cameraPosition;
+        this.MVPmatrix = MVPmatrix;
         this.detailFactor = settings.getDetailFactor();
         this.maxLevels = settings.getMaxLevels();
         this.isThreaded = settings.isThreaded();
 
+        long start = System.currentTimeMillis();
         if(isThreaded) {
             //ForkJoinPool.commonPool().invoke(this);//Generate tree
             workerPool.invoke(this);
@@ -95,12 +99,22 @@ public class QuadTree_MT extends RecursiveAction{
         }
         else
             compute();
+        if(start % 100 == 0)
+            System.out.println("Time quadTree.compute() " + (System.currentTimeMillis() - start));
 
-
+        start = System.currentTimeMillis();
         stitch(null, null, null, null);
+        if(start % 100 == 0)
+            System.out.println("Time quadTree.stitch() " + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
         generateVerticesAndIndices(vertices, indices);
+        if(start % 100 == 0)
+            System.out.println("Time quadTree.generateVerticesAndIndices() " + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
         calculateNormals(vertices, indices);
-        System.out.println(vertices.size() + ", " + vertices.size() / (detailFactor * detailFactor * detailFactor));
+        if(start % 100 == 0)
+            System.out.println("Time quadTree.calculateNormals() " + (System.currentTimeMillis() - start));
+
     }
 
 
@@ -145,7 +159,7 @@ public class QuadTree_MT extends RecursiveAction{
         final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-        if(desiredLevel <= level || level >= maxLevels/* || !inView(center, MVPmatrix)*/) {
+        if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPmatrix)) {
             leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
@@ -304,29 +318,29 @@ public class QuadTree_MT extends RecursiveAction{
 
                 Integer leftFrontIndex = positionMap.get(leftFrontPos);
                 if(leftFrontIndex == null) {
+                    leftFrontIndex = vertices.size();
                     vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
-                    leftFrontIndex = vertices.size() - 1;
                     positionMap.put(leftFrontPos, leftFrontIndex);
                 }
 
                 Integer rightFrontIndex = positionMap.get(rightFrontPos);
                 if(rightFrontIndex == null) {
+                    rightFrontIndex = vertices.size();
                     vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
-                    rightFrontIndex = vertices.size() - 1;
                     positionMap.put(rightFrontPos, rightFrontIndex);
                 }
 
                 Integer leftBottomIndex = positionMap.get(leftBottomPos);
                 if(leftBottomIndex == null) {
+                    leftBottomIndex = vertices.size();
                     vertices.add(new VertexPositionColorNormal(leftBottomPos, color));//2
-                    leftBottomIndex = vertices.size() - 1;
                     positionMap.put(leftBottomPos, leftBottomIndex);
                 }
 
                 Integer rightBottomIndex = positionMap.get(rightBottomPos);
                 if(rightBottomIndex == null) {
+                    rightBottomIndex = vertices.size();
                     vertices.add(new VertexPositionColorNormal(rightBottomPos, color));//3
-                    rightBottomIndex = vertices.size() - 1;
                     positionMap.put(rightBottomPos, rightBottomIndex);
                 }
 
@@ -364,66 +378,66 @@ public class QuadTree_MT extends RecursiveAction{
                 int i = 0;
                 Integer[] quadsIndices = new Integer[numVertices];
 
+                quadsIndices[i] = vertices.size();
                 vertices.add(new VertexPositionColorNormal(center, color));
-                quadsIndices[i] = vertices.size() - 1;
 
                 quadsIndices[++i] = positionMap.get(leftFrontPos);
                 if(quadsIndices[i] == null) {
+                    quadsIndices[i] = vertices.size();
                     vertices.add(new VertexPositionColorNormal(leftFrontPos, color));
-                    quadsIndices[i] = vertices.size() - 1;
                     positionMap.put(leftFrontPos, quadsIndices[i]);
                 }
 
                 if(frontStitchPnt) {
                     quadsIndices[++i] = positionMap.get(frontPos);
                     if(quadsIndices[i] == null) {
+                        quadsIndices[i] = vertices.size();
                         vertices.add(new VertexPositionColorNormal(frontPos, color));
-                        quadsIndices[i] = vertices.size() - 1;
                         positionMap.put(frontPos, quadsIndices[i]);
                     }
                 }
 
                 quadsIndices[++i] = positionMap.get(rightFrontPos);
                 if(quadsIndices[i] == null) {
+                    quadsIndices[i] = vertices.size();
                     vertices.add(new VertexPositionColorNormal(rightFrontPos, color));
-                    quadsIndices[i] = vertices.size() - 1;
                     positionMap.put(rightFrontPos, quadsIndices[i]);
                 }
                 if(rightStitchPnt) {
                     quadsIndices[++i] = positionMap.get(rightPos);
                     if(quadsIndices[i] == null) {
+                        quadsIndices[i] = vertices.size();
                         vertices.add(new VertexPositionColorNormal(rightPos, color));
-                        quadsIndices[i] = vertices.size() - 1;
                         positionMap.put(rightPos, quadsIndices[i]);
                     }
                 }
 
                 quadsIndices[++i] = positionMap.get(rightBottomPos);
                 if(quadsIndices[i] == null) {
+                    quadsIndices[i] = vertices.size();
                     vertices.add(new VertexPositionColorNormal(rightBottomPos, color));
-                    quadsIndices[i] = vertices.size() - 1;
                     positionMap.put(rightBottomPos, quadsIndices[i]);
                 }
                 if(bottomStitchPnt) {
                     quadsIndices[++i] = positionMap.get(bottomPos);
                     if(quadsIndices[i] == null) {
+                        quadsIndices[i] = vertices.size();
                         vertices.add(new VertexPositionColorNormal(bottomPos, color));
-                        quadsIndices[i] = vertices.size() - 1;
                         positionMap.put(bottomPos, quadsIndices[i]);
                     }
                 }
 
                 quadsIndices[++i] = positionMap.get(leftBottomPos);
                 if(quadsIndices[i] == null) {
+                    quadsIndices[i] = vertices.size();
                     vertices.add(new VertexPositionColorNormal(leftBottomPos, color));
-                    quadsIndices[i] = vertices.size() - 1;
                     positionMap.put(leftBottomPos, quadsIndices[i]);
                 }
                 if(leftStitchPnt) {
                     quadsIndices[++i] = positionMap.get(leftPos);
                     if(quadsIndices[i] == null) {
+                        quadsIndices[i] = vertices.size();
                         vertices.add(new VertexPositionColorNormal(leftPos, color));
-                        quadsIndices[i] = vertices.size() - 1;
                         positionMap.put(leftPos, quadsIndices[i]);
                     }
                 }
@@ -503,9 +517,8 @@ public class QuadTree_MT extends RecursiveAction{
 
     //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
     private QuadTree_MT findNode(final Vector3 position){
-        final Vector3 delta = position.sub(this.position);
-        final int dx = Math.round(delta.getX());
-        final int dz = Math.round(delta.getZ());
+        final int dx = Math.round(position.getX() - this.position.getX());
+        final int dz = Math.round(position.getZ() - this.position.getZ());
 
         final float radius = size / 2.0f;
 
@@ -553,7 +566,7 @@ public class QuadTree_MT extends RecursiveAction{
     }
 
 
-    private boolean inView(Vector3 center, Matrix4x4 MVPmatrix){
+    private boolean inView(Vector3 center, Matrix4x4 MVPmatrix) {
         int halfSize = size / 2;
         Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
         Vector3 frontRight = position.add(0, 0, -halfSize);
@@ -571,39 +584,44 @@ public class QuadTree_MT extends RecursiveAction{
         float[] heights = {frontLeft.getY(), frontRight.getY(), bottomRight.getY(), bottomLeft.getY()};
 
         for (float height : heights) {
-            if(height > maxHeight)
+            if (height > maxHeight)
                 maxHeight = height;
-            else if(height < minHeight)
+            else if (height < minHeight)
                 minHeight = height;
         }
+
+        minHeight -= 50;
+        maxHeight += 50;
 
         Vector3 centerZeroHeight = new Vector3(center);
         centerZeroHeight.setY(0);
 
         //Corners of quads collision box
-        Vector3 leftBottomFront =   centerZeroHeight.add(-halfSize, minHeight, -halfSize);
-        Vector3 rightBottomFront =  centerZeroHeight.add(halfSize, minHeight, -halfSize);
-        Vector3 rightBottomBack =   centerZeroHeight.add(halfSize, minHeight, halfSize);
-        Vector3 leftBottomBack =    centerZeroHeight.add(-halfSize, minHeight, halfSize);
+        Vector3 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize);
+        Vector3 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize);
+        Vector3 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize);
+        Vector3 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize);
 
-        Vector3 leftTopFront =      centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
-        Vector3 rightTopFront =     centerZeroHeight.add(halfSize, maxHeight, -halfSize);
-        Vector3 rightTopBack =      centerZeroHeight.add(halfSize, maxHeight, halfSize);
-        Vector3 leftTopBack =       centerZeroHeight.add(-halfSize, maxHeight, halfSize);
+        Vector3 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize);
+        Vector3 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize);
+        Vector3 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize);
+        Vector3 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize);
 
-        Vector3[] corners = {
-            leftBottomFront,    rightBottomFront,   rightBottomBack,    leftBottomBack,
-            leftTopFront,       rightTopFront,      rightTopBack,       leftTopBack
+        Vector4[] corners = {
+                new Vector4(leftBottomFront, 1), new Vector4(rightBottomFront, 1), new Vector4(rightBottomBack, 1), new Vector4(leftBottomBack, 1),
+                new Vector4(leftTopFront, 1), new Vector4(rightTopFront, 1), new Vector4(rightTopBack, 1), new Vector4(leftTopBack, 1)
         };
 
-        for (int i = 0; i < corners.length; i++)
-            corners[i] = MVPmatrix.multiply(corners[i], true);
+        for (int i = 0; i < corners.length; i++){
+            corners[i] = MVPmatrix.multiply(corners[i]);
+            corners[i] = corners[i].multiply(1 / corners[i].getW());//Compensate for things getting smaller farther away
+        }
 
         for (int i = 0; i < 3; i++) {
             boolean cornerInside;
 
             cornerInside = false;
-            for (Vector3 corner: corners) {
+            for (Vector4 corner: corners) {
                 if(corner.values[i] < +1) {
                     cornerInside = true;
                     break;
@@ -617,7 +635,7 @@ public class QuadTree_MT extends RecursiveAction{
             //
 
             cornerInside = false;
-            for (Vector3 corner: corners) {
+            for (Vector4 corner: corners) {
                 if(corner.values[i] > -1){
                     cornerInside = true;
                     break;

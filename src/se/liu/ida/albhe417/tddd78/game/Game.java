@@ -24,7 +24,6 @@ import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplaneBox;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -53,6 +52,7 @@ public class Game implements Runnable
 	private Vector3 lightDirection;
 	private int lightDirectionId;
 	private Vector3 cameraPosition = new Vector3();
+	private Thread physicsThread;
 
 
 	private static final float HEIGHT_SCALE = 0.01f;
@@ -311,32 +311,29 @@ public class Game implements Runnable
 		updateCameraPosition();
 		updateCameraMatrix();
 
-		if(settings.isThreaded()){
-			Thread threadP = new Thread(new Runnable() {
+		boolean isThreaded = settings.isThreaded();
+		if(isThreaded){
+			physicsThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
 				}
 			});
-			threadP.start();
+			physicsThread.start();
 
-			Thread threadT = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					terrain.update(cameraPosition, cameraMatrix);
-				}
-			});
-			threadT.start();
 
+		}else {
+			physics.stepSimulation(deltaTime, 10, settings.getPreferredTimeStep());
+		}
+
+		terrain.update(cameraPosition, cameraMatrix);
+
+		if(isThreaded){
 			try {
-				threadP.join();
-				threadT.join();
+				physicsThread.join();
 			}catch (InterruptedException e){
 
 			}
-		}else {
-			physics.stepSimulation(deltaTime, 10, settings.getPreferredTimeStep());
-			terrain.update(cameraPosition, cameraMatrix);
 		}
 		//terrain.update(cameraPosition, cameraMatrix);
 		terrain.updateGraphics();

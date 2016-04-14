@@ -41,12 +41,12 @@ public abstract class AbstractVehicle extends AbstractGameObject
         Matrix4x4 modelMatrix = partBody.getMatrix();
         final Vector3 cameraOffset = new Vector3(0, 5.0f, 15.0f);
 
-        cameraPosition = modelMatrix.getInverse().multiply(cameraOffset, false);
-        cameraPosition = cameraPosition.add(modelMatrix.getPosition());
+        cameraPosition = modelMatrix.multiply(cameraOffset, true);
+        //cameraPosition = cameraPosition.add(modelMatrix.getPosition());
 
         Vector3 cameraTarget = modelMatrix.getPosition();
 
-        Vector3 cameraUp = modelMatrix.getInverse().multiply(Vector4.DIR_UP).toVector3();
+        Vector3 cameraUp = modelMatrix.multiply(Vector3.UP, false);
 
 
         Matrix4x4 viewMatrix = Matrix4x4.createViewMatrix(cameraPosition, cameraTarget, cameraUp);
@@ -84,7 +84,7 @@ public abstract class AbstractVehicle extends AbstractGameObject
         Vector3 direction = new Vector3(0, 0, -1);
         Matrix4x4 modelMatrix = partBody.getMatrix();
 
-        direction = modelMatrix.getInverse().multiply(direction, false);
+        direction = modelMatrix.multiply(direction, false);
         return direction;
     }
 
