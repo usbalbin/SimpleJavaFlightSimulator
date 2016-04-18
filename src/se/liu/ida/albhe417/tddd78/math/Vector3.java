@@ -1,11 +1,14 @@
 package se.liu.ida.albhe417.tddd78.math;
 
 import se.liu.ida.albhe417.tddd78.game.Helpers;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 
 import javax.vecmath.Vector3f;
-import java.util.Arrays;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class Vector3
 {
     public static final Vector3 RIGHT = new Vector3(1, 0, 0);
@@ -177,6 +180,8 @@ public class Vector3
 
     @Override
     public boolean equals(Object obj) {
+        if(this.getClass() != obj.getClass())
+            return false;
         Vector3 other = (Vector3)obj;
         return Helpers.fEquals(this.getX(), other.getX()) &&
                 //Helpers.fEquals(this.getY(), other.getY()) &&

@@ -6,13 +6,14 @@ import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.RecursiveAction;
 
 /**
- * Created by Albin_Hedman on 2016-03-14.
+ * Project TDDD78
+ *
+ * File created by Albin on 2016-03-14.
  */
-public class QuadTree_MT extends RecursiveAction{
+class QuadTree_MT extends RecursiveAction{
     //TODO implement me
     //Info: http://victorbush.com/2015/01/tessellated-terrain/
 
@@ -30,13 +31,13 @@ public class QuadTree_MT extends RecursiveAction{
     //TODO: Check need for precision
     private final Vector3 position;
     private int size;
-    private short level;
+    private final short level;
 
     private static Settings settings;
     private static float[] heightmap;
     private static float HEIGHT_FACTOR;
     private static int rootSize;
-    private static int hmapSize;
+    private static int hMapSize;
     private static float maxHeight;
     private static Map<Vector3, Integer> positionMap;
 
@@ -44,7 +45,7 @@ public class QuadTree_MT extends RecursiveAction{
     private static int maxLevels;
     private static boolean isThreaded;
     private static Vector3 cameraPos;
-    private static Matrix4x4 MVPmatrix;
+    private static Matrix4x4 MVPMatrix;
     private static ForkJoinPool workerPool;
 
 
@@ -55,12 +56,12 @@ public class QuadTree_MT extends RecursiveAction{
     public QuadTree_MT(float[] heightmap, final float heightFactor, float maxHeight, Settings settings){
         HEIGHT_FACTOR = heightFactor;
         QuadTree_MT.heightmap = heightmap;
-        hmapSize = rootSize = this.size = (int)Math.sqrt(heightmap.length);
+        hMapSize = rootSize = this.size = (int)Math.sqrt(heightmap.length);
         rootSize = this.size -= size % 2;//Make sure size is even
         QuadTree_MT.maxHeight = maxHeight;
         this.position = new Vector3(0, 0, 0);
         this.level = 0;
-        this.workerPool = new ForkJoinPool(11);
+        workerPool = new ForkJoinPool(11);
         positionMap = new HashMap<>();
         QuadTree_MT.settings = settings;
     }
@@ -81,14 +82,14 @@ public class QuadTree_MT extends RecursiveAction{
         this.parent = parent;
     }
 
-    public void update(Vector3 cameraPosition, Matrix4x4 MVPmatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
+    public void update(Vector3 cameraPosition, Matrix4x4 MVPMatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
         final float detailFactor = QuadTree_MT.detailFactor;
-        positionMap.clear();
-        this.cameraPos = cameraPosition;
-        this.MVPmatrix = MVPmatrix;
-        this.detailFactor = settings.getDetailFactor();
-        this.maxLevels = settings.getMaxLevels();
-        this.isThreaded = settings.isThreaded();
+        QuadTree_MT.positionMap.clear();
+        QuadTree_MT.cameraPos = cameraPosition;
+        QuadTree_MT.MVPMatrix = MVPMatrix;
+        QuadTree_MT.detailFactor = settings.getDetailFactor();
+        QuadTree_MT.maxLevels = settings.getMaxLevels();
+        QuadTree_MT.isThreaded = settings.isThreaded();
 
         long start = System.currentTimeMillis();
         if(isThreaded) {
@@ -142,7 +143,7 @@ public class QuadTree_MT extends RecursiveAction{
         setHeight(bottom);
 
         //TODO: Change to length2() to save CPU
-        final Float[] dists = {
+        final Float[] distances = {
             cameraPos.sub(center).length2(),
             cameraPos.sub(left).length2(),
             cameraPos.sub(top).length2(),
@@ -150,7 +151,7 @@ public class QuadTree_MT extends RecursiveAction{
             cameraPos.sub(bottom).length2()
         };
 
-        final float dist = (float)Math.sqrt(Collections.min(Arrays.asList(dists)));
+        final float dist = (float)Math.sqrt(Collections.min(Arrays.asList(distances)));
 
 
         //TODO make working formula
@@ -159,20 +160,19 @@ public class QuadTree_MT extends RecursiveAction{
         final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-        if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPmatrix)) {
+        if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPMatrix)) {
             leftFront = rightFront = rightBottom = leftBottom = null;
             return;
         }
 
-        final int childSize = halfSize;
-        final int halfChildSize = childSize / 2;
+        final int halfChildSize = halfSize / 2;
         final short childLevel = (short)(1 + level);
 
         if(!hasChildren()) {
-            leftFront = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), childSize, childLevel, this);
-            rightFront = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), childSize, childLevel, this);
-            leftBottom = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), childSize, childLevel, this);
-            rightBottom = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), childSize, childLevel, this);
+            leftFront = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), halfSize, childLevel, this);
+            rightFront = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, -halfChildSize)), halfSize, childLevel, this);
+            leftBottom = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, +halfChildSize)), halfSize, childLevel, this);
+            rightBottom = new QuadTree_MT(position.add(new Vector3(+halfChildSize, 0, +halfChildSize)), halfSize, childLevel, this);
         }else if(isThreaded){
             leftFront.reinitialize();
             rightFront.reinitialize();
@@ -347,7 +347,7 @@ public class QuadTree_MT extends RecursiveAction{
                 indices.add(leftFrontIndex);indices.add(rightBottomIndex);indices.add(leftBottomIndex);
                 indices.add(leftFrontIndex);indices.add(rightFrontIndex);indices.add(rightBottomIndex);
             }else{
-                final int numVertices = 5 + numStitchPnts();
+                final int numVertices = 5 + numStitchPoints();
 
                 Vector3 center = position;
                 setHeight(center);
@@ -479,7 +479,7 @@ public class QuadTree_MT extends RecursiveAction{
         return size == rootSize;
     }
 
-    private int numStitchPnts(){
+    private int numStitchPoints(){
         return (leftStitchPnt ? 1 : 0) + (frontStitchPnt ? 1 : 0) + (rightStitchPnt ? 1 : 0) + (bottomStitchPnt ? 1 : 0);
     }
 
@@ -487,33 +487,15 @@ public class QuadTree_MT extends RecursiveAction{
         //position = position.add(this.position);
         int x = rootSize / 2 + (int)position.getX();
         int z = rootSize / 2 + (int)position.getZ();
-        float y =  heightmap[z * hmapSize + x];// & 0x00FF;
+        float y =  heightmap[z * hMapSize + x];// & 0x00FF;
         position.setY(- maxHeight / 2.0f + y * HEIGHT_FACTOR);
     }
 
-    public int getSize(){
-        return size;
+    public int getHMapSize(){
+        return hMapSize;
     }
 
-    public int getHmapSize(){
-        return hmapSize;
-    }
 
-/*private QuadTree getNortNeighbor(QuadType currentQuadType, QuadTree parent){
-    if(parent == null)
-        return null;
-    switch (currentQuadType){
-        case NW:
-            return parent.leftFront;
-        break;
-        case NE:
-            return parent.rightFront;
-            break;
-        default:
-
-
-    }
-}*/
 
     //TODO decide which is faster this one or the one with the ugly name. If this one wins, remove root-field
     private QuadTree_MT findNode(final Vector3 position){
@@ -550,7 +532,7 @@ public class QuadTree_MT extends RecursiveAction{
     private void calculateNormals(List<VertexPositionColorNormal> vertices, List<Integer> indices){
         //For each triangle calculate its normal and add this to each of its vertices's normals
         for(int triangle = 0; triangle < indices.size() / 3; triangle++){
-            int index0 = indices.get(triangle * 3 + 0);
+            int index0 = indices.get(triangle * 3);
             int index1 = indices.get(triangle * 3 + 1);
             int index2 = indices.get(triangle * 3 + 2);
 
@@ -566,7 +548,7 @@ public class QuadTree_MT extends RecursiveAction{
     }
 
 
-    private boolean inView(Vector3 center, Matrix4x4 MVPmatrix) {
+    private boolean inView(Vector3 center, Matrix4x4 MVPMatrix) {
         int halfSize = size / 2;
         Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
         Vector3 frontRight = position.add(0, 0, -halfSize);
@@ -613,7 +595,7 @@ public class QuadTree_MT extends RecursiveAction{
         };
 
         for (int i = 0; i < corners.length; i++){
-            corners[i] = MVPmatrix.multiply(corners[i]);
+            corners[i] = MVPMatrix.multiply(corners[i]);
             corners[i] = corners[i].divide(corners[i].getW());//Compensate for things getting smaller farther away
         }
 
@@ -647,7 +629,7 @@ public class QuadTree_MT extends RecursiveAction{
                 return false;
         }
 
-        //All corners are inside some sides, thus box is either intersecting or completely inside the frustrum
+        //All corners are inside some sides, thus box is either intersecting or completely inside the frustum
         return true;
     }
 }

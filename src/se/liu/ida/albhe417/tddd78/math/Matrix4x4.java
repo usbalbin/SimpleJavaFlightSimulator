@@ -2,6 +2,11 @@ package se.liu.ida.albhe417.tddd78.math;
 
 import javax.vecmath.Matrix4f;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class Matrix4x4 extends AbstractMatrix
 {
 
@@ -36,15 +41,7 @@ public class Matrix4x4 extends AbstractMatrix
 		values[3] = new float[]{0, 	   0, 	  0, 	 scale};
 	}
 
-    public Matrix4x4(Vector4 zero, Vector4 one, Vector4 two, Vector4 three){
-		super(new float[4][4]);
-		values[0] = zero.getNewFloats();
-		values[1] = one.getNewFloats();
-		values[2] = two.getNewFloats();
-		values[3] = three.getNewFloats();
-    }
-
-    public static Matrix4x4 createTranslation(Vector3 position){
+	public static Matrix4x4 createTranslation(Vector3 position){
 		Matrix4x4 res = new Matrix4x4();
 		res.values[3][0] = position.getX();
 		res.values[3][1] = position.getY();
@@ -52,11 +49,11 @@ public class Matrix4x4 extends AbstractMatrix
 		return res;
     }
 
-	public static Matrix4x4 createProjectionMatrix(float fieldOfView, float apsectRatio, float nearLimit, float farLimit){
+	public static Matrix4x4 createProjectionMatrix(float fieldOfView, float aspectRatio, float nearLimit, float farLimit){
 		Matrix4x4 result = new Matrix4x4(0);
 
 		final float yScale = 1.0f / (float)Math.tan(fieldOfView / 2.0f);
-		final float xScale = yScale / apsectRatio;
+		final float xScale = yScale / aspectRatio;
 		final float zFactor1 = -(farLimit + nearLimit) / (farLimit - nearLimit);
 		final float zFactor2 = -(2.0f * nearLimit * farLimit) / (farLimit - nearLimit);
 		final float wFactor = -1;
@@ -92,7 +89,7 @@ public class Matrix4x4 extends AbstractMatrix
 
 		for(int row = 0; row < 4; row++){
 			for (int column = 0; column < 4; column++){
-				for(int i = 0; i < 4; i++)//TODO kolla om row och column ska byta plats
+				for(int i = 0; i < 4; i++)
 					result.values[row][column] += this.values[i][column] * other.values[row][i];
 			}
 		}
@@ -169,17 +166,6 @@ public class Matrix4x4 extends AbstractMatrix
 
 	public Matrix4x4 getTranslated(Vector3 move){
 		return this.multiply(createTranslation(move));
-	}
-
-	//TODO: ta bort kanske
-	public Matrix4x4 copy(){
-		float[][] values = new float[4][4];
-		for(int row = 0; row < 4; row++){
-			for(int column = 0; column < 4; column++)
-				values[row][column] = this.values[row][column];
-		}
-
-		return new Matrix4x4(values);
 	}
 
 	public Vector3 getPosition(){

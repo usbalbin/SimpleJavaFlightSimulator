@@ -1,14 +1,15 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-
 /**
- * Created by Albin on 10/03/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 10/03/2016.
  */
-public interface Vertex {
-    public int getFloatCount();
+interface Vertex {
+    int getFloatCount();
 
-    public float[] getFloats();
+    float[] getFloats();
 
-    public void enableVertexAttribs();
-    public void setupVertexAttribs();
+    void enableVertexAttributes();
+    void setupVertexAttributes();
 }

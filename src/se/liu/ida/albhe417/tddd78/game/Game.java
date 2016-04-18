@@ -34,24 +34,25 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class Game implements Runnable
 {
-	private Settings settings;
+	private final Settings settings;
 
-	//TODO: Needed?
-    private GLFWErrorCallback errorCallback;
-	private GLFWWindowSizeCallback windowSizeCallback;
-    private long window;//Reference to window
+	private long window;//Reference to window
+	GLFWWindowSizeCallback windowSizeCallback;
+	GLFWErrorCallback errorCallback;
 
     private static final String TITLE = "Simple Java Flight Simulator";
 
-	private Matrix4x4 projectionMatrix;
-	private Matrix4x4 viewMatrix;
 	private Matrix4x4 cameraMatrix;
-	private int MVPmatrixId;
+	private int MVPMatrixId;
 	private int modelMatrixId;
 
-	private Vector3 lightDirection;
 	private int lightDirectionId;
 	private Vector3 cameraPosition = new Vector3();
 	private Thread physicsThread;
@@ -82,7 +83,7 @@ public class Game implements Runnable
 	}
 
     private void setupGraphics(){
-		errorCallback = GLFWErrorCallback.createPrint(System.err);//Bind error output to console
+		errorCallback = GLFWErrorCallback.createPrint(System.err);
 		glfwSetErrorCallback(errorCallback);
 
 
@@ -97,7 +98,6 @@ public class Game implements Runnable
 
 
 		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
-		//glfwHideWindow(window);
 
 		if(window == NULL){
 			throw new RuntimeException("Failed to create window");
@@ -109,13 +109,13 @@ public class Game implements Runnable
 				settings.setWindowWidth(width);
 				settings.setWindowHeight(height);
 				glViewport(0, 0, width, height);
-				projectionMatrix = Matrix4x4.createProjectionMatrix(settings.getFov(), settings.getAspectRatio(), settings.getDrawDistanceNearLimit(), settings.getDrawDistance());
 			}
 		});
 
 		glfwSetKeyCallback(window, InputHandler.getInstance());
 
-		glfwSetWindowPos(window, settings.getWindowPosX(), settings.getWindowPosY());
+		int windowPosX = 50, windowPosY = 50;
+		glfwSetWindowPos(window, windowPosX, windowPosY);
 		glfwMakeContextCurrent(window);
 
 
@@ -200,7 +200,7 @@ public class Game implements Runnable
 		if(result != GL_TRUE){
 		    throw new RuntimeException("Failed to link shader program");
 		}
-		MVPmatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
 		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
 		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 
@@ -218,13 +218,13 @@ public class Game implements Runnable
 	}
 
 	private void setupPhysics(){
-		BroadphaseInterface broadphase = new DbvtBroadphase();
+		BroadphaseInterface broadPhase = new DbvtBroadphase();
 		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
 		CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
 		ConstraintSolver solver = new SequentialImpulseConstraintSolver();
-		physics = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		physics = new DiscreteDynamicsWorld(dispatcher, broadPhase, solver, collisionConfiguration);
 		physics.setGravity(GRAVITY.toVector3f());
-		BulletGlobals.setContactProcessedCallback(new TargetHitCallback(this, physics));
+		BulletGlobals.setContactProcessedCallback(new TargetHitCallback());
 	}
 
 	private void setupGameObjects(){
@@ -248,7 +248,7 @@ public class Game implements Runnable
 	}
 
 	private void setupLight(){
-		lightDirection = new Vector3(-1, -1, -1);
+		Vector3 lightDirection = new Vector3(-1, -1, -1);
 		int numVectorElements = 3;
 
 
@@ -261,10 +261,6 @@ public class Game implements Runnable
 		glUseProgram(0);
 	}
 
-	public int getScore(){
-		return currentVehicle.getScore();
-	}
-
 	public void remove(AbstractGameObject gameObject){
 		gameObjects.remove(gameObject);
 		if(gameObject == currentVehicle) {
@@ -274,27 +270,27 @@ public class Game implements Runnable
 			else
 				JOptionPane.showMessageDialog(null,
 						"Score: " + currentVehicle.getScore() + "\n" +
-								"Killed by " + currentVehicle.killedBy.playerName
+						"Killed by " + currentVehicle.killedBy.playerName
 				);
 			currentVehicle = null;
 			glfwShowWindow(window);
 		}
 	}
 
-	public void respawn(){
+	private void respawn(){
 		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
-		currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
 		gameObjects.add(currentVehicle);
 	}
 
-	public void updateCameraPosition(){
+	private void updateCameraPosition(){
 		if(currentVehicle != null)
 			cameraPosition = currentVehicle.getCameraPosition();
 	}
 
 	private void updateCameraMatrix() {
 
-		viewMatrix = currentVehicle.getViewMatrix();
+		Matrix4x4 viewMatrix = currentVehicle.getViewMatrix();
 
 		Matrix4x4 projectionMatrix = Matrix4x4.createProjectionMatrix(settings.getFov(), settings.getAspectRatio(), settings.getDrawDistanceNearLimit(), settings.getDrawDistance());
 		cameraMatrix = projectionMatrix.multiply(viewMatrix);
@@ -316,26 +312,19 @@ public class Game implements Runnable
 
 		currentVehicle.handleInput(deltaTime);
 
-		for (AbstractGameObject drawable: gameObjects) {
-			drawable.update(deltaTime);
-		}
-
 		updateCameraPosition();
 		updateCameraMatrix();
 
 		boolean isThreaded = settings.isThreaded();
 		if(isThreaded){
-			physicsThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
-				}
-			});
+			physicsThread = new Thread(() ->
+				physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep())
+			);
 			physicsThread.start();
 
 
 		}else {
-			physics.stepSimulation(deltaTime, 10, settings.getPreferredTimeStep());
+			physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
 		}
 
 		terrain.update(cameraPosition, cameraMatrix);
@@ -347,7 +336,7 @@ public class Game implements Runnable
 
 			}
 		}
-		//terrain.update(cameraPosition, cameraMatrix);
+		//terrain.hitAction(cameraPosition, cameraMatrix);
 		terrain.updateGraphics();
 
     }
@@ -361,10 +350,10 @@ public class Game implements Runnable
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		terrain.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+		terrain.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
 
 		for (AbstractGameObject drawable : gameObjects) {
-			drawable.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+			drawable.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
 		}
 
 		glfwSwapBuffers(window);
@@ -376,7 +365,6 @@ public class Game implements Runnable
 
     public void run(){
 		setup();
-		//glfwShowWindow(window);
 		while(glfwWindowShouldClose(window) != GL_TRUE){
 			glfwPollEvents();
 

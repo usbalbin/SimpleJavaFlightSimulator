@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Created by Albin on 09/03/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 09/03/2016.
  */
 public class Helpers {
     public static Vector3[][] imageToColors(String fileName){
@@ -58,7 +60,7 @@ public class Helpers {
                 for (int row = 0; row < height; row++) {
                     for (int column = 0; column < width; column++) {
                         colors[row][column] = new Vector3(
-                                byteToFloatColor(pixels[j + 0]),
+                                byteToFloatColor(pixels[j]),
                                 byteToFloatColor(pixels[j + 1]),
                                 byteToFloatColor(pixels[j + 2])
                         );
@@ -193,23 +195,8 @@ public class Helpers {
         final short toUnsignedByte = 0x00FF;
         final float unsignedByteMaxVal = 256.0f;
 
-        //Interprete color as unsigned byte(colors are represented by unsigned byte)
+        //Interpret color as unsigned byte(colors are represented by unsigned byte)
         return (color & toUnsignedByte ) / unsignedByteMaxVal;
-    }
-
-    public static void createSphere(List<VertexPositionColor> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
-        float step = (float)Math.PI / qualityFactor;
-        for(float pitch = 0; pitch < 2.0f * (float)Math.PI; pitch += step){
-            for(float yaw = -(float)Math.PI / 2.0f; yaw <= (float)Math.PI / 2.0f; yaw += step){
-
-                Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
-                vertices.add(new VertexPositionColor(position, color));
-
-            }
-
-        }
-
-        setupSphereIndices(qualityFactor, indices, vertices.size());
     }
 
     public static void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
@@ -229,13 +216,13 @@ public class Helpers {
 
     private static void setupSphereIndices(int qualityFactor, List<Integer> indices, int vertexCount){
         for(int i = 0; i < vertexCount; i++){
-            indices.add(i                                       );
-            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount   );
-            indices.add((i - 1                 + vertexCount) % vertexCount   );
+            indices.add(i                                                       );
+            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount     );
+            indices.add((i - 1                 + vertexCount) % vertexCount     );
 
-            indices.add(i                                       );
-            indices.add((i - 0 - qualityFactor + vertexCount) % vertexCount   );
-            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount   );
+            indices.add(i                                                       );
+            indices.add((i -     qualityFactor + vertexCount) % vertexCount     );
+            indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount     );
         }
     }
 

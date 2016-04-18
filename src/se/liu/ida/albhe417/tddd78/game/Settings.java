@@ -5,30 +5,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Created by Albin on 09/04/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 09/04/2016.
  */
 public class Settings {
-    private final int windowPosX = 50;
-    private final int windowPosY = 50;
 
-    private AtomicInteger windowWidth = new AtomicInteger(1400);
-    private AtomicInteger windowHeight = new AtomicInteger(800);
+    private final AtomicInteger windowWidth = new AtomicInteger(1400);
+    private final AtomicInteger windowHeight = new AtomicInteger(800);
 
-    private AtomicInteger fov = new AtomicInteger(Float.floatToIntBits((90 * (float)Math.PI / 180.0f)));
-    private AtomicInteger drawDistance = new AtomicInteger();// = new AtomicInteger(Float.floatToIntBits(3072));
-    private AtomicInteger drawDistanceNearLimit = new AtomicInteger(Float.floatToIntBits(1.0f));
-    private AtomicInteger detailFactor = new AtomicInteger();
-    private AtomicInteger maxLevels = new AtomicInteger(11);
-    private AtomicInteger ticksPerFrame = new AtomicInteger();
-    private AtomicInteger preferredTimeStep = new AtomicInteger();
+    private final AtomicInteger fov = new AtomicInteger(Float.floatToIntBits((90 * (float)Math.PI / 180.0f)));
+    private final AtomicInteger drawDistance = new AtomicInteger();// = new AtomicInteger(Float.floatToIntBits(3072));
+    private final AtomicInteger drawDistanceNearLimit = new AtomicInteger(Float.floatToIntBits(1.0f));
+    private final AtomicInteger detailFactor = new AtomicInteger();
+    private final AtomicInteger maxLevels = new AtomicInteger(11);
+    private final AtomicInteger ticksPerFrame = new AtomicInteger();
+    private final AtomicInteger preferredTimeStep = new AtomicInteger();
 
-    private AtomicBoolean wireFrame = new AtomicBoolean(false);// = false;
-    private AtomicBoolean threaded = new AtomicBoolean(false);// = true;
+    private final AtomicBoolean wireFrame = new AtomicBoolean(false);// = false;
+    private final AtomicBoolean threaded = new AtomicBoolean(false);// = true;
     public final int AA_LEVEL = 16;
     public final float OPENGL_VERSION = 3.0f;
 
     private String playerName = "Player1";
-    private AtomicReference<String> rPlayerName = new AtomicReference<>(playerName);
+    private final AtomicReference<String> rPlayerName = new AtomicReference<>(playerName);
 
 
     public Settings() {
@@ -53,14 +53,6 @@ public class Settings {
 
     public void setWindowHeight(int windowHeight) {
         this.windowHeight.set(windowHeight);
-    }
-
-    public int getWindowPosX() {
-        return windowPosX;
-    }
-
-    public int getWindowPosY() {
-        return windowPosY;
     }
 
     public float getFov() {

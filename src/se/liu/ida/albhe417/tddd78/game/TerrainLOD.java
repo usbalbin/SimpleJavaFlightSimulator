@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Albin on 14/03/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 14/03/2016.
  */
 public class TerrainLOD extends Terrain {
     private final se.liu.ida.albhe417.tddd78.game.Settings settings;
@@ -22,12 +24,9 @@ public class TerrainLOD extends Terrain {
 
     private QuadTree_MT quadTree;
 
-    //TODO: kolla upp
-    private float[] heights;
-
     private int[] indexArray;
     private VertexPositionColorNormal[] vertexArray;
-    private List<VertexPositionColorNormal> vertices;
+    private final List<VertexPositionColorNormal> vertices;
     private final List<Integer> indices;
 
     private static final int MAX_EXPECTED_VERTEX_COUNT = 100000;
@@ -37,17 +36,17 @@ public class TerrainLOD extends Terrain {
         this.settings = settings;
         this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERTEX_COUNT];
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT);
-        this.indices = new ArrayList<>(1000);
+        this.indices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT * 4);
         this.physics = physics;
         setup();
     }
 
-    protected void setup() {
+    private void setup() {
         float maxHeight = 256f * 256f * HEIGHT_FACTOR;
 
-        heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
+        float[] heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
         quadTree = new QuadTree_MT(heights, HEIGHT_FACTOR, maxHeight, settings);
-        height = width = quadTree.getHmapSize();
+        height = width = quadTree.getHMapSize();
 
         this.parts = new ArrayList<>(1);
         partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERTEX_COUNT, new VertexPositionColorNormal());
@@ -66,19 +65,6 @@ public class TerrainLOD extends Terrain {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     public void update(Vector3 cameraPos, Matrix4x4 cameraMatrix){
 
         vertices.clear();
@@ -92,45 +78,11 @@ public class TerrainLOD extends Terrain {
         }
         vertices.toArray(vertexArray);
         indexArray = indices.stream().mapToInt(i -> i).toArray();
-
     }
 
     public void updateGraphics(){
         partMain.updateData(vertexArray, indexArray);
     }
 
-
-    //TODO: Make this accurate
-    public float getHeight(float x, float z){
-        if(x < 0)
-            x = 0;
-        else if(x > width - 2)
-            x = width - 2;
-        if(z < 0)
-            z = 0;
-        else if(z > height - 2)
-            z = height - 2;
-
-
-        //Get heights from closest vertices
-        float leftFront =  heights[((int)z + 0) * width + (int)x + 0];// & 0x00FF;
-        float rightFront = heights[((int)z + 0) * width + (int)x + 1];// & 0x00FF;
-
-        float leftBack =   heights[((int)z + 1) * width + (int)x + 0];// & 0x00FF;
-        float rightBack =  heights[((int)z + 1) * width + (int)x + 1];// & 0x00FF;
-
-        float xRest = x % 1;
-        float zRest = z % 1;
-
-        //Interpolate heights depending on how close
-        float height =
-                leftBack * (1.0f - xRest)  * (1.0f - zRest) +
-                        rightBack * (xRest)        * (1.0f - zRest) +
-
-                        leftFront * (1.0f - xRest) * (zRest)        +
-                        rightFront * (xRest)       * (zRest);
-
-        return height * HEIGHT_FACTOR;
-    }
 
 }

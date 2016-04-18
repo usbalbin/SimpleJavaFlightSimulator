@@ -1,9 +1,12 @@
 package se.liu.ida.albhe417.tddd78;
 
-import se.liu.ida.albhe417.tddd78.game.Game;
-
 import java.io.File;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class Main
 {
     public static void main(String[] args) {

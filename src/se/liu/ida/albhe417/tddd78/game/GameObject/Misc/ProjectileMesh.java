@@ -1,22 +1,17 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
 
-import com.bulletphysics.collision.dispatch.CollisionFlags;
-import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.linearmath.DefaultMotionState;
-import com.bulletphysics.linearmath.MotionState;
-import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 
 /**
- * Created by Albin_Hedman on 2016-03-30.
+ * Project TDDD78
+ *
+ * File created by Albin on 2016-03-30.
  */
 public class ProjectileMesh extends AbstractGameObject{
     private GameObjectPart part;
@@ -50,15 +45,9 @@ public class ProjectileMesh extends AbstractGameObject{
         part.setPhysicsObject(bullet);
     }
 
-    public void hit(Target target){
-
-    }
-
     @Override
     public void destroy() {
-        for (GameObjectPart part : parts) {
-            part.destroyGraphics();
-        }
+        parts.forEach(GameObjectPart::destroyGraphics);
         game.remove(this);
     }
 }

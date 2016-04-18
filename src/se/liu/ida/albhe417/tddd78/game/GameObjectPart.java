@@ -18,18 +18,23 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class GameObjectPart {
     /*
      *  TODO: add these
      *  partMatrix
      */
-    protected RigidBody physicsObject;
-    protected int indexCount;
-    protected int vertexArray;
-    protected int vertexBuffer;
-    protected int indexBuffer;
-    protected int shaderProgram;
-    protected FloatBuffer vertexBufferData;
+    private RigidBody physicsObject;
+    private int indexCount;
+    private int vertexArray;
+    private int vertexBuffer;
+    private int indexBuffer;
+    private final int shaderProgram;
+    private FloatBuffer vertexBufferData;
 
     public GameObjectPart(final int shaderProgram, int bufferSize, Vertex templateVertex) {
         this.shaderProgram = shaderProgram;
@@ -45,13 +50,13 @@ public class GameObjectPart {
         setup(vertices, indices);
     }
 
-    protected void setupEmpty(Vertex templateVertex) {
+    private void setupEmpty(Vertex templateVertex) {
 
 
         vertexArray = glGenVertexArrays();
         glBindVertexArray(vertexArray);
 
-        templateVertex.enableVertexAttribs();
+        templateVertex.enableVertexAttributes();
 
         vertexBuffer = glGenBuffers();
         indexBuffer = glGenBuffers();
@@ -59,14 +64,14 @@ public class GameObjectPart {
         glBindVertexArray(0);
     }
 
-    protected void setup(Vertex[] vertices, int[] indices) {
+    private void setup(Vertex[] vertices, int[] indices) {
 
 
         vertexArray = glGenVertexArrays();
         glBindVertexArray(vertexArray);
 
 
-        vertices[0].enableVertexAttribs();
+        vertices[0].enableVertexAttributes();
 
         vertexBuffer = glGenBuffers();
         indexBuffer = glGenBuffers();
@@ -75,7 +80,7 @@ public class GameObjectPart {
         updateData(vertices, indices);
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId) {
+    public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId) {
 
 
         glBindVertexArray(vertexArray);
@@ -92,7 +97,7 @@ public class GameObjectPart {
         setMatrices(modelMatrix, modelMatrixId);
 
         Matrix4x4 modelViewProjectionMatrix = cameraMatrix.multiply(modelMatrix);
-        setMatrices(modelViewProjectionMatrix, MVPmatrixId);
+        setMatrices(modelViewProjectionMatrix, MVPMatrixId);
 
 
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
@@ -101,7 +106,7 @@ public class GameObjectPart {
         glBindVertexArray(0);
     }
 
-    protected void setMatrices(Matrix4x4 matrix, int matrixId) {
+    private void setMatrices(Matrix4x4 matrix, int matrixId) {
         final int matrixRows = 4;
 
         FloatBuffer buffer = BufferUtils.createFloatBuffer(matrixRows * matrixRows);
@@ -121,7 +126,7 @@ public class GameObjectPart {
         return this.physicsObject;
     }
 
-    public Matrix4f getMatrix4f() {
+    private Matrix4f getMatrix4f() {
         Transform transform = new Transform();
         Matrix4f matrix4f = new Matrix4f();
         physicsObject.getWorldTransform(transform);
@@ -134,7 +139,7 @@ public class GameObjectPart {
         return new Matrix4x4(matrix4f);
     }
 
-    public Matrix4x4 getInvertedMatrix() {
+    public Matrix4x4 getInvertedMatrix(){
         Matrix4f matrix4f = getMatrix4f();
         matrix4f.invert();
         return new Matrix4x4(matrix4f);
@@ -152,7 +157,7 @@ public class GameObjectPart {
         vertexToFloatBuffer(vertices);
 
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_DYNAMIC_DRAW);//TODO: GL_STATIC_DRAW for nonchanging objects
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_DYNAMIC_DRAW);//TODO: GL_STATIC_DRAW for non changing objects
 
 
         //Setup index buffer
@@ -161,13 +166,11 @@ public class GameObjectPart {
         indexBufferData.flip();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW for nonchanging objects
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferData, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW for non changing objects
         indexCount = indices.length;
 
-        //Show gpu how to interprete the vertex data
-        vertices[0].setupVertexAttribs();
-        vertices = null;
-        indices = null;
+        //Show gpu how to interpret the vertex data
+        vertices[0].setupVertexAttributes();
 
         glBindVertexArray(0);
     }

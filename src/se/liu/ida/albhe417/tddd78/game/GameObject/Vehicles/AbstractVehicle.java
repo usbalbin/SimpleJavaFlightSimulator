@@ -9,25 +9,26 @@ import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
-import se.liu.ida.albhe417.tddd78.math.Vector4;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public abstract class AbstractVehicle extends AbstractGameObject
 {
-    protected final float MASS;
-    protected final float THRUST_FACTOR;
-    protected float throttle = 0;
-    protected Vector3 velocity;
-    protected Vector3 cameraPosition;
-    protected GameObjectPart partBody;
+    final float MASS;
+    final float THRUST_FACTOR;
+    float throttle = 0;
+    private Vector3 cameraPosition;
+    GameObjectPart partBody;
 
 
-    public AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, Game game, float maxHealth, String playerName){
+    AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, Game game, float maxHealth, String playerName){
 	    super(position, physics, game, maxHealth, playerName);
         this.MASS = mass;
         this.THRUST_FACTOR = thrustFactor;
-        this.velocity = new Vector3();
         this.cameraPosition = new Vector3();
     }
 
@@ -47,12 +48,10 @@ public abstract class AbstractVehicle extends AbstractGameObject
         Vector3 cameraUp = modelMatrix.multiply(Vector3.UP, false);
 
 
-        Matrix4x4 viewMatrix = Matrix4x4.createViewMatrix(cameraPosition, cameraTarget, cameraUp);
-
-        return viewMatrix;
+        return Matrix4x4.createViewMatrix(cameraPosition, cameraTarget, cameraUp);
     }
 
-    protected void changeThrottle(float deltaThrottle){
+    void changeThrottle(float deltaThrottle){
         final float maxThrottle = 1.0f;
         final float minThrottle = -1.0f;
         final float throttleSettle = 0.99f;
@@ -66,24 +65,18 @@ public abstract class AbstractVehicle extends AbstractGameObject
         return cameraPosition;
     }
 
-    public Vector3 getPosition(){
-        Matrix4x4 modelMatrix = partBody.getMatrix();
-
-        return  modelMatrix.getPosition();
-    }
-
-    public Vector3 getVelocity(){
-        Vector3f velocity3f = new Vector3f();
-        partBody.getPhysicsObject().getLinearVelocity(velocity3f);
-        return new Vector3(velocity3f);
-    }
-
     public Vector3 getDirection(){
         Vector3 direction = new Vector3(0, 0, -1);
         Matrix4x4 modelMatrix = partBody.getMatrix();
 
         direction = modelMatrix.multiply(direction, false);
         return direction;
+    }
+
+    public Vector3 getVelocity(){
+        Vector3f velocity3f = new Vector3f();
+        partBody.getPhysicsObject().getLinearVelocity(velocity3f);
+        return new Vector3(velocity3f);
     }
 
     public int getScore(){

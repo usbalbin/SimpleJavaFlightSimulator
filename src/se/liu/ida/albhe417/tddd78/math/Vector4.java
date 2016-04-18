@@ -2,6 +2,11 @@ package se.liu.ida.albhe417.tddd78.math;
 
 import javax.vecmath.Vector4f;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public class Vector4
 {
     public static final Vector4 UP = new Vector4(0, 1, 0, 1);
@@ -9,11 +14,6 @@ public class Vector4
     public static final Vector4 BACK = new Vector4(0, 0, 1, 1);
     public static final Vector4 RIGHT = new Vector4(1, 0, 0, 1);
 
-
-    public static final Vector4 DIR_UP = new Vector4(0, 1, 0, 0);
-    public static final Vector4 DIR_FORWARD = new Vector4(0, 0, -1, 0);
-    public static final Vector4 DIR_BACK = new Vector4(0, 0, 1, 0);
-    public static final Vector4 DIR_RIGHT = new Vector4(1, 0, 0, 0);
 
     public final float[] values;
 
@@ -32,14 +32,8 @@ public class Vector4
         setX(vector3.getX());setY(vector3.getY());setZ(vector3.getZ());setW(w);
     }
 
-    public Vector4(float[] values) {
-    	if(values.length != 4)
-	        throw new IllegalArgumentException("Wrong sized array");
-        this.values = values;
-    }
-
     public void setX(float x){
-	values[0] = x;
+	    values[0] = x;
     }
 
     public void setY(float y){
@@ -51,7 +45,7 @@ public class Vector4
     }
 
     public void setW(float w){
-	values[3] = w;
+	    values[3] = w;
     }
 
     public float getX(){
@@ -59,11 +53,11 @@ public class Vector4
     }
 
     public float getY(){
-	return values[1];
+	    return values[1];
     }
 
     public float getZ(){
-	return values[2];
+	    return values[2];
     }
 
     public float getW(){
@@ -88,15 +82,6 @@ public class Vector4
 
     public Vector4 add(float otherX, float otherY, float otherZ, float otherW){
         return this.add(new Vector4(otherX, otherY, otherZ, otherW));
-    }
-
-    public float[] getNewFloats(){
-        float x = getX();
-        float y = getY();
-        float z = getZ();
-        float w = getW();
-
-        return new Vector4(x, y, z, w).values;
     }
 
     public Vector3 toVector3(){

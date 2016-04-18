@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 
-import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -9,7 +8,6 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
-import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Gun;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Weapon;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -20,19 +18,20 @@ import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+
 /**
- * Created by Albin on 11/03/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 11/03/2016.
  */
 public class VehicleAirplaneBox extends AbstractVehicle{
-	private Weapon weaponLeft;
-	private Weapon weaponRight;
+	private final Weapon weaponLeft;
+	private final Weapon weaponRight;
 	private final float MAX_HEALTH = 10000;
-	private float health = MAX_HEALTH;
-	private final float DAMAGE_RESISTANCE = 1000;
 
 	public VehicleAirplaneBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game, String playerName){
 		//TODO, add constants
-		super(position, 1000.0f, 20000.0f, physics, game, 20000, playerName);
+		super(position, 1100.0f, 18000.0f, physics, game, 20000, playerName);
 		setup(shaderProgram, physics);
 		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game, playerName + "'s left gun");
 		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game, playerName + "'s right gun");
@@ -46,17 +45,17 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 	public void handleInput(float deltaTime){
 
 
-		//TODO: byta ut allt mot global modelMatrix
-		float deltaTrottle = 0.0f;
+
+		float deltaThrottle = 0.0f;
 		float yawValue = 0;
 		float pitchValue = 0;
 		float rollValue = 0;
 
 		InputHandler input = InputHandler.getInstance();
 		if(input.isPressed(GLFW_KEY_W))
-			deltaTrottle += 1;
+			deltaThrottle += 1;
 		if(input.isPressed(GLFW_KEY_S))
-			deltaTrottle -= 1;
+			deltaThrottle -= 1;
 
 		if(input.isPressed(GLFW_KEY_A))
 			yawValue += 1;
@@ -78,46 +77,49 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 			weaponRight.fire(deltaTime);
 		}
 
-		calcAerodynamics(deltaTrottle, yawValue, pitchValue, rollValue, deltaTime);
+		calcAerodynamics(deltaThrottle, yawValue, pitchValue, rollValue, deltaTime);
 	}
 
-	private void calcAerodynamics(float deltaTrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-		final float throttleSensetivity = 500.0f;
-		final float yawSensetivity = 500.0f;    //N/m
-		final float pitchSensetivity = 500.0f;
-		final float rollSensetivity = 500.0f;
+	private void calcAerodynamics(float deltaThrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
+		final float throttleSensitivity = 1000.0f;
+		final float yawSensitivity 		= 1000.0f;    //N/m
+		final float pitchSensitivity 	= 1000.0f;
+		final float rollSensitivity 	= 1000.0f;
 
-		changeThrottle(deltaTrottle * throttleSensetivity * deltaTime);
+		changeThrottle(deltaThrottle * throttleSensitivity * deltaTime);
 
 		float lift = throttle * THRUST_FACTOR;
 		Matrix4x4 modelMatrix = partBody.getMatrix();
 
 		Matrix4x4 partMatrix = partBody.getMatrix();
-		Vector3 aeroForce = new Vector3(0, 0, -lift);
-		aeroForce = modelMatrix.multiply(aeroForce, false);//
+		Vector3 thrustForce = new Vector3(0, 0, -lift);
+		thrustForce = modelMatrix.multiply(thrustForce, false);//
 
-		Vector3 forcePoint = new Vector3(0, 0, 0);
-		forcePoint = modelMatrix.multiply(forcePoint, false);
+		Vector3 thrustForcePoint = new Vector3(0, 0, 0);
+		thrustForcePoint = modelMatrix.multiply(thrustForcePoint, false);
 
-		Vector3f linearVelocity = new Vector3f();
-		partBody.getPhysicsObject().getLinearVelocity(linearVelocity);
-		Vector3 v = new Vector3(-25, -100, -0.25f);
-		Vector3 linearResistence = new Vector3(linearVelocity);
-		linearResistence = linearResistence.multiply(linearResistence.abs());
-		linearResistence = linearResistence.multiply(v);
+		Vector3f linearVelocity3f = new Vector3f();
+		partBody.getPhysicsObject().getLinearVelocity(linearVelocity3f);
+		Vector3 v = new Vector3(-128, -512, -0.1f);
+		Vector3 linearVelocity = new Vector3(linearVelocity3f);
+		Vector3 relativeLinearResistance = modelMatrix.multiply(linearVelocity, false);
+		relativeLinearResistance = relativeLinearResistance.multiply(relativeLinearResistance.abs());
+
+		relativeLinearResistance = relativeLinearResistance.multiply(v);
+		Vector3 linearResistance = partBody.getInvertedMatrix().multiply(relativeLinearResistance, false);
 
 
 		Vector3f angularVelocity = new Vector3f();
 		partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
-		Vector3 angularResistence = new Vector3(angularVelocity);
-		angularResistence = angularResistence.multiply(angularResistence.abs()).multiply(new Vector3(-10000.0f, -10000.0f, -10000.0f));
+		Vector3 angularResistance = new Vector3(angularVelocity);
+		angularResistance = angularResistance.multiply(angularResistance.abs()).multiply(new Vector3(-10000.0f, -10000.0f, -10000.0f));
 
-		Vector3 torque = new Vector3(-pitchValue * pitchSensetivity, yawValue * yawSensetivity, -rollValue * rollSensetivity);
+		Vector3 torque = new Vector3(-pitchValue * pitchSensitivity, yawValue * yawSensitivity, -rollValue * rollSensitivity);
 		torque = partMatrix.multiply(torque, false);
 
-		partBody.getPhysicsObject().applyForce(aeroForce.toVector3f(), forcePoint.toVector3f());
-		partBody.getPhysicsObject().applyForce(linearResistence.toVector3f(), modelMatrix.multiply(new Vector3(0, 0, 0.0f), false).toVector3f());
-		partBody.getPhysicsObject().applyTorque(angularResistence.toVector3f());
+		partBody.getPhysicsObject().applyForce(thrustForce.toVector3f(), thrustForcePoint.toVector3f());
+		partBody.getPhysicsObject().applyForce(linearResistance.toVector3f(), modelMatrix.multiply(new Vector3(0, 0, 0.0f), false).toVector3f());
+		partBody.getPhysicsObject().applyTorque(angularResistance.toVector3f());
 		partBody.getPhysicsObject().applyTorque(torque.toVector3f());
 		partBody.getPhysicsObject().activate();
 	}
@@ -186,10 +188,10 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 
 	}
 
-	@Override public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
-		super.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
-		weaponLeft.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
-		weaponRight.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+	@Override public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId){
+		super.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
+		weaponLeft.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
+		weaponRight.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
 	}
 
 	@Override

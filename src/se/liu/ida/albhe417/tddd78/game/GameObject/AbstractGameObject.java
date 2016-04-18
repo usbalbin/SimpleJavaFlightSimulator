@@ -10,57 +10,57 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Project TDDD78
+ *
+ * File created by Albin.
+ */
 public abstract class AbstractGameObject
 {
     //protected Vector3 position;
     //protected float yaw, pitch, roll;
     protected Matrix4x4 modelMatrix;
-    protected DynamicsWorld physics;
-    protected Game game;
-    protected final float MAX_HEALTH;
-    protected final float DAMAGE_RESISTANCE;
-    protected float health;
-    public AtomicInteger score;
-    public String playerName;
+    private final DynamicsWorld physics;
+    protected final Game game;
+    private final float DAMAGE_RESISTANCE;
+    private float health;
+    public final AtomicInteger score;
+    public final String playerName;
     public AbstractGameObject killedBy;
 
     protected List<GameObjectPart> parts;
 
-    public AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String playerName){
+    protected AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String playerName){
         modelMatrix = new Matrix4x4();
         modelMatrix = modelMatrix.getTranslated(position);
         this.physics = physics;
         this.game = game;
-        this.MAX_HEALTH = this.health = maxHealth;
+        this.health = maxHealth;
         this.DAMAGE_RESISTANCE = maxHealth / 10;
         this.score = new AtomicInteger(0);
         this.playerName = playerName;
     }
 
 
-    public void update(float deltaTime){
-
+    public void hitAction(){
+        if(shouldDie())
+            destroy();
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPmatrixId, int modelMatrixId){
+    public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId){
 
         for(GameObjectPart part : parts){
-            part.draw(cameraMatrix, MVPmatrixId, modelMatrixId);
+            part.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
         }
     }
 
-    public void hitCalculation(ManifoldPoint cp, AbstractGameObject other){health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);}
+    public void hitCalculation(ManifoldPoint cp){health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);}
 
     public void hitScore(AbstractGameObject other){
         if(other.shouldDie()) {
             other.killedBy = this;
             this.score.incrementAndGet();
         }
-    }
-
-    public void hit(){
-        if(shouldDie())
-            destroy();
     }
 
     public boolean shouldDie(){
@@ -73,5 +73,5 @@ public abstract class AbstractGameObject
             physics.removeRigidBody(part.getPhysicsObject());
         }
         game.remove(this);
-    };
+    }
 }

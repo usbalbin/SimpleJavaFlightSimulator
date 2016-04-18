@@ -2,7 +2,6 @@ package se.liu.ida.albhe417.tddd78.menu;
 
 import net.miginfocom.swing.MigLayout;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.QuadTree;
 import se.liu.ida.albhe417.tddd78.game.Settings;
 
 import javax.swing.*;
@@ -12,15 +11,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.PrintStream;
 import java.util.Hashtable;
-import java.util.Objects;
 
 /**
- * Created by Albin on 08/04/2016.
+ * Project TDDD78
+ *
+ * File created by Albin on 08/04/2016.
  */
 public class MenuFrame extends JFrame {
-    private Settings settings;
+    private final Settings settings;
     private Game game;
 
 
@@ -60,7 +59,7 @@ public class MenuFrame extends JFrame {
 
     }
 
-    private void setupDrawDistSlider(Object constraints){
+    private void setupDrawDistSlider(String constraints){
         final int min = 512, max = 8192;
         final int defaultValue = 3072;
 
@@ -74,20 +73,17 @@ public class MenuFrame extends JFrame {
         maxDrawDistanceSlider.setLabelTable(labels);
         maxDrawDistanceSlider.setPaintLabels(true);
 
-        ChangeListener sliderListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                float maxDrawDistance = maxDrawDistanceSlider.getValue();
-                settings.setDrawDistance(maxDrawDistance);
-                label.setText("Draw distance: " + maxDrawDistance);
-            }
+        ChangeListener sliderListener = e -> {
+            float maxDrawDistance = maxDrawDistanceSlider.getValue();
+            settings.setDrawDistance(maxDrawDistance);
+            label.setText("Draw distance: " + maxDrawDistance);
         };
         sliderListener.stateChanged(null);
         maxDrawDistanceSlider.addChangeListener(sliderListener);
         this.add(maxDrawDistanceSlider, constraints);
     }
 
-    private void setupQualityFactorSlider(Object constraints){
+    private void setupQualityFactorSlider(String constraints){
         final int min = 50, max = 1000;
         final int defaultValue = 350;
 
@@ -101,20 +97,17 @@ public class MenuFrame extends JFrame {
         qualityFactorSlider.setLabelTable(labels);
         qualityFactorSlider.setPaintLabels(true);
 
-        ChangeListener sliderListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int qualityFactor = qualityFactorSlider.getValue();
-                settings.setDetailFactor(qualityFactor);
-                label.setText("Quality factor: " + qualityFactor);
-            }
+        ChangeListener sliderListener = e -> {
+            int qualityFactor = qualityFactorSlider.getValue();
+            settings.setDetailFactor(qualityFactor);
+            label.setText("Quality factor: " + qualityFactor);
         };
         sliderListener.stateChanged(null);
         qualityFactorSlider.addChangeListener(sliderListener);
         this.add(qualityFactorSlider, constraints);
     }
 
-    private void setupTickPerFrameSlider(Object constraints){
+    private void setupTickPerFrameSlider(String constraints){
         final int min = 1, max = 25;
         final int defaultValue = 10;
 
@@ -128,13 +121,10 @@ public class MenuFrame extends JFrame {
         ticksPerFrameSlider.setLabelTable(labels);
         ticksPerFrameSlider.setPaintLabels(true);
 
-        ChangeListener sliderListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int tickPerFrame = ticksPerFrameSlider.getValue();
-                settings.setTicksPerFrame(tickPerFrame);
-                label.setText("Ticks / frame: " + tickPerFrame);
-            }
+        ChangeListener sliderListener = e -> {
+            int tickPerFrame = ticksPerFrameSlider.getValue();
+            settings.setTicksPerFrame(tickPerFrame);
+            label.setText("Ticks / frame: " + tickPerFrame);
         };
         sliderListener.stateChanged(null);
         ticksPerFrameSlider.addChangeListener(sliderListener);
@@ -143,12 +133,7 @@ public class MenuFrame extends JFrame {
 
     private void setupWireFrameBox(Object constraints){
         JCheckBox wireFrameCheckBox = new JCheckBox("Enable wire frame");
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                settings.setWireFrame(wireFrameCheckBox.isSelected());
-            }
-        };
+        ActionListener listener = e -> settings.setWireFrame(wireFrameCheckBox.isSelected());
         listener.actionPerformed(null);
         wireFrameCheckBox.addActionListener(listener);
         this.add(wireFrameCheckBox, constraints);
@@ -156,12 +141,7 @@ public class MenuFrame extends JFrame {
 
     private void setupThreadingBox(Object constraints){
         JCheckBox threadingCheckBox = new JCheckBox("Multi threading");
-        ChangeListener listener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                settings.setThreaded(threadingCheckBox.isSelected());
-            }
-        };
+        ChangeListener listener = e -> settings.setThreaded(threadingCheckBox.isSelected());
         listener.stateChanged(null);
         threadingCheckBox.addChangeListener(listener);
         this.add(threadingCheckBox, constraints);
@@ -172,14 +152,10 @@ public class MenuFrame extends JFrame {
         JButton startButton = new JButton("Start game");
         startButton.setMnemonic(KeyEvent.VK_ACCEPT);
 
-        ActionListener listener = new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                game = new Game(settings);
-                Thread gameThread = new Thread(game);
-                gameThread.start();
-            }
+        ActionListener listener = e -> {
+            game = new Game(settings);
+            Thread gameThread = new Thread(game);
+            gameThread.start();
         };
         startButton.addActionListener(listener);
         this.add(startButton, constraints);

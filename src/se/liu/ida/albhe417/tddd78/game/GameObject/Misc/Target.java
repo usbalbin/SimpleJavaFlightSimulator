@@ -1,6 +1,5 @@
 package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
 
-import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -19,7 +18,9 @@ import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 
 /**
- * Created by Albin_Hedman on 2016-03-30.
+ * Project TDDD78
+ *
+ * File created by Albin on 2016-03-30.
  */
 public class Target extends AbstractGameObject{
     public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game, String targetName){
