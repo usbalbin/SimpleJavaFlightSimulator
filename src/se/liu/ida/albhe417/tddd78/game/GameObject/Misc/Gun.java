@@ -75,7 +75,7 @@ public class Gun extends Weapon {
         bullets.add(physicsObject);
         physics.addRigidBody(physicsObject);
 
-        float MAX_BULLETS_IN_AIR = 100;
+        float MAX_BULLETS_IN_AIR = 50;
         if(bullets.size() > MAX_BULLETS_IN_AIR)
             physics.removeRigidBody(bullets.pop());
     }

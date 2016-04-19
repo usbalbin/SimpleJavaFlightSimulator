@@ -305,7 +305,13 @@ class QuadTree_MT extends RecursiveAction{
             setHeight(leftBottomPos);
             setHeight(rightBottomPos);
 
-            Vector3 color = new Vector3(0.5f);
+            Vector3 color;
+            if(position.getY() > -250)
+                color = new Vector3(0.9f, 0.9f, 0.9f);
+            else if(position.getY() > -300)
+                color = new Vector3(0, 0.5f, 0);
+            else
+                color = new Vector3(0, 0, 0.5f);
 
 
             if(!isStitched()){
