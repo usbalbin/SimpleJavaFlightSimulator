@@ -31,7 +31,7 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 
 	public VehicleAirplaneBox(final Vector3 position, float yaw, final int shaderProgram, DynamicsWorld physics, Game game, String playerName){
 		//TODO, add constants
-		super(position, 1100.0f, 18000.0f, physics, game, 20000, playerName);
+		super(position, 1100.0f, 36000.0f, physics, game, 20000, playerName);
 		setup(shaderProgram, physics);
 		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, game, playerName + "'s left gun");
 		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, game, playerName + "'s right gun");
@@ -102,11 +102,12 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 		partBody.getPhysicsObject().getLinearVelocity(linearVelocity3f);
 		Vector3 v = new Vector3(-128, -512, -0.1f);
 		Vector3 linearVelocity = new Vector3(linearVelocity3f);
-		Vector3 relativeLinearResistance = modelMatrix.multiply(linearVelocity, false);
-		relativeLinearResistance = relativeLinearResistance.multiply(relativeLinearResistance.abs());
+		Vector3 modelLinearVelocity = modelMatrix.multiply(linearVelocity, false);
 
-		relativeLinearResistance = relativeLinearResistance.multiply(v);
-		Vector3 linearResistance = partBody.getInvertedMatrix().multiply(relativeLinearResistance, false);
+		Vector3 modelLinearResistance = modelLinearVelocity.multiply(modelLinearVelocity.abs());
+		modelLinearResistance = modelLinearResistance.multiply(v);
+
+		Vector3 linearResistance = partBody.getInvertedMatrix().multiply(modelLinearResistance, false);
 
 
 		Vector3f angularVelocity = new Vector3f();
@@ -118,7 +119,7 @@ public class VehicleAirplaneBox extends AbstractVehicle{
 		torque = partMatrix.multiply(torque, false);
 
 		partBody.getPhysicsObject().applyForce(thrustForce.toVector3f(), thrustForcePoint.toVector3f());
-		partBody.getPhysicsObject().applyForce(linearResistance.toVector3f(), modelMatrix.multiply(new Vector3(0, 0, 0.0f), false).toVector3f());
+		partBody.getPhysicsObject().applyCentralForce(linearResistance.toVector3f());
 		partBody.getPhysicsObject().applyTorque(angularResistance.toVector3f());
 		partBody.getPhysicsObject().applyTorque(torque.toVector3f());
 		partBody.getPhysicsObject().activate();

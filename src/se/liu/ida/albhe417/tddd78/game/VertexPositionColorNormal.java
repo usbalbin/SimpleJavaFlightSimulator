@@ -36,6 +36,16 @@ public class VertexPositionColorNormal implements Vertex
         this.normal = normal;
     }
 
+    public static void init(int shaderProgram){
+        int positionIndex = glGetAttribLocation(shaderProgram, "position");
+        int colorIndex = glGetAttribLocation(shaderProgram, "color");
+        int normalIndex = glGetAttribLocation(shaderProgram, "normal");
+
+        VertexPositionColorNormal.POSITION_INDEX 	= positionIndex;
+        VertexPositionColorNormal.COLOR_INDEX		= colorIndex;
+        VertexPositionColorNormal.NORMAL_INDEX		= normalIndex;
+    }
+
     @Override
     public int getFloatCount(){
         return FLOAT_COUNT;

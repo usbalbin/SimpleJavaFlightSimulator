@@ -204,14 +204,7 @@ public class Game implements Runnable
 		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
 		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 
-
-		int positionIndex = glGetAttribLocation(shaderProgram, "position");
-		int colorIndex = glGetAttribLocation(shaderProgram, "color");
-		int normalIndex = glGetAttribLocation(shaderProgram, "normal");
-
-		VertexPositionColorNormal.POSITION_INDEX 	= positionIndex;
-		VertexPositionColorNormal.COLOR_INDEX		= colorIndex;
-		VertexPositionColorNormal.NORMAL_INDEX		= normalIndex;
+		VertexPositionColorNormal.init(shaderProgram);
 	}
 
 	private void setupPhysics(){
@@ -276,7 +269,8 @@ public class Game implements Runnable
 
 	private void respawn(){
 		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
-		currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+		//currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+		currentVehicle = new VehicleAirplaneBox(new Vector3(0, 0, 0), -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
 		gameObjects.add(currentVehicle);
 	}
 
