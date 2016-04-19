@@ -209,9 +209,6 @@ public class Game implements Runnable
 		int colorIndex = glGetAttribLocation(shaderProgram, "color");
 		int normalIndex = glGetAttribLocation(shaderProgram, "normal");
 
-		VertexPositionColor.POSITION_INDEX 			= positionIndex;
-		VertexPositionColor.COLOR_INDEX				= colorIndex;
-
 		VertexPositionColorNormal.POSITION_INDEX 	= positionIndex;
 		VertexPositionColorNormal.COLOR_INDEX		= colorIndex;
 		VertexPositionColorNormal.NORMAL_INDEX		= normalIndex;
