@@ -15,6 +15,7 @@ public class Vector3
     public static final Vector3 UP = new Vector3(0, 1, 0);
     public static final Vector3 BACK = new Vector3(0, 0, 1);
     public static final Vector3 FORWARD = new Vector3(0, 0, -1);
+    public static final Vector3 ZERO = new Vector3(0, 0, 0);
     public static final Vector3 ONE = new Vector3(1, 1, 1);
 
     public final float[] values;

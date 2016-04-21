@@ -53,7 +53,7 @@ public class Gun extends Weapon {
         timeLastShotSec = currTimeSec;
         Matrix4x4 modelMatrix = owner.getModelMatrix();
         Vector3 position = modelMatrix.multiply(offsetPosition, true);
-        float MUZZLE_VELOCITY = 400;
+        float MUZZLE_VELOCITY = 900;
         Vector3 velocity = owner.getDirection().multiply(MUZZLE_VELOCITY);
         velocity.add(owner.getVelocity());
 

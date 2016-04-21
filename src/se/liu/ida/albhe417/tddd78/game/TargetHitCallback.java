@@ -29,8 +29,8 @@ class TargetHitCallback extends ContactProcessedCallback {
         gameObject0.hitScore(gameObject1);
         gameObject1.hitScore(gameObject0);
 
-        gameObject0.hitAction();
-        gameObject1.hitAction();
+        //gameObject0.hitAction();
+        //gameObject1.hitAction();
 
         return true;
     }

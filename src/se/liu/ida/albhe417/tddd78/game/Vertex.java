@@ -5,7 +5,7 @@ package se.liu.ida.albhe417.tddd78.game;
  *
  * File created by Albin on 10/03/2016.
  */
-interface Vertex {
+public interface Vertex {
     int getFloatCount();
 
     float[] getFloats();

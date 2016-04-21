@@ -24,15 +24,12 @@ import org.lwjgl.opengl.GL;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplaneBox;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplane;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import javax.swing.*;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Project TDDD78
@@ -62,7 +59,7 @@ public class Game implements Runnable
 	private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
 	private DynamicsWorld physics;
 
-	private List<AbstractGameObject> gameObjects;
+	private ArrayList<AbstractGameObject> gameObjects;
 	private AbstractVehicle currentVehicle;
 	private TerrainLOD terrain;
 	private int shaderProgram;
@@ -218,7 +215,7 @@ public class Game implements Runnable
 	}
 
 	private void setupGameObjects(){
-		gameObjects = new ArrayList<>(3);
+		gameObjects = new ArrayList<>();
 
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
@@ -226,7 +223,7 @@ public class Game implements Runnable
 		for(int y = 0; y < 4; y++) {
 			for(int x = -2; x < 2; x++) {
 				//gameObjects.add(new ProjectileMesh(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
-				gameObjects.add(new Target(new Vector3(x * 10, 1 + 5 * y, y * 4), shaderProgram, physics, this, x + "; " + y));
+				gameObjects.add(new Target(new Vector3(x * 10, -200, y * 4), shaderProgram, physics, this, x + "; " + y));
 				//gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics, this));
 			}
 		}
@@ -251,26 +248,12 @@ public class Game implements Runnable
 		glUseProgram(0);
 	}
 
-	public void remove(AbstractGameObject gameObject){
-		gameObjects.remove(gameObject);
-		if(gameObject == currentVehicle) {
-			glfwHideWindow(window);
-			if(currentVehicle.killedBy == null)
-				JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
-			else
-				JOptionPane.showMessageDialog(null,
-						"Score: " + currentVehicle.getScore() + "\n" +
-						"Killed by " + currentVehicle.killedBy.playerName
-				);
-			currentVehicle = null;
-			glfwShowWindow(window);
-		}
-	}
-
 	private void respawn(){
 		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
 		//currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
-		currentVehicle = new VehicleAirplaneBox(new Vector3(0, 0, 0), -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+		//currentVehicle = new VehicleAirplaneBox(new Vector3(0, 0, 0), -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+		currentVehicle = new VehicleAirplane(new Vector3(0, 0, 0), physics, this, settings.getPlayerName(), shaderProgram);
+
 		gameObjects.add(currentVehicle);
 	}
 
@@ -288,6 +271,25 @@ public class Game implements Runnable
 
 	}
 
+	private void updateGameObjects(){
+		Iterator<AbstractGameObject> iterator = gameObjects.iterator();
+
+		while(iterator.hasNext()) {
+			AbstractGameObject gameObject = iterator.next();
+			if(gameObject.shouldDie()) {
+				gameObject.destroy();
+
+				if(gameObject == currentVehicle)
+					currentVehicle = null;
+
+				iterator.remove();
+			}
+			else{
+				gameObject.update();
+			}
+		}
+	}
+
     private void update(){
 		final float nanoToSec = 1000000000.0f;
 
@@ -302,6 +304,8 @@ public class Game implements Runnable
 		}
 
 		currentVehicle.handleInput(deltaTime);
+
+
 
 		updateCameraPosition();
 		updateCameraMatrix();
@@ -329,7 +333,7 @@ public class Game implements Runnable
 		}
 		//terrain.hitAction(cameraPosition, cameraMatrix);
 		terrain.updateGraphics();
-
+		updateGameObjects();
     }
 
     private void draw(){
@@ -364,6 +368,7 @@ public class Game implements Runnable
 		}
 		while (gameObjects.size() > 0) {
 			gameObjects.get(0).destroy();
+			gameObjects.remove(0);
 		}
 
 		glfwDestroyWindow(window);

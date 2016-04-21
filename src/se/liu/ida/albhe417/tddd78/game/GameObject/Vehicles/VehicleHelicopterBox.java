@@ -10,6 +10,7 @@ import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Gun;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Weapon;
+import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -36,7 +37,6 @@ public class VehicleHelicopterBox extends AbstractVehicle{
     }
 
     private void setup(final int shaderProgram, DynamicsWorld physics){
-        this.parts = new ArrayList<>();
         setupBody(shaderProgram, physics);
     }
 

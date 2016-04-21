@@ -2,11 +2,13 @@ package se.liu.ida.albhe417.tddd78.game.GameObject;
 
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +31,7 @@ public abstract class AbstractGameObject
     public AbstractGameObject killedBy;
 
     protected List<GameObjectPart> parts;
+    protected List<TypedConstraint> constaints;
 
     protected AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String playerName){
         modelMatrix = new Matrix4x4();
@@ -39,13 +42,10 @@ public abstract class AbstractGameObject
         this.DAMAGE_RESISTANCE = maxHealth / 10;
         this.score = new AtomicInteger(0);
         this.playerName = playerName;
+        this.parts = new ArrayList<>();
+        this.constaints = new ArrayList<>();
     }
 
-
-    public void hitAction(){
-        if(shouldDie())
-            destroy();
-    }
 
     public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId){
 
@@ -72,6 +72,16 @@ public abstract class AbstractGameObject
             part.destroy(physics);
             physics.removeRigidBody(part.getPhysicsObject());
         }
-        game.remove(this);
+
+        constaints.forEach(physics::removeConstraint);
+    }
+
+    public void update(){
+
+    }
+
+    public void addConnection(TypedConstraint constraint){
+        constaints.add(constraint);
+
     }
 }

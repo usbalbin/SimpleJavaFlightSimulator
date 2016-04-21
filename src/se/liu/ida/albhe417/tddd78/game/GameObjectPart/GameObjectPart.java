@@ -1,9 +1,10 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.GameObjectPart;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
+import se.liu.ida.albhe417.tddd78.game.Vertex;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 
 import javax.vecmath.Matrix4f;
@@ -173,6 +174,10 @@ public class GameObjectPart {
         vertices[0].setupVertexAttributes();
 
         glBindVertexArray(0);
+    }
+
+    public void update(){
+
     }
 
     private void vertexToFloatBuffer(Vertex[] vertices) {

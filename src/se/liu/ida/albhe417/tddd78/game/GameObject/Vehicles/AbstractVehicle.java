@@ -5,7 +5,7 @@ import javax.vecmath.Vector3f;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -32,8 +32,6 @@ public abstract class AbstractVehicle extends AbstractGameObject
     }
 
     abstract public void handleInput(float deltaTime);
-
-    abstract public void update(float deltaTime);
 
     public Matrix4x4 getViewMatrix(){
         Matrix4x4 modelMatrix = partBody.getMatrix();

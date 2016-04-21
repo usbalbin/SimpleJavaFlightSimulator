@@ -4,6 +4,7 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
@@ -48,6 +49,5 @@ public class ProjectileMesh extends AbstractGameObject{
     @Override
     public void destroy() {
         parts.forEach(GameObjectPart::destroyGraphics);
-        game.remove(this);
     }
 }
