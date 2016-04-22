@@ -20,7 +20,7 @@ public class Thruster {
     public Thruster(Vector3 offsetPosition, Vector3 direction, float thrustFactor, Wing wingHoldingThruster) {
         this.offsetPosition = offsetPosition;
         this.direction = direction;
-        assert Helpers.fEquals(direction.length2(), 1);
+        assert Helpers.fEquals(direction.length2(), 1) : "Non-normalized direction!";
         this.THRUST_FACTOR = thrustFactor;
         this.wingHoldingThruster = wingHoldingThruster;
     }
@@ -33,6 +33,8 @@ public class Thruster {
 
         Vector3 thrustForce = new Vector3(0, 0, -lift);//direction.multiply(lift);
         thrustForce = wingMatrix.multiply(thrustForce, false);//
+
+        assert Helpers.fEquals(thrustForce.length(), lift) : "Transforming thrust force failed";
 
         //TODO: uncomment
 

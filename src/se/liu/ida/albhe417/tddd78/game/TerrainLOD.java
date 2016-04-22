@@ -10,6 +10,8 @@ import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import javax.swing.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +46,26 @@ public class TerrainLOD extends Terrain {
 
     private void setup() {
         float maxHeight = 256f * 256f * HEIGHT_FACTOR;
+        String fileName = "content/heightmap4k.png";
+        float[] heights = null;
 
-        float[] heights = Helpers.shortImageToFloatHeights("content/heightmap4k.png");
+        try {
+            heights = Helpers.shortImageToFloats(fileName);
+        }catch (IOException e){
+            fileName = JOptionPane.showInputDialog(null,
+                    "Failed to load " + fileName + "\n" +
+                            "please enter working path to image"
+            );
+            try {
+                heights = Helpers.shortImageToFloats(fileName);
+            }catch (IOException ex){
+                JOptionPane.showMessageDialog(null, "Failed to load " + fileName + " with error: " + ex.getMessage());
+                ex.printStackTrace();
+                System.exit(ex.hashCode());
+            }
+        }
+
+
         quadTree = new QuadTree_MT(heights, HEIGHT_FACTOR, maxHeight, settings);
         height = width = quadTree.getHMapSize();
 

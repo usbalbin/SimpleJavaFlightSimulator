@@ -113,7 +113,7 @@ public class GameObjectPart {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(matrixRows * matrixRows);
         for (int row = 0; row < matrixRows; row++)
             for (int column = 0; column < matrixRows; column++)
-                buffer.put(matrix.getValueAt(column, row));
+                buffer.put(matrix.values[row][column]);
         buffer.flip();
 
         glUniformMatrix4fv(matrixId, false, buffer);

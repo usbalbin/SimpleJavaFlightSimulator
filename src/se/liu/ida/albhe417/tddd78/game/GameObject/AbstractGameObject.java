@@ -31,7 +31,7 @@ public abstract class AbstractGameObject
     public AbstractGameObject killedBy;
 
     protected List<GameObjectPart> parts;
-    protected List<TypedConstraint> constaints;
+    protected List<TypedConstraint> constraints;
 
     protected AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String playerName){
         modelMatrix = new Matrix4x4();
@@ -43,7 +43,7 @@ public abstract class AbstractGameObject
         this.score = new AtomicInteger(0);
         this.playerName = playerName;
         this.parts = new ArrayList<>();
-        this.constaints = new ArrayList<>();
+        this.constraints = new ArrayList<>();
     }
 
 
@@ -56,10 +56,9 @@ public abstract class AbstractGameObject
 
     public void hitCalculation(ManifoldPoint cp){health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);}
 
-    public void hitScore(AbstractGameObject other){
-        if(other.shouldDie()) {
-            other.killedBy = this;
-            this.score.incrementAndGet();
+    public void hitRegister(AbstractGameObject other){
+        if(shouldDie() && killedBy == null) {
+            killedBy = other;
         }
     }
 
@@ -72,16 +71,17 @@ public abstract class AbstractGameObject
             part.destroy(physics);
             physics.removeRigidBody(part.getPhysicsObject());
         }
+        if(killedBy != null)
+            killedBy.score.incrementAndGet();
 
-        constaints.forEach(physics::removeConstraint);
+        constraints.forEach(physics::removeConstraint);
     }
 
     public void update(){
-
+        parts.forEach(GameObjectPart::update);
     }
 
     public void addConnection(TypedConstraint constraint){
-        constaints.add(constraint);
-
+        constraints.add(constraint);
     }
 }

@@ -3,7 +3,6 @@ package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.GameObjectPart.Wing;
 import se.liu.ida.albhe417.tddd78.game.InputHandler;
 import se.liu.ida.albhe417.tddd78.game.Thruster;
@@ -11,7 +10,6 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 
 /**
  * Project TDDD78
@@ -27,7 +25,7 @@ public class VehicleAirplane extends AbstractVehicle{
 
 
         float wingThickness = 0.075f;
-        float bodyMass = 100;
+        float bodyMass = 5;
         Vector3 bodySize = new Vector3(0.5f, 1, 6);
 
         Wing body = new Wing(Vector3.ZERO, bodySize, bodyMass, modelMatrix, shaderProgram, physics, this);
@@ -54,12 +52,12 @@ public class VehicleAirplane extends AbstractVehicle{
 
 
 
-        float rudderMass = 1;
-        Vector3 rudderSize = new Vector3(wingThickness, 0.5f, 0.5f);
-        Vector3 rudderPos = new Vector3(0, 2, 7);
+        //float rudderMass = 1;
+        //Vector3 rudderSize = new Vector3(wingThickness, 0.5f, 0.5f);
+        //Vector3 rudderPos = new Vector3(0, 2, 7);
 
-        Wing rudder = new Wing(rudderPos, rudderSize, rudderMass, modelMatrix, shaderProgram, physics, this);
-        TypedConstraint rudderConstraint = rudder.attachToParentFixed(body, Vector3.ZERO, rudderPos, this);
+        //Wing rudder = new Wing(rudderPos, rudderSize, rudderMass, modelMatrix, shaderProgram, physics, this);
+        //TypedConstraint rudderConstraint = rudder.attachToParentFixed(body, Vector3.ZERO, rudderPos, this);
 
 
         final float thrustFactor = 2000;
@@ -73,14 +71,14 @@ public class VehicleAirplane extends AbstractVehicle{
         parts.add(leftMainWing);
         parts.add(rightMainWing);
         parts.add(elevator);
-        parts.add(rudder);
+        //parts.add(rudder);
 
-        constaints.add(leftWingConstraint);
-        constaints.add(rightWingConstraint);
-        constaints.add(elevatorConstraint);
-        constaints.add(rudderConstraint);
+        constraints.add(leftWingConstraint);
+        constraints.add(rightWingConstraint);
+        constraints.add(elevatorConstraint);
+        //constraints.add(rudderConstraint);
 
-        constaints.forEach(physics::addConstraint);
+        constraints.forEach(physics::addConstraint);
     }
 
     @Override
@@ -121,8 +119,6 @@ public class VehicleAirplane extends AbstractVehicle{
 
     @Override
     public void update() {
-        for (GameObjectPart part : parts) {
-            part.update();
-        }
+
     }
 }

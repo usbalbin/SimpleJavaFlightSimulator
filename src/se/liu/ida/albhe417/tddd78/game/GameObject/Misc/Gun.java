@@ -69,7 +69,7 @@ public class Gun extends Weapon {
         RigidBody physicsObject = new RigidBody(BULLET_MASS, motionState, collisionShape, inertia);
         physicsObject.setLinearVelocity(velocity.toVector3f());
         physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
-        physicsObject.setUserPointer(this);
+        physicsObject.setUserPointer(owner);
         physicsObject.setCcdMotionThreshold(BULLET_RADIUS * BULLET_RADIUS);
         physicsObject.setCcdSweptSphereRadius(BULLET_RADIUS * 0.2f);
         bullets.add(physicsObject);
@@ -78,11 +78,6 @@ public class Gun extends Weapon {
         float MAX_BULLETS_IN_AIR = 50;
         if(bullets.size() > MAX_BULLETS_IN_AIR)
             physics.removeRigidBody(bullets.pop());
-    }
-
-    @Override
-    public void reload() {
-
     }
 
     @Override
@@ -99,13 +94,8 @@ public class Gun extends Weapon {
 
     @Override
     public void destroy(){
+        super.destroy();
         projectile.destroy();
         bullets.forEach(physics::removeRigidBody);
-    }
-
-    @Override
-    public void hitScore(AbstractGameObject other) {
-        if(other.shouldDie())
-            owner.score.incrementAndGet();
     }
 }

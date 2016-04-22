@@ -3,7 +3,6 @@ package se.liu.ida.albhe417.tddd78.game;
 import com.bulletphysics.ContactProcessedCallback;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
-import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 
 /**
@@ -26,11 +25,8 @@ class TargetHitCallback extends ContactProcessedCallback {
         gameObject0.hitCalculation(cp);
         gameObject1.hitCalculation(cp);
 
-        gameObject0.hitScore(gameObject1);
-        gameObject1.hitScore(gameObject0);
-
-        //gameObject0.hitAction();
-        //gameObject1.hitAction();
+        gameObject0.hitRegister(gameObject1);
+        gameObject1.hitRegister(gameObject0);
 
         return true;
     }

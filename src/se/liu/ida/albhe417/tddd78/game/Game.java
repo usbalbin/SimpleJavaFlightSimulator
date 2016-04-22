@@ -25,9 +25,11 @@ import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplane;
+import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import javax.swing.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 
@@ -52,7 +54,7 @@ public class Game implements Runnable
 
 	private int lightDirectionId;
 	private Vector3 cameraPosition = new Vector3();
-	private Thread physicsThread;
+	private Thread terrainThread;
 
 
 	private static final float HEIGHT_SCALE = 0.01f;
@@ -86,7 +88,7 @@ public class Game implements Runnable
 
 		long res = glfwInit();
 		if(res != GL_TRUE){
-			throw new RuntimeException("Failed to initialize!");
+			throw new GraphicsInitException("Failed to initialize!");
 		}
 
 		glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
@@ -97,7 +99,7 @@ public class Game implements Runnable
 		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
 
 		if(window == NULL){
-			throw new RuntimeException("Failed to create window");
+			throw new GraphicsInitException("Failed to create window");
 		}
 
 		glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
@@ -156,7 +158,7 @@ public class Game implements Runnable
 		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
 		    glGetShaderInfoLog(vertexShaderRef);
-		    throw new RuntimeException("Failed to compile vertex shader");
+		    throw new GraphicsInitException("Failed to compile vertex shader");
 		}
 
 		//TODO: Make use of normals
@@ -184,7 +186,7 @@ public class Game implements Runnable
 		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
 
-		    throw new RuntimeException("Failed to compile fragment shader");
+		    throw new GraphicsInitException("Failed to compile fragment shader");
 		}
 
 		shaderProgram = glCreateProgram();
@@ -195,7 +197,7 @@ public class Game implements Runnable
 
 		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
 		if(result != GL_TRUE){
-		    throw new RuntimeException("Failed to link shader program");
+		    throw new GraphicsInitException("Failed to link shader program");
 		}
 		MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
 		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
@@ -223,7 +225,7 @@ public class Game implements Runnable
 		for(int y = 0; y < 4; y++) {
 			for(int x = -2; x < 2; x++) {
 				//gameObjects.add(new ProjectileMesh(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
-				gameObjects.add(new Target(new Vector3(x * 10, -200, y * 4), shaderProgram, physics, this, x + "; " + y));
+				gameObjects.add(new Target(new Vector3(x * 25, -200, y * 25), shaderProgram, physics, this, "Target at " + x + "; " + y));
 				//gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics, this));
 			}
 		}
@@ -253,7 +255,6 @@ public class Game implements Runnable
 		//currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
 		//currentVehicle = new VehicleAirplaneBox(new Vector3(0, 0, 0), -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
 		currentVehicle = new VehicleAirplane(new Vector3(0, 0, 0), physics, this, settings.getPlayerName(), shaderProgram);
-
 		gameObjects.add(currentVehicle);
 	}
 
@@ -279,8 +280,15 @@ public class Game implements Runnable
 			if(gameObject.shouldDie()) {
 				gameObject.destroy();
 
-				if(gameObject == currentVehicle)
+				if(gameObject == currentVehicle) {
+					glfwHideWindow(window);
+					JOptionPane.showMessageDialog(null,
+						"Score: " + currentVehicle.getScore() + "\n" +
+						"Killed by " + currentVehicle.killedBy.playerName
+					);
 					currentVehicle = null;
+					glfwShowWindow(window);
+				}
 
 				iterator.remove();
 			}
@@ -297,7 +305,6 @@ public class Game implements Runnable
 		long nowTime = System.nanoTime();
 		float deltaTime = (nowTime - lastTime) / nanoToSec;
 		lastTime = nowTime;
-		//System.out.println(deltaTime);
 
 		if(currentVehicle == null) {
 			respawn();
@@ -312,26 +319,23 @@ public class Game implements Runnable
 
 		boolean isThreaded = settings.isThreaded();
 		if(isThreaded){
-			physicsThread = new Thread(() ->
-				physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep())
+			terrainThread = new Thread(() ->
+				terrain.update(cameraPosition, cameraMatrix)
 			);
-			physicsThread.start();
-
-
+			terrainThread.start();
 		}else {
-			physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
+			terrain.update(cameraPosition, cameraMatrix);
 		}
 
-		terrain.update(cameraPosition, cameraMatrix);
+		physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
 
 		if(isThreaded){
 			try {
-				physicsThread.join();
+				terrainThread.join();
 			}catch (InterruptedException e){
 
 			}
 		}
-		//terrain.hitAction(cameraPosition, cameraMatrix);
 		terrain.updateGraphics();
 		updateGameObjects();
     }
@@ -370,7 +374,7 @@ public class Game implements Runnable
 			gameObjects.get(0).destroy();
 			gameObjects.remove(0);
 		}
-
 		glfwDestroyWindow(window);
+		JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
 	}
 }

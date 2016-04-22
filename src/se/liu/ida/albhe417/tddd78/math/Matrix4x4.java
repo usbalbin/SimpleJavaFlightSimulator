@@ -7,26 +7,22 @@ import javax.vecmath.Matrix4f;
  *
  * File created by Albin.
  */
-public class Matrix4x4 extends AbstractMatrix
-{
+public class Matrix4x4 {
+	public final float[][] values;
 
     public Matrix4x4(float[][] matrixArray){
-		super(matrixArray);
-		if(matrixArray.length != 4)
-			throw new IllegalArgumentException("Wrong sized array");
-		for(float[] row : matrixArray){
-			if(row.length != 4)
-			throw new IllegalArgumentException("Wrong sized array");
-		}
+		assert matrixArray.length == 4 : "Wrong sized array";
+		for(float[] row : matrixArray)
+			assert row.length == 4 : "Wrong sized array";
+
+		this.values = matrixArray;
     }
 
 	public Matrix4x4(Matrix4f matrix){
 		this();
 		float[][] floats = this.values;
-		int j = 0;
 		for(int row = 0; row < 4; row++)
-			//for (int col = 0; col < 4; col++)
-				matrix.getColumn(row, floats[row]);//Res matrix has columns switched with rows
+			matrix.getColumn(row, floats[row]);//Res matrix has columns switched with rows
 	}
 
     public Matrix4x4(){
@@ -34,11 +30,12 @@ public class Matrix4x4 extends AbstractMatrix
     }
 
 	public Matrix4x4(float scale){
-		super(new float[4][4]);
-		values[0] = new float[]{scale, 0, 	  0,	 0	  };
-		values[1] = new float[]{0, 	   scale, 0, 	 0	  };
-		values[2] = new float[]{0, 	   0, 	  scale, 0	  };
-		values[3] = new float[]{0, 	   0, 	  0, 	 scale};
+		this(new float[4][4]);
+
+		this.values[0] = new float[]{scale, 0, 	  0,	 0	  };
+		this.values[1] = new float[]{0, 	   scale, 0, 	 0	  };
+		this.values[2] = new float[]{0, 	   0, 	  scale, 0	  };
+		this.values[3] = new float[]{0, 	   0, 	  0, 	 scale};
 	}
 
 	public static Matrix4x4 createTranslation(Vector3 position){
@@ -97,6 +94,7 @@ public class Matrix4x4 extends AbstractMatrix
 		return result;
 	}
 
+	//TODO find out why row and columns are flipped compared to multiply for Vector3
 	public Vector4 multiply(Vector4 other){
 		Vector4 result = new Vector4();
 
@@ -108,10 +106,9 @@ public class Matrix4x4 extends AbstractMatrix
 		return result;
 	}
 
-	//TODO: Remove "vector"?
 	public Vector3 multiply(Vector3 other, boolean isPosition){
 		float w = isPosition ? 1 : 0;
-		Vector4 vector = new Vector4(other.getX(), other.getY(), other.getZ(), w);
+		Vector4 vector = new Vector4(other, w);
 		Vector4 result = new Vector4();
 
 		for(int row = 0; row < 4; row++){
@@ -120,48 +117,6 @@ public class Matrix4x4 extends AbstractMatrix
 			}
 		}
 		return result.toVector3();
-
-	}
-
-
-	public Matrix4x4 getRotatedAboutX(float angle){
-		Matrix4x4 result = new Matrix4x4();
-
-		float sin = (float)Math.sin(angle);
-		float cos = (float)Math.cos(angle);
-
-		result.values[1] = new float[]{0, cos, -sin, 0};
-		result.values[2] = new float[]{0, sin,  cos, 0};
-
-		return this.multiply(result);
-	}
-
-	public Matrix4x4 getRotatedAboutY(float angle){
-		Matrix4x4 result = new Matrix4x4();
-
-		float sin = (float)Math.sin(angle);
-		float cos = (float)Math.cos(angle);
-
-		result.values[0] = new float[]{cos, 0, -sin, 0};
-		result.values[2] = new float[]{sin, 0,  cos, 0};
-
-		return this.multiply(result);
-	}
-
-	public Matrix4x4 getRotatedAboutZ(float angle){
-		Matrix4x4 result = new Matrix4x4();
-
-		float sin = (float)Math.sin(angle);
-		float cos = (float)Math.cos(angle);
-
-		result.values[0] = new float[]{cos, -sin, 0, 0};
-		result.values[1] = new float[]{sin,  cos,  0, 0};
-
-		return this.multiply(result);
-	}
-
-	public Matrix4x4 getRotated(float yaw, float pitch, float roll){
-		return this.getRotatedAboutY(yaw).getRotatedAboutX(pitch).getRotatedAboutZ(roll);
 	}
 
 	public Matrix4x4 getTranslated(Vector3 move){
@@ -178,54 +133,14 @@ public class Matrix4x4 extends AbstractMatrix
 		values[3][2] = position.getZ();
 	}
 
-	//TODO make sure this really works
-	public Matrix4x4 getInverse(){
-		float[][] values = new float[4][4];
-
-		//Flip frustumMatrix
-		for (int row = 0; row < 3; row++) {
-			for (int column = 0; column < 4; column++) {
-				values[row][column] = this.values[column][row];
-			}
-		}
-		values[0][3] = 0;
-		values[1][3] = 0;
-		values[2][3] = 0;
-		values[3][3] = 1;
-
-		Matrix4x4 result = new Matrix4x4(values);
-		Vector4 lastRowIn = new Vector4(-this.values[3][0], -this.values[3][1], -this.values[3][2], this.values[3][3]);
-		Vector4 lastRowRes = result.multiply(lastRowIn);
-		result.values[3] = lastRowRes.values;
-		return result;
-	}
-
 	public Matrix4f toMatrix4f(){
 		float[] floats = new float[16];
 		int j = 0;
 		for(int row = 0; row < 4; row++)
 			for (int col = 0; col < 4; col++)
-				floats[j++] = this.getValueAt(row, col);//Res matrix has columns switched with rows
+				floats[j++] = this.values[col][row];//getValueAt(row, col);//Res matrix has columns switched with rows
 
 		return new Matrix4f(floats);
 	}
 
-	/*public static void main(String[] args) {
-		Matrix4x4 m = new Matrix4x4(
-				new float[][]{
-						{1, 2, 3, 4},
-						{5, 6, 7, 8},
-						{9, 10, 11, 12},
-						{13, 14, 15, 16}
-				}
-		);
-
-		Matrix4x4 n = m.getInverse().getInverse();
-	}*/
-
-	public static void main(String[] args) {
-		Matrix4x4 m = Matrix4x4.createTranslation(new Vector3(1, 1, 1));
-		Vector3 pos = m.multiply(new Vector3(), true);
-		System.out.println(pos);
-	}
 }

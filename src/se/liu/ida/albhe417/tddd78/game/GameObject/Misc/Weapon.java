@@ -18,8 +18,6 @@ public abstract class Weapon extends AbstractGameObject{
     }
 
     abstract public void fire(float currTimeSec);
-    abstract public void reload();
     abstract public boolean noAmmo();
     abstract public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId);
-    abstract public void destroy();
 }

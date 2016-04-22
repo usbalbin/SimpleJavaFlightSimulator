@@ -61,14 +61,4 @@ public class Target extends AbstractGameObject{
         parts = new ArrayList<>(1);
         parts.add(part);
     }
-
-    /*@Override
-    public void hitCalculation(ManifoldPoint cp, AbstractGameObject other){
-
-        if(cp.appliedImpulse > 0.1f) {
-            destroy();
-            System.out.println("Target hit with impulse: " + cp.appliedImpulse);
-        }
-
-    }*/
 }

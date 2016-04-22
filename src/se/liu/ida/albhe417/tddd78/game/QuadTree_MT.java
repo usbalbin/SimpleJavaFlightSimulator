@@ -83,7 +83,6 @@ class QuadTree_MT extends RecursiveAction{
     }
 
     public void update(Vector3 cameraPosition, Matrix4x4 MVPMatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
-        final float detailFactor = QuadTree_MT.detailFactor;
         QuadTree_MT.positionMap.clear();
         QuadTree_MT.cameraPos = cameraPosition;
         QuadTree_MT.MVPMatrix = MVPMatrix;
@@ -91,30 +90,19 @@ class QuadTree_MT extends RecursiveAction{
         QuadTree_MT.maxLevels = settings.getMaxLevels();
         QuadTree_MT.isThreaded = settings.isThreaded();
 
-        long start = System.currentTimeMillis();
         if(isThreaded) {
-            //ForkJoinPool.commonPool().invoke(this);//Generate tree
             workerPool.invoke(this);
 
             this.reinitialize();
         }
         else
             compute();
-        if(start % 100 == 0)
-            System.out.println("Time quadTree.compute() " + (System.currentTimeMillis() - start));
 
-        start = System.currentTimeMillis();
         stitch(null, null, null, null);
-        if(start % 100 == 0)
-            System.out.println("Time quadTree.stitch() " + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
+
         generateVerticesAndIndices(vertices, indices);
-        if(start % 100 == 0)
-            System.out.println("Time quadTree.generateVerticesAndIndices() " + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
+
         calculateNormals(vertices, indices);
-        if(start % 100 == 0)
-            System.out.println("Time quadTree.calculateNormals() " + (System.currentTimeMillis() - start));
 
     }
 
@@ -166,7 +154,7 @@ class QuadTree_MT extends RecursiveAction{
         }
 
         final int halfChildSize = halfSize / 2;
-        final short childLevel = (short)(1 + level);
+        final short childLevel = (short)(level + 1);
 
         if(!hasChildren()) {
             leftFront = new QuadTree_MT(position.add(new Vector3(-halfChildSize, 0, -halfChildSize)), halfSize, childLevel, this);
