@@ -1,13 +1,12 @@
-package se.liu.ida.albhe417.tddd78.menu;
+package se.liu.ida.albhe417.tddd78.gui;
 
 import net.miginfocom.swing.MigLayout;
 import se.liu.ida.albhe417.tddd78.game.Game;
+import se.liu.ida.albhe417.tddd78.game.gameObject.VehicleType;
 import se.liu.ida.albhe417.tddd78.game.Settings;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -28,32 +27,33 @@ public class MenuFrame extends JFrame {
         this.settings = new Settings();
         this.setLayout(new MigLayout(
                 "",
-                "[][grow][]",
+                "[][][grow][][]",
                 "[][][][grow][]"
         ));
 
-        this.add(new JLabel("Some nice text"), "span 3, center, wrap");
+        this.add(new JLabel("Some nice text"), "span 6, center, wrap");
 
-        this.add(new JSeparator(), "span 3, growx, wrap");
+        this.add(new JSeparator(), "span 6, growx, wrap");
 
         setupThreadingBox("");
         setupWireFrameBox("wrap");
 
-        this.add(new JSeparator(), "span 3, growx, wrap");
+        this.add(new JSeparator(), "span 6, growx, wrap");
 
         setupTickPerFrameSlider("");
         setupQualityFactorSlider("center");
         setupDrawDistSlider("wrap");
 
-        this.add(new JSeparator(), "span 3, growx, wrap");
+        this.add(new JSeparator(), "span 6, growx, wrap");
 
-        startButton("gapright unrelated");
-        this.add(new JButton("Help"), "gapright unrelated");
-        this.add(new JButton("Exit"), "right, wrap");
+        startButton("gapright");
+        setupVehicleSelector("");
+        terrainFileChooser("right");
+        helpButton("right");
+        exitButton("right, wrap");
 
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        //this.add(new JTextPane());
         this.pack();
         this.setVisible(true);
 
@@ -61,7 +61,7 @@ public class MenuFrame extends JFrame {
 
     private void setupDrawDistSlider(String constraints){
         final int min = 512, max = 8192;
-        final int defaultValue = 3072;
+        final int defaultValue = (int) settings.getDrawDistance();
 
         JSlider maxDrawDistanceSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
@@ -83,9 +83,22 @@ public class MenuFrame extends JFrame {
         this.add(maxDrawDistanceSlider, constraints);
     }
 
+    private void setupVehicleSelector(String constraints){
+
+        JComboBox<VehicleType> vehicleSelector = new JComboBox<>(VehicleType.values());
+
+        ActionListener listener = e -> {
+            settings.setVehicleType((VehicleType) vehicleSelector.getSelectedItem());
+        };
+
+        vehicleSelector.addActionListener(listener);
+        vehicleSelector.setSelectedItem(settings.getVehicleType());
+        this.add(vehicleSelector, constraints);
+    }
+
     private void setupQualityFactorSlider(String constraints){
         final int min = 50, max = 1000;
-        final int defaultValue = 350;
+        final int defaultValue = settings.getDetailFactor();
 
         JSlider qualityFactorSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
@@ -109,7 +122,7 @@ public class MenuFrame extends JFrame {
 
     private void setupTickPerFrameSlider(String constraints){
         final int min = 1, max = 25;
-        final int defaultValue = 10;
+        final int defaultValue = settings.getTicksPerFrame();
 
         JSlider ticksPerFrameSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
@@ -131,7 +144,7 @@ public class MenuFrame extends JFrame {
         this.add(ticksPerFrameSlider, constraints);
     }
 
-    private void setupWireFrameBox(Object constraints){
+    private void setupWireFrameBox(String constraints){
         JCheckBox wireFrameCheckBox = new JCheckBox("Enable wire frame");
         ActionListener listener = e -> settings.setWireFrame(wireFrameCheckBox.isSelected());
         listener.actionPerformed(null);
@@ -139,15 +152,15 @@ public class MenuFrame extends JFrame {
         this.add(wireFrameCheckBox, constraints);
     }
 
-    private void setupThreadingBox(Object constraints){
+    private void setupThreadingBox(String constraints){
         JCheckBox threadingCheckBox = new JCheckBox("Multi threading");
+        threadingCheckBox.setSelected(settings.isThreaded());
         ChangeListener listener = e -> settings.setThreaded(threadingCheckBox.isSelected());
-        listener.stateChanged(null);
         threadingCheckBox.addChangeListener(listener);
         this.add(threadingCheckBox, constraints);
     }
 
-    private void startButton(Object constraints){
+    private void startButton(String constraints){
 
         JButton startButton = new JButton("Start game");
         startButton.setMnemonic(KeyEvent.VK_ACCEPT);
@@ -159,6 +172,39 @@ public class MenuFrame extends JFrame {
         };
         startButton.addActionListener(listener);
         this.add(startButton, constraints);
+    }
+
+    private void helpButton(String constraints){
+
+        JButton helpButton = new JButton("Help");
+
+        ActionListener listener = e -> {
+            JOptionPane.showMessageDialog(this, "Steer with W,A,S,D and arrows");
+        };
+        helpButton.addActionListener(listener);
+
+        this.add(helpButton, constraints);
+    }
+
+    private void exitButton(String constraints){
+        JButton exitButton = new JButton("Exit");
+
+        exitButton.addActionListener(e ->
+            System.exit(0)
+        );
+
+        this.add(exitButton, constraints);
+    }
+
+    private void terrainFileChooser(String constraints){
+        JButton selectTerrainButton = new JButton("Select terrain");
+
+        selectTerrainButton.addActionListener(e ->
+            settings.loadImage()
+        );
+        this.add(selectTerrainButton, constraints);
+
+
     }
 
     public static void main(String[] args) {

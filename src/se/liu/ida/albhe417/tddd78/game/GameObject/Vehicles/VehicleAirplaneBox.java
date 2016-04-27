@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles;
+package se.liu.ida.albhe417.tddd78.game.gameObject.vehicles;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -8,14 +8,13 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.*;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Gun;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Weapon;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.gameObject.misc.Gun;
+import se.liu.ida.albhe417.tddd78.game.gameObject.misc.Weapon;
+import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Vector3f;
-import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 

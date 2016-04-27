@@ -1,8 +1,8 @@
-package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
+package se.liu.ida.albhe417.tddd78.game.gameObject.misc;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -13,8 +13,8 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  */
 public abstract class Weapon extends AbstractGameObject{
 
-    Weapon(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String gunName){
-        super(position, physics, game, maxHealth, gunName);
+    Weapon(Vector3 position, DynamicsWorld physics, Game game, String gunName){
+        super(position, physics, game, Float.POSITIVE_INFINITY, gunName);
     }
 
     abstract public void fire(float currTimeSec);

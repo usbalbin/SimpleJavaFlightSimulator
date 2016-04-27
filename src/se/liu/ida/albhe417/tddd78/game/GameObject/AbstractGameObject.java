@@ -1,10 +1,10 @@
-package se.liu.ida.albhe417.tddd78.game.GameObject;
+package se.liu.ida.albhe417.tddd78.game.gameObject;
 
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -23,10 +23,9 @@ public abstract class AbstractGameObject
     //protected float yaw, pitch, roll;
     protected Matrix4x4 modelMatrix;
     private final DynamicsWorld physics;
-    protected final Game game;
     private final float DAMAGE_RESISTANCE;
     private float health;
-    public final AtomicInteger score;
+    protected final AtomicInteger score;
     public final String playerName;
     public AbstractGameObject killedBy;
 
@@ -37,7 +36,6 @@ public abstract class AbstractGameObject
         modelMatrix = new Matrix4x4();
         modelMatrix = modelMatrix.getTranslated(position);
         this.physics = physics;
-        this.game = game;
         this.health = maxHealth;
         this.DAMAGE_RESISTANCE = maxHealth / 10;
         this.score = new AtomicInteger(0);
@@ -84,4 +82,5 @@ public abstract class AbstractGameObject
     public void addConnection(TypedConstraint constraint){
         constraints.add(constraint);
     }
+
 }

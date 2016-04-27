@@ -1,6 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart.Wing;
+import se.liu.ida.albhe417.tddd78.game.gameObjectPart.Wing;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 

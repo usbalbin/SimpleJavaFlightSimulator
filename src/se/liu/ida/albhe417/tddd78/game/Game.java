@@ -21,11 +21,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
-import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Misc.Target;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleAirplane;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.VehicleHelicopterBox;
+import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.gameObject.misc.Target;
+import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleAirplane;
+import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleAirplaneBox;
+import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -43,8 +44,8 @@ public class Game implements Runnable
 	private final Settings settings;
 
 	private long window;//Reference to window
-	GLFWWindowSizeCallback windowSizeCallback;
-	GLFWErrorCallback errorCallback;
+	private GLFWWindowSizeCallback windowSizeCallback;
+	private GLFWErrorCallback errorCallback;
 
     private static final String TITLE = "Simple Java Flight Simulator";
 
@@ -222,11 +223,9 @@ public class Game implements Runnable
 		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
 		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
 
-		for(int y = 0; y < 4; y++) {
-			for(int x = -2; x < 2; x++) {
-				//gameObjects.add(new ProjectileMesh(new Vector3(x * 10, 2 + 5 * y, y * 4), new Vector3(), shaderProgram, physics, this));
-				gameObjects.add(new Target(new Vector3(x * 25, -200, y * 25), shaderProgram, physics, this, "Target at " + x + "; " + y));
-				//gameObjects.add(new VehicleHelicopterBox(new Vector3(x * 10 + 2, 1 + 5 * y, y * 4), -(float) Math.PI / 2.0f, shaderProgram, physics, this));
+		for(int y = -4; y < 4; y++) {
+			for(int x = -4; x < 4; x++) {
+				gameObjects.add(new Target(new Vector3(x * 250, 140, y * 250), shaderProgram, physics, this, "Target at " + x + "; " + y));
 			}
 		}
 		//gameObjects.add(terrain);
@@ -251,10 +250,19 @@ public class Game implements Runnable
 	}
 
 	private void respawn(){
-		final Vector3 spawnPos = new Vector3(0, -307, 0);//new Vector3(-225, /*-316.1f*/0, 20);
-		//currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
-		//currentVehicle = new VehicleAirplaneBox(new Vector3(0, 0, 0), -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
-		currentVehicle = new VehicleAirplane(new Vector3(0, 0, 0), physics, this, settings.getPlayerName(), shaderProgram);
+		final Vector3 spawnPos = new Vector3(0, 130, 0);//new Vector3(0, -307, 0);
+
+		switch (settings.getVehicleType()) {
+			case HelicopterBox:
+				currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+				break;
+			case AirplaneBox:
+				currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+				break;
+			case Airplane:
+				currentVehicle = new VehicleAirplane(spawnPos, physics, this, settings.getPlayerName(), shaderProgram);
+				break;
+		}
 		gameObjects.add(currentVehicle);
 	}
 

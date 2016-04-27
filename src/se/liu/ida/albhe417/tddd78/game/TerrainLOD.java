@@ -6,12 +6,10 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
-import se.liu.ida.albhe417.tddd78.game.GameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
-import javax.swing.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class TerrainLOD extends Terrain {
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 
-    private QuadTree_MT quadTree;
+    private QuadTree quadTree;
 
     private int[] indexArray;
     private VertexPositionColorNormal[] vertexArray;
@@ -34,7 +32,10 @@ public class TerrainLOD extends Terrain {
 
     private static final int MAX_EXPECTED_VERTEX_COUNT = 100000;
 
-    public TerrainLOD(Vector3 position, final float heightFactor, Settings settings, final int shaderProgram, DynamicsWorld physics, Game game) {
+    public TerrainLOD(
+        Vector3 position, final float heightFactor,
+        Settings settings, final int shaderProgram, DynamicsWorld physics, Game game
+    ) {
         super(position, heightFactor, shaderProgram, physics, game);
         this.settings = settings;
         this.vertexArray = new VertexPositionColorNormal[MAX_EXPECTED_VERTEX_COUNT];
@@ -45,37 +46,23 @@ public class TerrainLOD extends Terrain {
     }
 
     private void setup() {
-        float maxHeight = 256f * 256f * HEIGHT_FACTOR;
-        String fileName = "content/heightmap4k.png";
-        float[] heights = null;
-
-        try {
-            heights = Helpers.shortImageToFloats(fileName);
-        }catch (IOException e){
-            fileName = JOptionPane.showInputDialog(null,
-                    "Failed to load " + fileName + "\n" +
-                            "please enter working path to image"
-            );
-            try {
-                heights = Helpers.shortImageToFloats(fileName);
-            }catch (IOException ex){
-                JOptionPane.showMessageDialog(null, "Failed to load " + fileName + " with error: " + ex.getMessage());
-                ex.printStackTrace();
-                System.exit(ex.hashCode());
-            }
-        }
+        Heightmap heightmap;
 
 
-        quadTree = new QuadTree_MT(heights, HEIGHT_FACTOR, maxHeight, settings);
-        height = width = quadTree.getHMapSize();
+        heightmap = new Heightmap(settings.getTerrainImage());
 
-        this.parts = new ArrayList<>(1);
+        quadTree = new QuadTree(heightmap, settings);
+        height = width = heightmap.SIZE;
+
+        this.parts = new ArrayList<>();
         partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERTEX_COUNT, new VertexPositionColorNormal());
         this.parts.add(partMain);
+
         //Physics
         MotionState motionState = new DefaultMotionState();
         CollisionShape shape = new HeightfieldTerrainShape(
-                width, height, heights, HEIGHT_FACTOR, 0, maxHeight, 1, true
+            width, height, heightmap.getHeights(),
+            heightmap.HEIGHT_FACTOR, heightmap.MIN_HEIGHT, heightmap.MAX_HEIGHT, 1, true
         );
 
         RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);

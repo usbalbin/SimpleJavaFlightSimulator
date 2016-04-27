@@ -12,14 +12,14 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
  */
 public class VertexPositionColorNormal implements Vertex
 {
-    public static int POSITION_INDEX;
-    public static int COLOR_INDEX;
-    public static int NORMAL_INDEX;
+    private static int POSITION_INDEX;
+    private static int COLOR_INDEX;
+    private static int NORMAL_INDEX;
 
-    public static final int FLOATS_PER_VECTOR = 3;
-    public static final int FLOAT_COUNT = FLOATS_PER_VECTOR * 3;
+    private static final int FLOATS_PER_VECTOR = 3;
+    private static final int FLOAT_COUNT = FLOATS_PER_VECTOR * 3;
     public Vector3 position;
-    public Vector3 color;
+    private Vector3 color;
     public Vector3 normal;
 
     public VertexPositionColorNormal(){}

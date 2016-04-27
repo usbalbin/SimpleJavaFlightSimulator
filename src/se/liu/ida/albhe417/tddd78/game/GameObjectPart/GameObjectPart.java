@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.GameObjectPart;
+package se.liu.ida.albhe417.tddd78.game.gameObjectPart;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;

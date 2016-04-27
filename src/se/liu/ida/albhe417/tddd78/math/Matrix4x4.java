@@ -127,12 +127,6 @@ public class Matrix4x4 {
 		return new Vector3(values[3][0], values[3][1], values[3][2]);//Vector3(values[0][3], values[1][3], values[2][3]);
 	}
 
-	public void setPosition(Vector3 position){
-		values[3][0] = position.getX();
-		values[3][1] = position.getY();
-		values[3][2] = position.getZ();
-	}
-
 	public Matrix4f toMatrix4f(){
 		float[] floats = new float[16];
 		int j = 0;

@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.GameObjectPart;
+package se.liu.ida.albhe417.tddd78.game.gameObjectPart;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -8,19 +8,12 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.dynamics.constraintsolver.*;
-import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.InputHandler;
-import se.liu.ida.albhe417.tddd78.game.Thruster;
+import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Vector3f;
-
-import java.util.List;
-
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 
 /**
  * Project TDDD78
@@ -43,7 +36,7 @@ public class Wing extends GameObjectPart {
         Transform parentConnection   = new Transform(Matrix4x4.createTranslation(new Vector3(parentConnectionPoint)).toMatrix4f());
         Transform thisConnection     = new Transform(Matrix4x4.createTranslation(new Vector3(thisConnectionPoint)).toMatrix4f());
 
-        Generic6DofConstraint constraint = new Generic6DofConstraint(parent.getPhysicsObject(), this.getPhysicsObject(), parentConnection, thisConnection, false);
+        Generic6DofConstraint constraint = new Generic6DofConstraint(parent.getPhysicsObject(), this.getPhysicsObject(), thisConnection, parentConnection, false);
 
         final Vector3f zero = Vector3.ZERO.toVector3f();
         constraint.setAngularLowerLimit(zero);

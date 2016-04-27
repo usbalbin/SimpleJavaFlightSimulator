@@ -41,6 +41,10 @@ public class Vector3
 	    setX(x);setY(y);setZ(z);
     }
 
+    public static Vector3 createColor(int r, int g, int b){
+        return new Vector3(r / 256f, g / 256f, b / 256f);
+    }
+
     public Vector3(float[] values) {
 	    if(values.length != 3)
 	        throw new IllegalArgumentException("Wrong sized array");

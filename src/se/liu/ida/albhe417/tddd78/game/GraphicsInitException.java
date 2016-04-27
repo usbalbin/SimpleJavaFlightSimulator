@@ -5,7 +5,7 @@ package se.liu.ida.albhe417.tddd78.game;
  * <p>
  * File created by Albin on 22/04/2016.
  */
-public class GraphicsInitException extends RuntimeException {
+class GraphicsInitException extends RuntimeException {
     public GraphicsInitException(String message){
         super(message);
     }

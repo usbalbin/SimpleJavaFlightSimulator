@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.GameObject.Misc;
+package se.liu.ida.albhe417.tddd78.game.gameObject.misc;
 
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.shapes.SphereShape;
@@ -8,8 +8,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.GameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.GameObject.Vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -35,7 +34,7 @@ public class Gun extends Weapon {
     private final ProjectileMesh projectile;
 
     public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game, String playerName){
-        super(offsetPosition, physics, game, Float.POSITIVE_INFINITY, playerName);
+        super(offsetPosition, physics, game, playerName);
         this.offsetPosition = offsetPosition;
         this.FIRE_RATE = 0.1f; //= 1/shots per sec
         this.owner = owner;
