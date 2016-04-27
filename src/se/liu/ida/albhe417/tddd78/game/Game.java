@@ -122,12 +122,11 @@ public class Game implements Runnable
 		GL.createCapabilities();
 
 
-		glClearColor(1.0f, 0.6f, 0.75f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.75f, 1.0f);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-
-		//TODO: Add culling stuff
+		
     }
 
 	private void setupShaders(){
