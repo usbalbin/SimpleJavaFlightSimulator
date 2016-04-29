@@ -99,7 +99,10 @@ class QuadTree {
 
         protected void compute(){
             final int halfSize = size / 2;
-            leftStitchPnt = frontStitchPnt = rightStitchPnt = bottomStitchPnt = false;
+            leftStitchPnt = false;
+            frontStitchPnt = false;
+            rightStitchPnt = false;
+            bottomStitchPnt = false;
 
 
             Vector3 center = position;
@@ -622,8 +625,10 @@ class QuadTree {
             final float rockGrassLine = 30;
             final float grassWaterLine = 4;
 
+            final float yOffset = heightmap.maxHeight / 2.0f;
+
             float percentOfMaxHeight = Helpers.map(
-                    position.getY() + heightmap.maxHeight / 2.0f,
+                    position.getY() + yOffset,
                     heightmap.minHeight, heightmap.maxHeight,
                     0, 100
             );

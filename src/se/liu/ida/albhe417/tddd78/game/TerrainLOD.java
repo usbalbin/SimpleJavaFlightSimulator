@@ -81,7 +81,8 @@ public class TerrainLOD extends Terrain {
         quadTree.update(cameraPos, cameraMatrix, vertices, indices);
 
         if(vertices.size() > vertexArray.length) {
-            vertexArray = new VertexPositionColorNormal[(int)(vertices.size() * 1.1)];
+            final float tenPercent = 1.1f;
+            vertexArray = new VertexPositionColorNormal[(int)(vertices.size() * tenPercent)];
             System.out.println("Warning had to expand vertex array!!!");
         }
         vertices.toArray(vertexArray);

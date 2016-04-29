@@ -160,7 +160,8 @@ public class Settings {
     }
 
     private void setPreferredTimeStep(){
-        setFloat(1/60.0f/ticksPerFrame.get(), this.preferredTimeStep);
+        final float tickToTimeStep = 1/60.0f;
+        setFloat(tickToTimeStep/ticksPerFrame.get(), this.preferredTimeStep);
     }
 
     public boolean isWireFrame() {

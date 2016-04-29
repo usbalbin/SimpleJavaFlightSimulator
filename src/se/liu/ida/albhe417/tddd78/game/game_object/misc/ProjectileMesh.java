@@ -8,6 +8,7 @@ import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Project TDDD78
@@ -26,8 +27,8 @@ public class ProjectileMesh extends AbstractGameObject{
         Vector3 color = new Vector3(1, 1, 0);
         int qualityFactor = 4;
 
-        ArrayList<VertexPositionColorNormal> vertices = new ArrayList<>();
-        ArrayList<Integer> indices = new ArrayList<>();
+        Collection<VertexPositionColorNormal> vertices = new ArrayList<>();
+        Collection<Integer> indices = new ArrayList<>();
 
         Helpers.createNormalSphere(vertices, indices, radius, color, qualityFactor);
 

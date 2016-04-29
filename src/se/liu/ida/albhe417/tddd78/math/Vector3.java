@@ -42,7 +42,8 @@ public class Vector3
     }
 
     public static Vector3 createColor(int r, int g, int b){
-        return new Vector3(r / 256f, g / 256f, b / 256f);
+        final float hexToFloat = 256f;
+        return new Vector3(r / hexToFloat, g / hexToFloat, b / hexToFloat);
     }
 
     public Vector3(float[] values) {

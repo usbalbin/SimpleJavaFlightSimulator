@@ -128,7 +128,7 @@ public class Matrix4x4 {
 	}
 
 	public Matrix4f toMatrix4f() {
-	    float[] floats = new float[16];
+	    float[] floats = new float[4 * 4];
 	    int j = 0;
 	    for (int row = 0; row < 4; row++)
 		for (int col = 0; col < 4; col++){

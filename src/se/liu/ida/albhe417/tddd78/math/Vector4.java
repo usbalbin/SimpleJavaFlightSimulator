@@ -33,7 +33,8 @@ public class Vector4
     }
 
     public static Vector4 createColor(int r, int g, int b, int a){
-        return new Vector4(r / 256f, g / 256f, b / 256f, a / 256f);
+        final float hexToFloat = 256f;
+        return new Vector4(r / hexToFloat, g / hexToFloat, b / hexToFloat, a / hexToFloat);
     }
 
 

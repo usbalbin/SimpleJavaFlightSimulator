@@ -19,8 +19,6 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import javax.vecmath.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 
 abstract public class AbstractVehicleBox extends AbstractVehicle {
     private final Weapon weaponLeft;

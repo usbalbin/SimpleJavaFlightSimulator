@@ -3,7 +3,6 @@ package se.liu.ida.albhe417.tddd78.game;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Project TDDD78
@@ -16,9 +15,12 @@ public class Helpers {
         if(radius <= 0)
             throw new IllegalArgumentException("A sphere should have a radius > 0");
 
+        final float twoPi = 2.0f * (float)Math.PI;
+        final float halfPi = (float)Math.PI / 2.0f;
+
         float step = (float)Math.PI / qualityFactor;
-        for(float pitch = 0; pitch < 2.0f * (float)Math.PI; pitch += step){
-            for(float yaw = -(float)Math.PI / 2.0f; yaw <= (float)Math.PI / 2.0f; yaw += step){
+        for(float pitch = 0; pitch < twoPi; pitch += step){
+            for(float yaw = -halfPi; yaw <= halfPi; yaw += step){
 
                 Vector3 position = new Vector3(0, radius, 0).getRotatedAroundX(pitch).getRotatedAroundY(yaw);
                 vertices.add(new VertexPositionColorNormal(position, color, position));
