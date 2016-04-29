@@ -91,7 +91,7 @@ public class VehicleAirplane extends AbstractVehicle{
         final Vector3 thrustDirection = new Vector3(0, 0, -1);
         final Vector3 thrusterPosition = new Vector3(0, bodySize.getY(), -bodySize.getZ());
 
-        thruster = new Thruster(thrusterPosition, thrustDirection, thrustFactor, body);
+        thruster = new Thruster(thrustDirection, thrustFactor, body);
 
         setPartBody(body);
         parts.add(partBody);

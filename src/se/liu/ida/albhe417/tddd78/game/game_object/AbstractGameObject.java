@@ -3,7 +3,6 @@ package se.liu.ida.albhe417.tddd78.game.game_object;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
-import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -32,7 +31,7 @@ public abstract class AbstractGameObject
     protected List<GameObjectPart> parts;
     protected List<TypedConstraint> constraints;
 
-    protected AbstractGameObject(Vector3 position, DynamicsWorld physics, Game game, float maxHealth, String playerName){
+    protected AbstractGameObject(Vector3 position, DynamicsWorld physics, float maxHealth, String playerName){
         modelMatrix = new Matrix4x4();
         modelMatrix = modelMatrix.getTranslated(position);
         this.physics = physics;

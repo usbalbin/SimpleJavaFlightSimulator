@@ -19,7 +19,7 @@ import java.util.List;
 public class ProjectileMesh extends AbstractGameObject{
     private GameObjectPart part;
     public ProjectileMesh(float radius, final int shaderProgram, DynamicsWorld physics, Game game){
-        super(new Vector3(0), physics, game, Float.POSITIVE_INFINITY, "");
+        super(new Vector3(0), physics, Float.POSITIVE_INFINITY, "");
         setup(radius, shaderProgram);
     }
 

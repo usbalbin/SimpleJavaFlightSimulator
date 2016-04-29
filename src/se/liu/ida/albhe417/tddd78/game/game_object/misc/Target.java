@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class Target extends AbstractGameObject{
     public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game, String targetName){
-        super(position, physics, game, 1, targetName);
+        super(position, physics, 1, targetName);
         setup(position, shaderProgram, physics);
     }
 

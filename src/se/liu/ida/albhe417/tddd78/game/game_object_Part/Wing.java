@@ -53,14 +53,6 @@ public class Wing extends GameObjectPart {
         return constraint;
     }
 
-    public HingeConstraint attachToParentHinge(GameObjectPart parent, Vector3 parentConnectionPoint, Vector3 thisConnectionPoint, Vector3 pivotAxis, float maxLimit, float minLimit){
-        HingeConstraint constraint = new HingeConstraint(parent.getPhysicsObject(), this.getPhysicsObject(), parentConnectionPoint.toVector3f(), thisConnectionPoint.toVector3f(), pivotAxis.toVector3f(), pivotAxis.toVector3f());
-
-        constraint.setLimit(minLimit, maxLimit);
-
-        return constraint;
-    }
-
     private void setup(Vector3 offsetPosition, Matrix4x4 modelMatrix, DynamicsWorld physics, AbstractGameObject parentGameObject){
         final Vector3 red = 	new Vector3(0, 0, 0.5f);//new Vector3(1, 0, 0);
         final Vector3 green =	new Vector3(0, 0, 0.5f);//new Vector3(0, 1, 0);

@@ -37,7 +37,7 @@ public class TerrainLOD extends AbstractGameObject{
         Vector3 position, final float heightFactor,
         Settings settings, final int shaderProgram, DynamicsWorld physics, Game game
     ) {
-        super(position, physics, game, heightFactor, "Ground");
+        super(position, physics, heightFactor, "Ground");
         this.settings = settings;
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT);
         this.indices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT * 4);

@@ -80,7 +80,6 @@ public class Gun extends Weapon {
             physics.removeRigidBody(bullets.pop());
     }
 
-    @Override
     public boolean noAmmo() {
         return false;
     }

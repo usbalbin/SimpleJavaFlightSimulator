@@ -14,10 +14,10 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 public abstract class Weapon extends AbstractGameObject{
 
     Weapon(Vector3 position, DynamicsWorld physics, Game game, String gunName){
-        super(position, physics, game, Float.POSITIVE_INFINITY, gunName);
+        super(position, physics, Float.POSITIVE_INFINITY, gunName);
     }
 
     abstract public void fire(float currTimeSec);
-    abstract public boolean noAmmo();
+
     abstract public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId);
 }

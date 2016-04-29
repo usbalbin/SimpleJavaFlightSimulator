@@ -25,7 +25,7 @@ public abstract class AbstractVehicle extends AbstractGameObject
 
 
     AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, Game game, float maxHealth, String playerName){
-	    super(position, physics, game, maxHealth, playerName);
+	    super(position, physics, maxHealth, playerName);
         this.mass = mass;
         this.thrustFactor = thrustFactor;
         this.cameraPosition = new Vector3(0);
