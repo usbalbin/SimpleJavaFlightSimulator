@@ -41,6 +41,9 @@ import java.util.*;
  */
 public class Game implements Runnable
 {
+	//TODO: remove
+	int removeMe = 0;
+
 	private final Settings settings;
 
 	private long window;//Reference to window
@@ -126,7 +129,7 @@ public class Game implements Runnable
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		
+
     }
 
 	private void setupShaders(){
@@ -306,7 +309,13 @@ public class Game implements Runnable
 	}
 
     private void update(){
-		final float nanoToSec = 1000000000.0f;
+		final float nanoToSec = 1e9f;
+
+		//TODO: remove these
+		float terrainTime = -1;
+		float physicsTime;
+		float terrainGraphicsTime;
+		float gameObjTime;
 
 
 		long nowTime = System.nanoTime();
@@ -326,15 +335,19 @@ public class Game implements Runnable
 
 		boolean isThreaded = settings.isThreaded();
 		if(isThreaded){
-			terrainThread = new Thread(() ->
-				terrain.update(cameraPosition, cameraMatrix)
-			);
+			terrainThread = new Thread(() -> {
+				terrain.update(cameraPosition, cameraMatrix);
+			});
 			terrainThread.start();
 		}else {
+			long start = System.nanoTime();
 			terrain.update(cameraPosition, cameraMatrix);
+			terrainTime = (System.nanoTime() - start) * 1e-6f;
 		}
 
+		long start = System.nanoTime();
 		physics.stepSimulation(deltaTime, settings.getTicksPerFrame(), settings.getPreferredTimeStep());
+		physicsTime = (System.nanoTime() - start) * 1e-6f;
 
 		if(isThreaded){
 			try {
@@ -343,8 +356,23 @@ public class Game implements Runnable
 
 			}
 		}
+		start = System.nanoTime();
 		terrain.updateGraphics();
+		terrainGraphicsTime = (System.nanoTime() - start) * 1e-6f;
+
+		start = System.nanoTime();
 		updateGameObjects();
+		gameObjTime = (System.nanoTime() - start) * 1e-6f;
+
+		if(removeMe % 100 == 0){
+			System.out.print( "#####Function times:#####\n" +
+				"terrainTime" + terrainTime + "\n" +
+				"physicsTime" + physicsTime + "\n" +
+				"terrainGraphicsTime" + terrainGraphicsTime +"\n" +
+				"gameObjTime" + gameObjTime + "\n\n"
+			);
+		}
+		removeMe++;
     }
 
     private void draw(){
@@ -371,7 +399,7 @@ public class Game implements Runnable
 
     public void run(){
 		setup();
-		while(glfwWindowShouldClose(window) != GL_TRUE){
+		while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
 			glfwPollEvents();
 
 			update();

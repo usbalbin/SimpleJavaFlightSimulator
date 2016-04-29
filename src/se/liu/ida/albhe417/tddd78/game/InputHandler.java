@@ -1,7 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game;
 
 import org.lwjgl.glfw.GLFWKeyCallback;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 /**
  * Project TDDD78
@@ -14,13 +14,14 @@ public class InputHandler extends GLFWKeyCallback {
     private final boolean[] keys;
 
     private InputHandler(){
-        int numberOfKeys = 1 << 16;
+        int numberOfKeys = java.lang.Short.MAX_VALUE + 1;//
         keys = new boolean[numberOfKeys];
     }
 
     @Override
     public void invoke(long window, int key, int scanCode, int action, int mods) {
-        if(key == -1)
+        assert key >= 0 : "Something wrong should not happen";
+        if(key < 0)
             return;
         keys[key] = action != GLFW_RELEASE;
     }
