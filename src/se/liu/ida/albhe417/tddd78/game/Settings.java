@@ -68,10 +68,8 @@ public class Settings {
 
         terrainFileSelector.showOpenDialog(null);
 
-        String filePath;
-
         if (terrainFileSelector.getSelectedFile() == null) {
-            filePath = defaultTerrainPath;
+            String filePath = defaultTerrainPath;
 
             InputStream inputStream = Game.class.getResourceAsStream(filePath);
             try {

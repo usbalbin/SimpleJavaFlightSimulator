@@ -12,8 +12,6 @@ import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
  */
 class TargetHitCallback extends ContactProcessedCallback {
 
-    TargetHitCallback(){ }
-
     @Override
     public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {
         CollisionObject collisionObject0 = (CollisionObject)body0;

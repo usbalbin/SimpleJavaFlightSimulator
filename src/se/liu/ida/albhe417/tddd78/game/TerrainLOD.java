@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class TerrainLOD extends AbstractGameObject{
 
-    private final se.liu.ida.albhe417.tddd78.game.Settings settings;
+    private final Settings settings;
     private GameObjectPart partMain;
     private final DynamicsWorld physics;
 

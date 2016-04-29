@@ -367,7 +367,7 @@ class QuadTree {
                     addVertexIndex(leftBottomPos, color, i, vertices, quadsIndices, positionMap); i++;
 
                     if(leftStitchPnt) {
-                        addVertexIndex(leftPos, color, i, vertices, quadsIndices, positionMap); i++;
+                        addVertexIndex(leftPos, color, i, vertices, quadsIndices, positionMap);
                     }
 
                     indices.add(quadsIndices[numVertices - 1]);   //last vertex
@@ -383,14 +383,13 @@ class QuadTree {
             }
         }
 
-        private int addVertexIndex(Vector3 position, Vector3 color, int currentIndex, List<VertexPositionColorNormal> vertices, Integer[] quadsIndices, Map<Vector3, Integer> positionMap){
+        private void addVertexIndex(Vector3 position, Vector3 color, int currentIndex, List<VertexPositionColorNormal> vertices, Integer[] quadsIndices, Map<Vector3, Integer> positionMap){
             quadsIndices[currentIndex] = positionMap.get(position);
             if(quadsIndices[currentIndex] == null) {
                 quadsIndices[currentIndex] = vertices.size();
                 vertices.add(new VertexPositionColorNormal(position, color));
                 positionMap.put(position, quadsIndices[currentIndex]);
             }
-            return currentIndex;
         }
 
         private void addLeftStitchPnt(){

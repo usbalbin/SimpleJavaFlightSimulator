@@ -16,8 +16,6 @@ public class Thruster {
     private final Wing wingHoldingThruster;
 
     public Thruster(Vector3 offsetPosition, Vector3 direction, float thrustFactor, Wing wingHoldingThruster) {
-        final Vector3 offsetPosition1 = offsetPosition;
-        final Vector3 direction1 = direction;
         assert Helpers.fEquals(direction.length2(), 1) : "Non-normalized direction!";
         this.thrustFactor = thrustFactor;
         this.wingHoldingThruster = wingHoldingThruster;

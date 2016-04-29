@@ -45,6 +45,9 @@ public class Game implements Runnable
 	private final Settings settings;
 
 	private long window;//Reference to window
+
+	//WindowsSizeCallback and errorCallback must be fields,
+	// otherwise the garbage collector will remove them and they will not work (I have tested)
 	private GLFWWindowSizeCallback windowSizeCallback;
 	private GLFWErrorCallback errorCallback;
 
@@ -100,9 +103,9 @@ public class Game implements Runnable
 			throw new GraphicsInitException("Failed to initialize!");
 		}
 
-		glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
+		glfwWindowHint(GLFW_SAMPLES, Settings.AA_LEVEL);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int) Settings.OPENGL_VERSION);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(Settings.OPENGL_VERSION * 10) % 10);
 
 
 		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
@@ -401,7 +404,7 @@ public class Game implements Runnable
 			update();
 			draw();
 		}
-		while (gameObjects.size() > 0) {
+		while (!gameObjects.isEmpty()) {
 			gameObjects.get(0).destroy();
 			gameObjects.remove(0);
 		}
