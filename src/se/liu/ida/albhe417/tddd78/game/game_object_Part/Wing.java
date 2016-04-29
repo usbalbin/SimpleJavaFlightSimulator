@@ -14,6 +14,9 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Vector3f;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Project TDDD78
@@ -85,10 +88,14 @@ public class Wing extends GameObjectPart {
         VertexPositionColorNormal rearBottomFront = new VertexPositionColorNormal(posRBF, blue, posRBF);
         VertexPositionColorNormal leftBottomFront = new VertexPositionColorNormal(posLBF, white, posLBF);
 
-        VertexPositionColorNormal[] vertices = {
-            leftTopRear, rightTopRear, rightBottomRear, leftBottomRear,
-            leftTopFront, rightTopFront, rearBottomFront, leftBottomFront
-        };
+        List<VertexPositionColorNormal> vertices = new ArrayList<VertexPositionColorNormal>(
+            Arrays.asList(
+                new VertexPositionColorNormal[]{
+                    leftTopRear, rightTopRear, rightBottomRear, leftBottomRear,
+                    leftTopFront, rightTopFront, rearBottomFront, leftBottomFront
+                }
+            )
+        );
 
         int[] indices = {
             0, 2, 3, 	0, 1, 2,//Rear

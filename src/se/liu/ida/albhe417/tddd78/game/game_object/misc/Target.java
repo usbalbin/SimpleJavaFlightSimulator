@@ -17,6 +17,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Project TDDD78
@@ -35,7 +36,7 @@ public class Target extends AbstractGameObject{
         Vector3 color = new Vector3(0, 1, 0);
         int qualityFactor = 10;
 
-        Collection<VertexPositionColorNormal> vertices = new ArrayList<>();
+        List<VertexPositionColorNormal> vertices = new ArrayList<>();
         Collection<Integer> indices = new ArrayList<>();
 
         Helpers.createNormalSphere(vertices, indices, radius, color, qualityFactor);
@@ -58,7 +59,7 @@ public class Target extends AbstractGameObject{
         physicsObject.setUserPointer(this);
         physics.addRigidBody(physicsObject);
 
-        GameObjectPart part = new GameObjectPart(vertexArray, indexArray, shaderProgram, physicsObject);
+        GameObjectPart part = new GameObjectPart(vertices, indexArray, shaderProgram, physicsObject);
         parts = new ArrayList<>(1);
         parts.add(part);
     }

@@ -32,7 +32,7 @@ class QuadTree {
      * Create Root QuadTree
      * @param heightmap heightmap
      */
-    public QuadTree(Heightmap heightmap, Settings settings){
+    QuadTree(Heightmap heightmap, Settings settings){
         this.heightmap = heightmap;
         this.rootNode = new Node(new Vector3(0, 0, 0), heightmap.size, (short)0, null);
         this.workerPool = new ForkJoinPool();
@@ -64,7 +64,7 @@ class QuadTree {
 
     }
 
-    private class Node extends RecursiveAction{
+    private final class Node extends RecursiveAction{
 
         private Node leftFront;
         private Node rightFront;
@@ -132,7 +132,10 @@ class QuadTree {
 
 
             if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPMatrix)) {
-                leftFront = rightFront = rightBottom = leftBottom = null;
+                leftFront = null;
+                rightFront = null;
+                rightBottom = null;
+                leftBottom = null;
                 return;
             }
 
@@ -341,77 +344,30 @@ class QuadTree {
                     Integer[] quadsIndices = new Integer[numVertices];
 
                     quadsIndices[i] = vertices.size();
-                    vertices.add(new VertexPositionColorNormal(center, color));
+                    vertices.add(new VertexPositionColorNormal(center, color)); i++;
 
-                    /*private void addVertexIndex(int i, Vector3 position, ){
-                        i++;
-                        quadsIndices[i] = positionMap.get(position);
-                        if(quadsIndices[i] == null) {
-                            quadsIndices[i] = vertices.size();
-                            vertices.add(new VertexPositionColorNormal(position, color));
-                            positionMap.put(position, quadsIndices[i]);
-                        }
-                    }*/
-
-                    quadsIndices[++i] = positionMap.get(leftFrontPos);
-                    if(quadsIndices[i] == null) {
-                        quadsIndices[i] = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(leftFrontPos, color));
-                        positionMap.put(leftFrontPos, quadsIndices[i]);
-                    }
+                    addVertexIndex(leftFrontPos, color, i, vertices, quadsIndices, positionMap); i++;
 
                     if(frontStitchPnt) {
-                        quadsIndices[++i] = positionMap.get(frontPos);
-                        if(quadsIndices[i] == null) {
-                            quadsIndices[i] = vertices.size();
-                            vertices.add(new VertexPositionColorNormal(frontPos, color));
-                            positionMap.put(frontPos, quadsIndices[i]);
-                        }
+                        addVertexIndex(frontPos, color, i, vertices, quadsIndices, positionMap); i++;
                     }
 
-                    quadsIndices[++i] = positionMap.get(rightFrontPos);
-                    if(quadsIndices[i] == null) {
-                        quadsIndices[i] = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(rightFrontPos, color));
-                        positionMap.put(rightFrontPos, quadsIndices[i]);
-                    }
+                    addVertexIndex(rightFrontPos, color, i, vertices, quadsIndices, positionMap); i++;
+
                     if(rightStitchPnt) {
-                        quadsIndices[++i] = positionMap.get(rightPos);
-                        if(quadsIndices[i] == null) {
-                            quadsIndices[i] = vertices.size();
-                            vertices.add(new VertexPositionColorNormal(rightPos, color));
-                            positionMap.put(rightPos, quadsIndices[i]);
-                        }
+                        addVertexIndex(rightPos, color, i, vertices, quadsIndices, positionMap); i++;
                     }
 
-                    quadsIndices[++i] = positionMap.get(rightBottomPos);
-                    if(quadsIndices[i] == null) {
-                        quadsIndices[i] = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(rightBottomPos, color));
-                        positionMap.put(rightBottomPos, quadsIndices[i]);
-                    }
+                    addVertexIndex(rightBottomPos, color, i, vertices, quadsIndices, positionMap); i++;
+
                     if(bottomStitchPnt) {
-                        quadsIndices[++i] = positionMap.get(bottomPos);
-                        if(quadsIndices[i] == null) {
-                            quadsIndices[i] = vertices.size();
-                            vertices.add(new VertexPositionColorNormal(bottomPos, color));
-                            positionMap.put(bottomPos, quadsIndices[i]);
-                        }
+                        addVertexIndex(bottomPos, color, i, vertices, quadsIndices, positionMap); i++;
                     }
 
-                    quadsIndices[++i] = positionMap.get(leftBottomPos);
-                    if(quadsIndices[i] == null) {
-                        quadsIndices[i] = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(leftBottomPos, color));
-                        positionMap.put(leftBottomPos, quadsIndices[i]);
-                    }
+                    addVertexIndex(leftBottomPos, color, i, vertices, quadsIndices, positionMap); i++;
+
                     if(leftStitchPnt) {
-                        quadsIndices[++i] = positionMap.get(leftPos);
-                        if(quadsIndices[i] == null) {
-                            quadsIndices[i] = vertices.size();
-                            vertices.add(new VertexPositionColorNormal(leftPos, color));
-                            positionMap.put(leftPos, quadsIndices[i]);
-                        }
+                        addVertexIndex(leftPos, color, i, vertices, quadsIndices, positionMap); i++;
                     }
 
                     indices.add(quadsIndices[numVertices - 1]);   //last vertex
@@ -425,6 +381,16 @@ class QuadTree {
                     }
                 }
             }
+        }
+
+        private int addVertexIndex(Vector3 position, Vector3 color, int currentIndex, List<VertexPositionColorNormal> vertices, Integer[] quadsIndices, Map<Vector3, Integer> positionMap){
+            quadsIndices[currentIndex] = positionMap.get(position);
+            if(quadsIndices[currentIndex] == null) {
+                quadsIndices[currentIndex] = vertices.size();
+                vertices.add(new VertexPositionColorNormal(position, color));
+                positionMap.put(position, quadsIndices[currentIndex]);
+            }
+            return currentIndex;
         }
 
         private void addLeftStitchPnt(){

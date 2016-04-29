@@ -12,7 +12,7 @@ import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
  */
 class TargetHitCallback extends ContactProcessedCallback {
 
-    public TargetHitCallback(){ }
+    TargetHitCallback(){ }
 
     @Override
     public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {

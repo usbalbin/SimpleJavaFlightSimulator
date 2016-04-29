@@ -27,7 +27,7 @@ public class VertexPositionColorNormal implements Vertex
     public VertexPositionColorNormal(Vector3 position, Vector3 color){
         this.position = position;
         this.color = color;
-        this.normal = new Vector3();
+        this.normal = new Vector3(0);
     }
 
     public VertexPositionColorNormal(Vector3 position, Vector3 color, Vector3 normal){

@@ -20,10 +20,6 @@ public class Vector3
 
     public final float[] values;
 
-    public Vector3() {
-    	this(0, 0, 0);
-    }
-
     public Vector3(Vector3f vector3f){
         this(vector3f.x, vector3f.y, vector3f.z);
     }

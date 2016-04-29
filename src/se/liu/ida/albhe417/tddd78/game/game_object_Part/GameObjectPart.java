@@ -5,11 +5,13 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
 import se.liu.ida.albhe417.tddd78.game.Vertex;
+import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 
 import javax.vecmath.Matrix4f;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -43,7 +45,7 @@ public class GameObjectPart {
         vertexBufferData = BufferUtils.createFloatBuffer(bufferSize * templateVertex.getFloatCount());
     }
 
-    public GameObjectPart(final Vertex[] vertices, int[] indices, final int shaderProgram, RigidBody physicsObject) {
+    public GameObjectPart(List<VertexPositionColorNormal> vertices, int[] indices, final int shaderProgram, RigidBody physicsObject) {
         this.physicsObject = physicsObject;
         this.indexCount = indices.length;
         this.shaderProgram = shaderProgram;
@@ -65,14 +67,14 @@ public class GameObjectPart {
         glBindVertexArray(0);
     }
 
-    private void setup(Vertex[] vertices, int[] indices) {
+    private void setup(List<VertexPositionColorNormal> vertices, int[] indices) {
 
 
         vertexArray = glGenVertexArrays();
         glBindVertexArray(vertexArray);
 
 
-        vertices[0].enableVertexAttributes();
+        vertices.get(0).enableVertexAttributes();
 
         vertexBuffer = glGenBuffers();
         indexBuffer = glGenBuffers();
@@ -146,7 +148,7 @@ public class GameObjectPart {
         return new Matrix4x4(matrix4f);
     }
 
-    public void updateData(Vertex[] vertices, int[] indices) {
+    public void updateData(List<VertexPositionColorNormal> vertices, int[] indices) {
         final int floatsPerVector = 3;
 
         if (vertices == null || indices == null)
@@ -171,7 +173,7 @@ public class GameObjectPart {
         indexCount = indices.length;
 
         //Show gpu how to interpret the vertex data
-        vertices[0].setupVertexAttributes();
+        vertices.get(0).setupVertexAttributes();
 
         glBindVertexArray(0);
     }
@@ -180,9 +182,9 @@ public class GameObjectPart {
 
     }
 
-    private void vertexToFloatBuffer(Vertex[] vertices) {
-        if (vertexBufferData == null || vertices.length * vertices[0].getFloatCount() > vertexBufferData.capacity())
-            vertexBufferData = BufferUtils.createFloatBuffer(vertices.length * vertices[0].getFloatCount());
+    private void vertexToFloatBuffer(List<VertexPositionColorNormal> vertices) {
+        if (vertexBufferData == null || vertices.size() * vertices.get(0).getFloatCount() > vertexBufferData.capacity())
+            vertexBufferData = BufferUtils.createFloatBuffer(vertices.size() * vertices.get(0).getFloatCount());
         else
             vertexBufferData.clear();
 

@@ -42,69 +42,76 @@ import java.util.*;
  */
 public class Game implements Runnable
 {
-    private final Settings settings;
+	private final Settings settings;
 
-    private long window;//Reference to window
-    private GLFWWindowSizeCallback windowSizeCallback;
-    private GLFWErrorCallback errorCallback;
+	private long window;//Reference to window
+	private GLFWWindowSizeCallback windowSizeCallback;
+	private GLFWErrorCallback errorCallback;
 
-    private static final String TITLE = "Simple Java Flight Simulator";
+	private static final String TITLE = "Simple Java Flight Simulator";
 
-    private Matrix4x4 cameraMatrix;
-    private int MVPMatrixId;
-    private int modelMatrixId;
+	private Matrix4x4 cameraMatrix;
+	private int MVPMatrixId;
+	private int modelMatrixId;
 
-    private int lightDirectionId;
-    private Vector3 cameraPosition = new Vector3();
-    private Thread terrainThread;
-
-
-    private static final float HEIGHT_SCALE = 0.01f;
-    private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
-    private DynamicsWorld physics;
-
-    private List<AbstractGameObject> gameObjects;
-    private AbstractVehicle currentVehicle;
-    private TerrainLOD terrain;
-    private int shaderProgram;
-
-    private long lastTime;
-
-    public Game(Settings settings){
-	this.settings = settings;
-    }
+	private int lightDirectionId;
+	private Vector3 cameraPosition = new Vector3(0);
+	private Thread terrainThread;
 
 
-    private void setup(){
-	setupGraphics();
-	setupShaders();
-	setupPhysics();
-	setupGameObjects();
-	setupLight();
-    }
+	private static final float HEIGHT_SCALE = 0.01f;
+	private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+	private DynamicsWorld physics;
 
-    private void setupGraphics(){
-	errorCallback = GLFWErrorCallback.createPrint(System.err);
-	glfwSetErrorCallback(errorCallback);
+	private List<AbstractGameObject> gameObjects;
+	private AbstractVehicle currentVehicle;
+	private TerrainLOD terrain;
+	private int shaderProgram;
 
+	private long lastTime;
 
-	long res = glfwInit();
-	if(res != GL_TRUE){
-	    throw new GraphicsInitException("Failed to initialize!");
+	public Game(Settings settings){
+		this.settings = settings;
 	}
 
-	glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
 
-
-	window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
-
-	if(window == NULL){
-	    throw new GraphicsInitException("Failed to create window");
+	private void setup(){
+		try {
+			setupGraphics();
+			setupShaders();
+		}catch (GraphicsInitException e){
+			if(window != NULL)
+				glfwDestroyWindow(window);
+			JOptionPane.showMessageDialog(null, e.getMessage());
+			System.exit(1);
+		}
+		setupPhysics();
+		setupGameObjects();
+		setupLight();
 	}
 
-	windowSizeCallback = new GLFWWindowSizeCallback() {
+	private void setupGraphics() throws GraphicsInitException{
+		errorCallback = GLFWErrorCallback.createPrint(System.err);
+		glfwSetErrorCallback(errorCallback);
+
+
+		long res = glfwInit();
+		if(res != GL_TRUE){
+			throw new GraphicsInitException("Failed to initialize!");
+		}
+
+		glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
+
+
+		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
+
+		if(window == NULL){
+			throw new GraphicsInitException("Failed to create window");
+		}
+
+		windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
 				settings.setWindowWidth(width);
@@ -113,101 +120,101 @@ public class Game implements Runnable
 			}
 		};
 
-	glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-	glfwSetKeyCallback(window, InputHandler.getInstance());
+		glfwSetKeyCallback(window, InputHandler.getInstance());
 
-	final int windowPosX = 50, windowPosY = 50;
-	glfwSetWindowPos(window, windowPosX, windowPosY);
-	glfwMakeContextCurrent(window);
-
-
-	GL.createCapabilities();
+		final int windowPosX = 50, windowPosY = 50;
+		glfwSetWindowPos(window, windowPosX, windowPosY);
+		glfwMakeContextCurrent(window);
 
 
-	final Vector4 clearColor = Vector4.createColor(0x00, 0x00, 0xCC, 0xFF);
-	glClearColor(clearColor.getX(), clearColor.getY(), clearColor.getZ(), clearColor.getW());
+		GL.createCapabilities();
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
 
-    }
+		final Vector4 clearColor = Vector4.createColor(0x00, 0x00, 0xCC, 0xFF);
+		glClearColor(clearColor.getX(), clearColor.getY(), clearColor.getZ(), clearColor.getW());
 
-    private void setupShaders(){
-	    int result;
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
-	    //TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
-	    String vertexShaderCode =
-		"#version 130\n" +
-		"/*layout(location=0) */in vec3 position;\n" +
-		"/*layout(location=1) */in vec3 normal;\n" +
-		"/*layout(location=2) */in vec3 color;\n" +
+	}
 
-		"out vec3 vertexColor;\n" +
-		"out vec3 vertexNormal;" +
+	private void setupShaders() throws GraphicsInitException{
+		int result;
 
-		"uniform mat4 modelViewProjectionMatrix;\n" +
-		"uniform mat4 modelMatrix;\n" +
-		"\n" +
-		"\n" +
-		"void main(){\n" +
-		"	vertexColor = color;\n" +
-		"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-		"	vertexNormal = (modelMatrix * vec4(normal, 0.0)).xyz;\n" +
-		"}";
+		//TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
+		String vertexShaderCode =
+				"#version 130\n" +
+				"/*layout(location=0) */in vec3 position;\n" +
+				"/*layout(location=1) */in vec3 normal;\n" +
+				"/*layout(location=2) */in vec3 color;\n" +
 
-	    int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
-	    glShaderSource(vertexShaderRef, vertexShaderCode);
-	    glCompileShader(vertexShaderRef);
-	    result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
-	    if(result != GL_TRUE){
-		glGetShaderInfoLog(vertexShaderRef);
-		throw new GraphicsInitException("Failed to compile vertex shader");
-	    }
+				"out vec3 vertexColor;\n" +
+				"out vec3 vertexNormal;" +
 
-	    //TODO: Make use of normals
-	    String fragmentShaderCode =
-		"#version 130\n" +
-		"float ambient = 0.65; \n" +
-		"in vec3 vertexColor;\n" +
-		"in vec3 vertexNormal;\n" +
-		"uniform vec3 lightDirection;" +
-		"out vec4 pixelColor;\n" +
+				"uniform mat4 modelViewProjectionMatrix;\n" +
+				"uniform mat4 modelMatrix;\n" +
+				"\n" +
+				"\n" +
+				"void main(){\n" +
+				"	vertexColor = color;\n" +
+				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
+				"	vertexNormal = (modelMatrix * vec4(normal, 0.0)).xyz;\n" +
+				"}";
 
-		"\n" +
-		"\n" +
-		"void main(){\n" +
-		"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
-		"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
-		"	else\n" +
-		"		pixelColor = vec4(vertexColor.xyz, 1.0) * (ambient + dot(normalize(vertexNormal) * (1- ambient), -lightDirection));\n" +
-		"}";
+		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShaderRef, vertexShaderCode);
+		glCompileShader(vertexShaderRef);
+		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
+			glGetShaderInfoLog(vertexShaderRef);
+			throw new GraphicsInitException("Failed to compile vertex shader");
+		}
 
-	    int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
-	    glShaderSource(fragmentShaderRef, fragmentShaderCode);
-	    glCompileShader(fragmentShaderRef);
-	    glGetShaderInfoLog(fragmentShaderRef);
-	    result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
-	    if(result != GL_TRUE){
+		//TODO: Make use of normals
+		String fragmentShaderCode =
+				"#version 130\n" +
+				"float ambient = 0.65; \n" +
+				"in vec3 vertexColor;\n" +
+				"in vec3 vertexNormal;\n" +
+				"uniform vec3 lightDirection;" +
+				"out vec4 pixelColor;\n" +
 
-		throw new GraphicsInitException("Failed to compile fragment shader");
-	    }
+				"\n" +
+				"\n" +
+				"void main(){\n" +
+				"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
+				"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
+				"	else\n" +
+				"		pixelColor = vec4(vertexColor.xyz, 1.0) * (ambient + dot(normalize(vertexNormal) * (1- ambient), -lightDirection));\n" +
+				"}";
 
-	    shaderProgram = glCreateProgram();
-	    glAttachShader(shaderProgram, vertexShaderRef);
-	    glAttachShader(shaderProgram, fragmentShaderRef);
+		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShaderRef, fragmentShaderCode);
+		glCompileShader(fragmentShaderRef);
+		glGetShaderInfoLog(fragmentShaderRef);
+		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
 
-	    glLinkProgram(shaderProgram);
+			throw new GraphicsInitException("Failed to compile fragment shader");
+		}
 
-	    result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
-	    if(result != GL_TRUE){
-		throw new GraphicsInitException("Failed to link shader program");
-	    }
-	    MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
-	    modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
-	    lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+		shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShaderRef);
+		glAttachShader(shaderProgram, fragmentShaderRef);
 
-	    VertexPositionColorNormal.init(shaderProgram);
+		glLinkProgram(shaderProgram);
+
+		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+		if(result != GL_TRUE){
+			throw new GraphicsInitException("Failed to link shader program");
+		}
+		MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
+		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+
+		VertexPositionColorNormal.init(shaderProgram);
 	}
 
 	private void setupPhysics(){
@@ -221,23 +228,23 @@ public class Game implements Runnable
 	}
 
 	private void setupGameObjects(){
-	    gameObjects = new ArrayList<>();
+		gameObjects = new ArrayList<>();
 
-	    terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
+		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
 
-	    final Vector3 targetSpacing = new Vector3(250, 0, 250);
-	    final int targetHeight = 140;
-	    final int numTargets = 64;
-	    final int halfNumTargetsPerSide = (int)Math.sqrt(numTargets) / 2;
+		final Vector3 targetSpacing = new Vector3(250, 0, 250);
+		final int targetHeight = 140;
+		final int numTargets = 64;
+		final int halfNumTargetsPerSide = (int)Math.sqrt(numTargets) / 2;
 
-	    for(int y = -halfNumTargetsPerSide; y < halfNumTargetsPerSide; y++) {
-		for(int x = -halfNumTargetsPerSide; x < halfNumTargetsPerSide; x++) {
-		    gameObjects.add(new Target(new Vector3(x * targetSpacing.getX(), targetHeight, y * targetSpacing.getZ()), shaderProgram, physics, this, "Target at " + x + "; " + y));
+		for(int y = -halfNumTargetsPerSide; y < halfNumTargetsPerSide; y++) {
+			for(int x = -halfNumTargetsPerSide; x < halfNumTargetsPerSide; x++) {
+				gameObjects.add(new Target(new Vector3(x * targetSpacing.getX(), targetHeight, y * targetSpacing.getZ()), shaderProgram, physics, this, "Target at " + x + "; " + y));
+			}
 		}
-	    }
 
-	    respawn();
-	    lastTime = System.nanoTime();
+		respawn();
+		lastTime = System.nanoTime();
 
 	}
 
@@ -297,8 +304,8 @@ public class Game implements Runnable
 				if(gameObject == currentVehicle) {
 					glfwHideWindow(window);
 					JOptionPane.showMessageDialog(null,
-						"Score: " + currentVehicle.getScore() + "\n" +
-						"Killed by " + currentVehicle.killedBy.playerName
+												  "Score: " + currentVehicle.getScore() + "\n" +
+												  "Killed by " + currentVehicle.killedBy.playerName
 					);
 					currentVehicle = null;
 					glfwShowWindow(window);
@@ -312,7 +319,7 @@ public class Game implements Runnable
 		}
 	}
 
-    private void update(){
+	private void update(){
 		final float nanoToSec = 1e9f;
 
 
@@ -349,9 +356,9 @@ public class Game implements Runnable
 			}catch (InterruptedException e){
 				glfwHideWindow(window);
 				JOptionPane.showMessageDialog(null,
-						"Something went really wrong with the terrain thread!: \n" +
-						e.getMessage() + "\n" +
-						"If this shows again, try to un tick the \"Multi threading\" checkbox."
+											  "Something went really wrong with the terrain thread!: \n" +
+											  e.getMessage() + "\n" +
+											  "If this shows again, try to un tick the \"Multi threading\" checkbox."
 				);
 				glfwShowWindow(window);
 			}
@@ -362,9 +369,9 @@ public class Game implements Runnable
 		updateGameObjects();
 
 
-    }
+	}
 
-    private void draw(){
+	private void draw(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Wireframe
@@ -382,23 +389,23 @@ public class Game implements Runnable
 		glfwSwapBuffers(window);
 		//glFinish();
 
-    }
-
-
-
-    public void run(){
-	setup();
-	while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
-	    glfwPollEvents();
-
-	    update();
-	    draw();
 	}
-	while (gameObjects.size() > 0) {
-	    gameObjects.get(0).destroy();
-	    gameObjects.remove(0);
+
+
+
+	public void run(){
+		setup();
+		while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
+			glfwPollEvents();
+
+			update();
+			draw();
+		}
+		while (gameObjects.size() > 0) {
+			gameObjects.get(0).destroy();
+			gameObjects.remove(0);
+		}
+		glfwDestroyWindow(window);
+		JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
 	}
-	glfwDestroyWindow(window);
-	JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
-    }
 }

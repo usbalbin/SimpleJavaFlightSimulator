@@ -28,7 +28,11 @@ public abstract class AbstractVehicle extends AbstractGameObject
 	    super(position, physics, game, maxHealth, playerName);
         this.mass = mass;
         this.thrustFactor = thrustFactor;
-        this.cameraPosition = new Vector3();
+        this.cameraPosition = new Vector3(0);
+    }
+
+    protected void setPartBody(GameObjectPart partBody){
+        this.partBody = partBody;
     }
 
     abstract public void handleInput(float deltaTime);

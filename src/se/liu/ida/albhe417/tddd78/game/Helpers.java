@@ -9,7 +9,9 @@ import java.util.Collection;
  *
  * File created by Albin on 09/03/2016.
  */
-public class Helpers {
+public final class Helpers {
+
+    private Helpers() {}
 
     public static void createNormalSphere(Collection<VertexPositionColorNormal> vertices, Collection<Integer> indices, float radius, Vector3 color, int qualityFactor){
         if(radius <= 0)
