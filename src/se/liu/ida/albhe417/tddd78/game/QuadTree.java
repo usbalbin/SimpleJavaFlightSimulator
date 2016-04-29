@@ -15,8 +15,6 @@ import java.util.concurrent.RecursiveAction;
  */
 class QuadTree {
 
-
-
     private Settings settings;
     private Heightmap heightmap;
 
@@ -59,7 +57,7 @@ class QuadTree {
 
         rootNode.stitch(null, null, null, null);
 
-        Map positionMap = new HashMap<>();
+        Map<Vector3, Integer> positionMap = new HashMap<>();
         rootNode.generateVerticesAndIndices(vertices, indices, positionMap);
 
         rootNode.calculateNormals(vertices, indices);

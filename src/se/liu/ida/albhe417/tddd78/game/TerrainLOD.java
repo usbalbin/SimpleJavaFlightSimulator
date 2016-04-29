@@ -85,7 +85,7 @@ public class TerrainLOD extends Terrain {
             System.out.println("Warning had to expand vertex array!!!");
         }
         vertices.toArray(vertexArray);
-        indexArray = indices.stream().mapToInt(i -> i).toArray();
+        indexArray = indices.parallelStream().mapToInt(i -> i).toArray();
     }
 
     public void updateGraphics(){
