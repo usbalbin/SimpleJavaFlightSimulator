@@ -1,6 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.Wing;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.Wing;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -10,7 +10,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  * File created by Albin on 21/04/2016.
  */
 public class Thruster {
-    private final float THRUST_FACTOR;
+    private final float thrustFactor;
     private final Vector3 offsetPosition;
     private final Vector3 direction;
 
@@ -21,14 +21,14 @@ public class Thruster {
         this.offsetPosition = offsetPosition;
         this.direction = direction;
         assert Helpers.fEquals(direction.length2(), 1) : "Non-normalized direction!";
-        this.THRUST_FACTOR = thrustFactor;
+        this.thrustFactor = thrustFactor;
         this.wingHoldingThruster = wingHoldingThruster;
     }
 
     public void update(float deltaThrottle, float deltaTime){
         changeThrust(deltaThrottle * deltaTime);
 
-        float lift = throttle * THRUST_FACTOR;
+        float lift = throttle * thrustFactor;
         Matrix4x4 wingMatrix = wingHoldingThruster.getMatrix();
 
         Vector3 thrustForce = new Vector3(0, 0, -lift);//direction.multiply(lift);

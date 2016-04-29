@@ -1,10 +1,10 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.misc;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import se.liu.ida.albhe417.tddd78.game.*;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;

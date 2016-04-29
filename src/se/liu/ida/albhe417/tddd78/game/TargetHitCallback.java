@@ -3,7 +3,7 @@ package se.liu.ida.albhe417.tddd78.game;
 import com.bulletphysics.ContactProcessedCallback;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 
 /**
  * Project TDDD78

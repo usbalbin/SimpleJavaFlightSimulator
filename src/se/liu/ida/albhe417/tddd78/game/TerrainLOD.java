@@ -6,7 +6,7 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -52,7 +52,7 @@ public class TerrainLOD extends Terrain {
         heightmap = new Heightmap(settings.getTerrainImage());
 
         quadTree = new QuadTree(heightmap, settings);
-        height = width = heightmap.SIZE;
+        height = width = heightmap.size;
 
         this.parts = new ArrayList<>();
         partMain = new GameObjectPart(shaderProgram, MAX_EXPECTED_VERTEX_COUNT, new VertexPositionColorNormal());
@@ -61,8 +61,8 @@ public class TerrainLOD extends Terrain {
         //Physics
         MotionState motionState = new DefaultMotionState();
         CollisionShape shape = new HeightfieldTerrainShape(
-            width, height, heightmap.getHeights(),
-            heightmap.HEIGHT_FACTOR, heightmap.MIN_HEIGHT, heightmap.MAX_HEIGHT, 1, true
+                width, height, heightmap.getHeights(),
+                heightmap.heightFactor, heightmap.minHeight, heightmap.maxHeight, 1, true
         );
 
         RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);

@@ -1,11 +1,11 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject.vehicles;
+package se.liu.ida.albhe417.tddd78.game.game_object.vehicles;
 
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -17,8 +17,8 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
  */
 public abstract class AbstractVehicle extends AbstractGameObject
 {
-    final float MASS;
-    final float THRUST_FACTOR;
+    final float mass;
+    final float thrustFactor;
     float throttle = 0;
     private Vector3 cameraPosition;
     GameObjectPart partBody;
@@ -26,8 +26,8 @@ public abstract class AbstractVehicle extends AbstractGameObject
 
     AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, Game game, float maxHealth, String playerName){
 	    super(position, physics, game, maxHealth, playerName);
-        this.MASS = mass;
-        this.THRUST_FACTOR = thrustFactor;
+        this.mass = mass;
+        this.thrustFactor = thrustFactor;
         this.cameraPosition = new Vector3();
     }
 

@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject;
+package se.liu.ida.albhe417.tddd78.game.game_object;
 
 /**
  * Project TDDD78

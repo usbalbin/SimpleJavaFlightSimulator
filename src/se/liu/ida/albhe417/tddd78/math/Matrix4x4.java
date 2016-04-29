@@ -127,14 +127,16 @@ public class Matrix4x4 {
 		return new Vector3(values[3][0], values[3][1], values[3][2]);//Vector3(values[0][3], values[1][3], values[2][3]);
 	}
 
-	public Matrix4f toMatrix4f(){
-		float[] floats = new float[16];
-		int j = 0;
-		for(int row = 0; row < 4; row++)
-			for (int col = 0; col < 4; col++)
-				floats[j++] = this.values[col][row];//getValueAt(row, col);//Res matrix has columns switched with rows
+	public Matrix4f toMatrix4f() {
+	    float[] floats = new float[16];
+	    int j = 0;
+	    for (int row = 0; row < 4; row++)
+		for (int col = 0; col < 4; col++){
+		    floats[j] = this.values[col][row];//getValueAt(row, col);//Res matrix has columns switched with rows
+		    j++;
+		}
 
-		return new Matrix4f(floats);
+	    return new Matrix4f(floats);
 	}
 
 }

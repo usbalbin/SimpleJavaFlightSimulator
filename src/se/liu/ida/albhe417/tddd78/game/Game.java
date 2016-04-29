@@ -21,14 +21,15 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.gameObject.misc.Target;
-import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.AbstractVehicle;
-import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleAirplane;
-import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleAirplaneBox;
-import se.liu.ida.albhe417.tddd78.game.gameObject.vehicles.VehicleHelicopterBox;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object.misc.Target;
+import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.VehicleAirplane;
+import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.VehicleAirplaneBox;
+import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.VehicleHelicopterBox;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import javax.swing.*;
 import java.nio.FloatBuffer;
@@ -41,169 +42,172 @@ import java.util.*;
  */
 public class Game implements Runnable
 {
-	private final Settings settings;
+    private final Settings settings;
 
-	private long window;//Reference to window
-	private GLFWWindowSizeCallback windowSizeCallback;
-	private GLFWErrorCallback errorCallback;
+    private long window;//Reference to window
+    private GLFWWindowSizeCallback windowSizeCallback;
+    private GLFWErrorCallback errorCallback;
 
     private static final String TITLE = "Simple Java Flight Simulator";
 
-	private Matrix4x4 cameraMatrix;
-	private int MVPMatrixId;
-	private int modelMatrixId;
+    private Matrix4x4 cameraMatrix;
+    private int MVPMatrixId;
+    private int modelMatrixId;
 
-	private int lightDirectionId;
-	private Vector3 cameraPosition = new Vector3();
-	private Thread terrainThread;
+    private int lightDirectionId;
+    private Vector3 cameraPosition = new Vector3();
+    private Thread terrainThread;
 
 
-	private static final float HEIGHT_SCALE = 0.01f;
-	private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
-	private DynamicsWorld physics;
+    private static final float HEIGHT_SCALE = 0.01f;
+    private static final Vector3 GRAVITY = new Vector3(0, -9.82f, 0);
+    private DynamicsWorld physics;
 
-	private ArrayList<AbstractGameObject> gameObjects;
-	private AbstractVehicle currentVehicle;
-	private TerrainLOD terrain;
-	private int shaderProgram;
+    private List<AbstractGameObject> gameObjects;
+    private AbstractVehicle currentVehicle;
+    private TerrainLOD terrain;
+    private int shaderProgram;
 
-	private long lastTime;
+    private long lastTime;
 
     public Game(Settings settings){
-		this.settings = settings;
+	this.settings = settings;
     }
 
 
-	private void setup(){
-		setupGraphics();
-		setupShaders();
-		setupPhysics();
-		setupGameObjects();
-		setupLight();
-	}
+    private void setup(){
+	setupGraphics();
+	setupShaders();
+	setupPhysics();
+	setupGameObjects();
+	setupLight();
+    }
 
     private void setupGraphics(){
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
-		glfwSetErrorCallback(errorCallback);
+	errorCallback = GLFWErrorCallback.createPrint(System.err);
+	glfwSetErrorCallback(errorCallback);
 
 
-		long res = glfwInit();
-		if(res != GL_TRUE){
-			throw new GraphicsInitException("Failed to initialize!");
-		}
+	long res = glfwInit();
+	if(res != GL_TRUE){
+	    throw new GraphicsInitException("Failed to initialize!");
+	}
 
-		glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
+	glfwWindowHint(GLFW_SAMPLES, settings.AA_LEVEL);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)settings.OPENGL_VERSION);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(settings.OPENGL_VERSION * 10) % 10);
 
 
-		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
+	window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
 
-		if(window == NULL){
-			throw new GraphicsInitException("Failed to create window");
-		}
+	if(window == NULL){
+	    throw new GraphicsInitException("Failed to create window");
+	}
 
-		glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
+	windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
 				settings.setWindowWidth(width);
 				settings.setWindowHeight(height);
 				glViewport(0, 0, width, height);
 			}
-		});
+		};
 
-		glfwSetKeyCallback(window, InputHandler.getInstance());
+	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-		int windowPosX = 50, windowPosY = 50;
-		glfwSetWindowPos(window, windowPosX, windowPosY);
-		glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, InputHandler.getInstance());
+
+	final int windowPosX = 50, windowPosY = 50;
+	glfwSetWindowPos(window, windowPosX, windowPosY);
+	glfwMakeContextCurrent(window);
 
 
-		GL.createCapabilities();
+	GL.createCapabilities();
 
 
-		glClearColor(0.0f, 0.0f, 0.75f, 1.0f);
+	final Vector4 clearColor = Vector4.createColor(0x00, 0x00, 0xCC, 0xFF);
+	glClearColor(clearColor.getX(), clearColor.getY(), clearColor.getZ(), clearColor.getW());
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
     }
 
-	private void setupShaders(){
-		int result;
+    private void setupShaders(){
+	    int result;
 
-		//TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
-		String vertexShaderCode =
-				"#version 130\n" +
-				"/*layout(location=0) */in vec3 position;\n" +
-				"/*layout(location=1) */in vec3 normal;\n" +
-				"/*layout(location=2) */in vec3 color;\n" +
+	    //TODO: fix layout-issue and transform normal by cameraMatrix(not including modelMatrix)
+	    String vertexShaderCode =
+		"#version 130\n" +
+		"/*layout(location=0) */in vec3 position;\n" +
+		"/*layout(location=1) */in vec3 normal;\n" +
+		"/*layout(location=2) */in vec3 color;\n" +
 
-				"out vec3 vertexColor;\n" +
-				"out vec3 vertexNormal;" +
+		"out vec3 vertexColor;\n" +
+		"out vec3 vertexNormal;" +
 
-				"uniform mat4 modelViewProjectionMatrix;\n" +
-				"uniform mat4 modelMatrix;\n" +
-				"\n" +
-				"\n" +
-				"void main(){\n" +
-				"	vertexColor = color;\n" +
-				"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
-				"	vertexNormal = (modelMatrix * vec4(normal, 0.0)).xyz;\n" +
-				"}";
+		"uniform mat4 modelViewProjectionMatrix;\n" +
+		"uniform mat4 modelMatrix;\n" +
+		"\n" +
+		"\n" +
+		"void main(){\n" +
+		"	vertexColor = color;\n" +
+		"	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);\n" +
+		"	vertexNormal = (modelMatrix * vec4(normal, 0.0)).xyz;\n" +
+		"}";
 
-		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShaderRef, vertexShaderCode);
-		glCompileShader(vertexShaderRef);
-		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
-		if(result != GL_TRUE){
-		    glGetShaderInfoLog(vertexShaderRef);
-		    throw new GraphicsInitException("Failed to compile vertex shader");
-		}
+	    int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
+	    glShaderSource(vertexShaderRef, vertexShaderCode);
+	    glCompileShader(vertexShaderRef);
+	    result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
+	    if(result != GL_TRUE){
+		glGetShaderInfoLog(vertexShaderRef);
+		throw new GraphicsInitException("Failed to compile vertex shader");
+	    }
 
-		//TODO: Make use of normals
-		String fragmentShaderCode =
-				"#version 130\n" +
-				"float ambient = 0.65; \n" +
-				"in vec3 vertexColor;\n" +
-				"in vec3 vertexNormal;\n" +
-				"uniform vec3 lightDirection;" +
-				"out vec4 pixelColor;\n" +
+	    //TODO: Make use of normals
+	    String fragmentShaderCode =
+		"#version 130\n" +
+		"float ambient = 0.65; \n" +
+		"in vec3 vertexColor;\n" +
+		"in vec3 vertexNormal;\n" +
+		"uniform vec3 lightDirection;" +
+		"out vec4 pixelColor;\n" +
 
-				"\n" +
-				"\n" +
-				"void main(){\n" +
-				"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
-				"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
-				"	else\n" +
-				"		pixelColor = vec4(vertexColor.xyz, 1.0) * (ambient + dot(normalize(vertexNormal) * (1- ambient), -lightDirection));\n" +
-				"}";
+		"\n" +
+		"\n" +
+		"void main(){\n" +
+		"	if(length(vertexNormal) == 0 || length(lightDirection) == 0)\n" +
+		"		pixelColor = vec4(vertexColor.xyz, 1.0);\n" +
+		"	else\n" +
+		"		pixelColor = vec4(vertexColor.xyz, 1.0) * (ambient + dot(normalize(vertexNormal) * (1- ambient), -lightDirection));\n" +
+		"}";
 
-		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShaderRef, fragmentShaderCode);
-		glCompileShader(fragmentShaderRef);
-		glGetShaderInfoLog(fragmentShaderRef);
-		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
-		if(result != GL_TRUE){
+	    int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
+	    glShaderSource(fragmentShaderRef, fragmentShaderCode);
+	    glCompileShader(fragmentShaderRef);
+	    glGetShaderInfoLog(fragmentShaderRef);
+	    result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
+	    if(result != GL_TRUE){
 
-		    throw new GraphicsInitException("Failed to compile fragment shader");
-		}
+		throw new GraphicsInitException("Failed to compile fragment shader");
+	    }
 
-		shaderProgram = glCreateProgram();
-		glAttachShader(shaderProgram, vertexShaderRef);
-		glAttachShader(shaderProgram, fragmentShaderRef);
+	    shaderProgram = glCreateProgram();
+	    glAttachShader(shaderProgram, vertexShaderRef);
+	    glAttachShader(shaderProgram, fragmentShaderRef);
 
-		glLinkProgram(shaderProgram);
+	    glLinkProgram(shaderProgram);
 
-		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
-		if(result != GL_TRUE){
-		    throw new GraphicsInitException("Failed to link shader program");
-		}
-		MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
-		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
-		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+	    result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+	    if(result != GL_TRUE){
+		throw new GraphicsInitException("Failed to link shader program");
+	    }
+	    MVPMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+	    modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
+	    lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
 
-		VertexPositionColorNormal.init(shaderProgram);
+	    VertexPositionColorNormal.init(shaderProgram);
 	}
 
 	private void setupPhysics(){
@@ -217,20 +221,23 @@ public class Game implements Runnable
 	}
 
 	private void setupGameObjects(){
-		gameObjects = new ArrayList<>();
+	    gameObjects = new ArrayList<>();
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
-		//currentVehicle = new VehicleHelicopterBox(new Vector3(11, 6, 148.0f), -(float)Math.PI / 2.0f, terrain, shaderProgram, physics);
+	    terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics, this);
 
-		for(int y = -4; y < 4; y++) {
-			for(int x = -4; x < 4; x++) {
-				gameObjects.add(new Target(new Vector3(x * 250, 140, y * 250), shaderProgram, physics, this, "Target at " + x + "; " + y));
-			}
+	    final Vector3 targetSpacing = new Vector3(250, 0, 250);
+	    final int targetHeight = 140;
+	    final int numTargets = 64;
+	    final int halfNumTargetsPerSide = (int)Math.sqrt(numTargets) / 2;
+
+	    for(int y = -halfNumTargetsPerSide; y < halfNumTargetsPerSide; y++) {
+		for(int x = -halfNumTargetsPerSide; x < halfNumTargetsPerSide; x++) {
+		    gameObjects.add(new Target(new Vector3(x * targetSpacing.getX(), targetHeight, y * targetSpacing.getZ()), shaderProgram, physics, this, "Target at " + x + "; " + y));
 		}
-		//gameObjects.add(terrain);
+	    }
 
-		respawn();
-		lastTime = System.nanoTime();
+	    respawn();
+	    lastTime = System.nanoTime();
 
 	}
 
@@ -253,10 +260,10 @@ public class Game implements Runnable
 
 		switch (settings.getVehicleType()) {
 			case HelicopterBox:
-				currentVehicle = new VehicleHelicopterBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+				currentVehicle = new VehicleHelicopterBox(spawnPos, shaderProgram, physics, this, settings.getPlayerName());
 				break;
 			case AirplaneBox:
-				currentVehicle = new VehicleAirplaneBox(spawnPos, -(float)Math.PI / 2, shaderProgram, physics, this, settings.getPlayerName());
+				currentVehicle = new VehicleAirplaneBox(spawnPos, shaderProgram, physics, this, settings.getPlayerName());
 				break;
 			case Airplane:
 				currentVehicle = new VehicleAirplane(spawnPos, physics, this, settings.getPlayerName(), shaderProgram);
@@ -380,18 +387,18 @@ public class Game implements Runnable
 
 
     public void run(){
-		setup();
-		while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
-			glfwPollEvents();
+	setup();
+	while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
+	    glfwPollEvents();
 
-			update();
-			draw();
-		}
-		while (gameObjects.size() > 0) {
-			gameObjects.get(0).destroy();
-			gameObjects.remove(0);
-		}
-		glfwDestroyWindow(window);
-		JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
+	    update();
+	    draw();
 	}
+	while (gameObjects.size() > 0) {
+	    gameObjects.get(0).destroy();
+	    gameObjects.remove(0);
+	}
+	glfwDestroyWindow(window);
+	JOptionPane.showMessageDialog(null, "Score: " + currentVehicle.getScore());
+    }
 }

@@ -34,7 +34,7 @@ class QuadTree {
      */
     public QuadTree(Heightmap heightmap, Settings settings){
         this.heightmap = heightmap;
-        this.rootNode = new Node(new Vector3(0, 0, 0), heightmap.SIZE, (short)0, null);
+        this.rootNode = new Node(new Vector3(0, 0, 0), heightmap.size, (short)0, null);
         this.workerPool = new ForkJoinPool();
         this.settings = settings;
     }
@@ -43,7 +43,7 @@ class QuadTree {
         this.cameraPos = cameraPosition;
         this.MVPMatrix = MVPMatrix;
         this.detailFactor = settings.getDetailFactor();
-        this.maxLevels = Integer.numberOfTrailingZeros(heightmap.SIZE &(~1));
+        this.maxLevels = Integer.numberOfTrailingZeros(heightmap.size & (~1));
         this.isThreaded = settings.isThreaded();
 
 
@@ -340,6 +340,16 @@ class QuadTree {
                     quadsIndices[i] = vertices.size();
                     vertices.add(new VertexPositionColorNormal(center, color));
 
+                    /*private void addVertexIndex(int i, Vector3 position, ){
+                        i++;
+                        quadsIndices[i] = positionMap.get(position);
+                        if(quadsIndices[i] == null) {
+                            quadsIndices[i] = vertices.size();
+                            vertices.add(new VertexPositionColorNormal(position, color));
+                            positionMap.put(position, quadsIndices[i]);
+                        }
+                    }*/
+
                     quadsIndices[++i] = positionMap.get(leftFrontPos);
                     if(quadsIndices[i] == null) {
                         quadsIndices[i] = vertices.size();
@@ -454,7 +464,7 @@ class QuadTree {
             final float radius = size / 2.0f;
 
             if(dx < -radius || radius < dx ||
-                    dz < -radius || radius < dz){
+               dz < -radius || radius < dz){
                 if(isRoot())
                     return null;
                 else
@@ -613,8 +623,8 @@ class QuadTree {
             final float grassWaterLine = 4;
 
             float percentOfMaxHeight = Helpers.map(
-                    position.getY() + heightmap.MAX_HEIGHT / 2.0f,
-                    heightmap.MIN_HEIGHT, heightmap.MAX_HEIGHT,
+                    position.getY() + heightmap.maxHeight / 2.0f,
+                    heightmap.minHeight, heightmap.maxHeight,
                     0, 100
             );
 

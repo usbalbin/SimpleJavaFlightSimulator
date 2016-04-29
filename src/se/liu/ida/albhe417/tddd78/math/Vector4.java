@@ -32,6 +32,11 @@ public class Vector4
         setX(vector3.getX());setY(vector3.getY());setZ(vector3.getZ());setW(w);
     }
 
+    public static Vector4 createColor(int r, int g, int b, int a){
+        return new Vector4(r / 256f, g / 256f, b / 256f, a / 256f);
+    }
+
+
     public void setX(float x){
 	    values[0] = x;
     }

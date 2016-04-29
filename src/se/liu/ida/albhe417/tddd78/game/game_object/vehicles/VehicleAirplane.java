@@ -1,9 +1,9 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject.vehicles;
+package se.liu.ida.albhe417.tddd78.game.game_object.vehicles;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.Wing;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.Wing;
 import se.liu.ida.albhe417.tddd78.game.InputHandler;
 import se.liu.ida.albhe417.tddd78.game.Thruster;
 import se.liu.ida.albhe417.tddd78.math.Vector3;

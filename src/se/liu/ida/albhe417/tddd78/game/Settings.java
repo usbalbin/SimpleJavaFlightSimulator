@@ -1,6 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
-import se.liu.ida.albhe417.tddd78.game.gameObject.VehicleType;
+import se.liu.ida.albhe417.tddd78.game.game_object.VehicleType;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -33,8 +33,8 @@ public class Settings {
 
     private final AtomicBoolean wireFrame = new AtomicBoolean(false);
     private final AtomicBoolean threaded = new AtomicBoolean(true);
-    public final int AA_LEVEL = 16;
-    public final float OPENGL_VERSION = 3.0f;
+    public static final int AA_LEVEL = 16;
+    public static final float OPENGL_VERSION = 3.0f;
 
     private final String defaultTerrainPath = "content/heightmap4k.png";
 

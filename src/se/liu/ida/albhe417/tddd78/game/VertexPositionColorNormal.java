@@ -12,9 +12,9 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
  */
 public class VertexPositionColorNormal implements Vertex
 {
-    private static int POSITION_INDEX;
-    private static int COLOR_INDEX;
-    private static int NORMAL_INDEX;
+    private static int positionIndex;
+    private static int colorIndex;
+    private static int normalIndex;
 
     private static final int FLOATS_PER_VECTOR = 3;
     private static final int FLOAT_COUNT = FLOATS_PER_VECTOR * 3;
@@ -41,9 +41,9 @@ public class VertexPositionColorNormal implements Vertex
         int colorIndex = glGetAttribLocation(shaderProgram, "color");
         int normalIndex = glGetAttribLocation(shaderProgram, "normal");
 
-        VertexPositionColorNormal.POSITION_INDEX 	= positionIndex;
-        VertexPositionColorNormal.COLOR_INDEX		= colorIndex;
-        VertexPositionColorNormal.NORMAL_INDEX		= normalIndex;
+        VertexPositionColorNormal.positionIndex = positionIndex;
+        VertexPositionColorNormal.colorIndex = colorIndex;
+        VertexPositionColorNormal.normalIndex = normalIndex;
     }
 
     @Override
@@ -64,18 +64,18 @@ public class VertexPositionColorNormal implements Vertex
 
     @Override
     public void enableVertexAttributes(){
-        glEnableVertexAttribArray(POSITION_INDEX);
-        glEnableVertexAttribArray(COLOR_INDEX);
-        glEnableVertexAttribArray(NORMAL_INDEX);
+        glEnableVertexAttribArray(positionIndex);
+        glEnableVertexAttribArray(colorIndex);
+        glEnableVertexAttribArray(normalIndex);
     }
 
     @Override
     public void setupVertexAttributes() {
         //Show gpu how to interpret the vertex data
         int floatsPerVector = 3;
-        glVertexAttribPointer(POSITION_INDEX,   floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, 0L                                     );
-        glVertexAttribPointer(COLOR_INDEX,      floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES    );
-        glVertexAttribPointer(NORMAL_INDEX,     floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 2);
+        glVertexAttribPointer(positionIndex, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, 0L                                     );
+        glVertexAttribPointer(colorIndex, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES    );
+        glVertexAttribPointer(normalIndex, floatsPerVector, GL_FLOAT, false, FLOAT_COUNT * Float.BYTES, (long)floatsPerVector * Float.BYTES * 2);
     }
 
     @Override

@@ -2,6 +2,7 @@ package se.liu.ida.albhe417.tddd78.game;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public class Helpers {
 
-    public static void createNormalSphere(List<VertexPositionColorNormal> vertices, List<Integer> indices, float radius, Vector3 color, int qualityFactor){
+    public static void createNormalSphere(Collection<VertexPositionColorNormal> vertices, Collection<Integer> indices, float radius, Vector3 color, int qualityFactor){
         if(radius <= 0)
             throw new IllegalArgumentException("A sphere should have a radius > 0");
 
@@ -29,7 +30,7 @@ public class Helpers {
         setupSphereIndices(qualityFactor, indices, vertices.size());
     }
 
-    private static void setupSphereIndices(int qualityFactor, List<Integer> indices, int vertexCount){
+    private static void setupSphereIndices(int qualityFactor, Collection<Integer> indices, int vertexCount){
         for(int i = 0; i < vertexCount; i++){
             indices.add(i                                                       );
             indices.add((i - 1 - qualityFactor + vertexCount) % vertexCount     );

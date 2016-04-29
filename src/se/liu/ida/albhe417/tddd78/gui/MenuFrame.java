@@ -2,7 +2,7 @@ package se.liu.ida.albhe417.tddd78.gui;
 
 import net.miginfocom.swing.MigLayout;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObject.VehicleType;
+import se.liu.ida.albhe417.tddd78.game.game_object.VehicleType;
 import se.liu.ida.albhe417.tddd78.game.Settings;
 
 import javax.swing.*;
@@ -178,9 +178,8 @@ public class MenuFrame extends JFrame {
 
         JButton helpButton = new JButton("Help");
 
-        ActionListener listener = e -> {
+        ActionListener listener = e ->
             JOptionPane.showMessageDialog(this, "Steer with W,A,S,D and arrows");
-        };
         helpButton.addActionListener(listener);
 
         this.add(helpButton, constraints);

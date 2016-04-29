@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.misc;
 
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -7,8 +7,8 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Helpers;
 import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;

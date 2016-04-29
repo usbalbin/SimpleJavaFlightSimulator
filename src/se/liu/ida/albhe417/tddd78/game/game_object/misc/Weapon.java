@@ -1,8 +1,8 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.misc;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 

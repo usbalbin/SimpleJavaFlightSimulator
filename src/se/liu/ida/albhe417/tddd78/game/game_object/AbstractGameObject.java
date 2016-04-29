@@ -1,10 +1,10 @@
-package se.liu.ida.albhe417.tddd78.game.gameObject;
+package se.liu.ida.albhe417.tddd78.game.game_object;
 
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.gameObjectPart.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -23,7 +23,7 @@ public abstract class AbstractGameObject
     //protected float yaw, pitch, roll;
     protected Matrix4x4 modelMatrix;
     private final DynamicsWorld physics;
-    private final float DAMAGE_RESISTANCE;
+    private final float damageResistance;
     private float health;
     protected final AtomicInteger score;
     public final String playerName;
@@ -37,7 +37,7 @@ public abstract class AbstractGameObject
         modelMatrix = modelMatrix.getTranslated(position);
         this.physics = physics;
         this.health = maxHealth;
-        this.DAMAGE_RESISTANCE = maxHealth / 10;
+        this.damageResistance = maxHealth / 10;
         this.score = new AtomicInteger(0);
         this.playerName = playerName;
         this.parts = new ArrayList<>();
@@ -52,7 +52,7 @@ public abstract class AbstractGameObject
         }
     }
 
-    public void hitCalculation(ManifoldPoint cp){health -= Math.max(cp.appliedImpulse - DAMAGE_RESISTANCE, 0);}
+    public void hitCalculation(ManifoldPoint cp){health -= Math.max(cp.appliedImpulse - damageResistance, 0);}
 
     public void hitRegister(AbstractGameObject other){
         if(shouldDie() && killedBy == null) {

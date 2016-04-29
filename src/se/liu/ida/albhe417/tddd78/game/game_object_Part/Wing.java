@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.gameObjectPart;
+package se.liu.ida.albhe417.tddd78.game.game_object_Part;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -8,7 +8,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.dynamics.constraintsolver.*;
-import se.liu.ida.albhe417.tddd78.game.gameObject.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -21,14 +21,14 @@ import javax.vecmath.Vector3f;
  * File created by Albin on 21/04/2016.
  */
 public class Wing extends GameObjectPart {
-    private final float MASS;
-    private final Vector3 SIZE;
+    private final float mass;
+    private final Vector3 size;
     private static final int NUM_VERTICES_PER_CUBE = 8;
 
     public Wing(Vector3 offsetPosition, Vector3 size, float mass, Matrix4x4 modelMatrix, int shaderProgram, DynamicsWorld physics, AbstractGameObject parentGameObject) {
         super(shaderProgram, NUM_VERTICES_PER_CUBE, new VertexPositionColorNormal());
-        this.MASS = mass;
-        this.SIZE = size;
+        this.mass = mass;
+        this.size = size;
         setup(offsetPosition, modelMatrix, physics, parentGameObject);
     }
 
@@ -65,29 +65,29 @@ public class Wing extends GameObjectPart {
         final Vector3 white = 	new Vector3(0, 0, 0.5f);//new Vector3(1, 1, 1);
 
         //"LTR" = left top rear
-        Vector3 posLTR = new Vector3(-SIZE.getX(), SIZE.getY(), SIZE.getZ());
-        Vector3 posRTR = new Vector3( SIZE.getX(), SIZE.getY(), SIZE.getZ());
-        Vector3 posRBR = new Vector3( SIZE.getX(),-SIZE.getY(), SIZE.getZ());
-        Vector3 posLBR = new Vector3(-SIZE.getX(),-SIZE.getY(), SIZE.getZ());
+        Vector3 posLTR = new Vector3(-size.getX(), size.getY(), size.getZ());
+        Vector3 posRTR = new Vector3(size.getX(), size.getY(), size.getZ());
+        Vector3 posRBR = new Vector3(size.getX(), -size.getY(), size.getZ());
+        Vector3 posLBR = new Vector3(-size.getX(), -size.getY(), size.getZ());
 
-        Vector3 posLTF = new Vector3(-SIZE.getX(), SIZE.getY(), -SIZE.getZ());
-        Vector3 posRTF = new Vector3( SIZE.getX(), SIZE.getY(), -SIZE.getZ());
-        Vector3 posRBF = new Vector3( SIZE.getX(),-SIZE.getY(), -SIZE.getZ());
-        Vector3 posLBF = new Vector3(-SIZE.getX(),-SIZE.getY(), -SIZE.getZ());
+        Vector3 posLTF = new Vector3(-size.getX(), size.getY(), -size.getZ());
+        Vector3 posRTF = new Vector3(size.getX(), size.getY(), -size.getZ());
+        Vector3 posRBF = new Vector3(size.getX(), -size.getY(), -size.getZ());
+        Vector3 posLBF = new Vector3(-size.getX(), -size.getY(), -size.getZ());
 
-        VertexPositionColorNormal LTR = new VertexPositionColorNormal(posLTR, red, posLTR);
-        VertexPositionColorNormal RTR = new VertexPositionColorNormal(posRTR, green, posRTR);
-        VertexPositionColorNormal RBR = new VertexPositionColorNormal(posRBR, blue, posRBR);
-        VertexPositionColorNormal LBR = new VertexPositionColorNormal(posLBR, white, posLBR);
+        VertexPositionColorNormal leftTopRear = new VertexPositionColorNormal(posLTR, red, posLTR);
+        VertexPositionColorNormal rightTopRear = new VertexPositionColorNormal(posRTR, green, posRTR);
+        VertexPositionColorNormal rightBottomRear = new VertexPositionColorNormal(posRBR, blue, posRBR);
+        VertexPositionColorNormal leftBottomRear = new VertexPositionColorNormal(posLBR, white, posLBR);
 
-        VertexPositionColorNormal LTF = new VertexPositionColorNormal(posLTF, red, posLTF);
-        VertexPositionColorNormal RTF = new VertexPositionColorNormal(posRTF, green, posRTF);
-        VertexPositionColorNormal RBF = new VertexPositionColorNormal(posRBF, blue, posRBF);
-        VertexPositionColorNormal LBF = new VertexPositionColorNormal(posLBF, white, posLBF);
+        VertexPositionColorNormal leftTopFront = new VertexPositionColorNormal(posLTF, red, posLTF);
+        VertexPositionColorNormal rightTopFront = new VertexPositionColorNormal(posRTF, green, posRTF);
+        VertexPositionColorNormal rearBottomFront = new VertexPositionColorNormal(posRBF, blue, posRBF);
+        VertexPositionColorNormal leftBottomFront = new VertexPositionColorNormal(posLBF, white, posLBF);
 
         VertexPositionColorNormal[] vertices = {
-            LTR, RTR, RBR, LBR,
-            LTF, RTF, RBF, LBF
+            leftTopRear, rightTopRear, rightBottomRear, leftBottomRear,
+            leftTopFront, rightTopFront, rearBottomFront, leftBottomFront
         };
 
         int[] indices = {
@@ -107,10 +107,10 @@ public class Wing extends GameObjectPart {
         Transform transform = new Transform(partModelMatrix.toMatrix4f());
         MotionState motionState = new DefaultMotionState(transform);
 
-        CollisionShape shape = new BoxShape(SIZE.toVector3f());
+        CollisionShape shape = new BoxShape(size.toVector3f());
         Vector3f inertia = new Vector3f();
-        shape.calculateLocalInertia(MASS, inertia);
-        RigidBody physicsObject = new RigidBody(MASS, motionState, shape, inertia);
+        shape.calculateLocalInertia(mass, inertia);
+        RigidBody physicsObject = new RigidBody(mass, motionState, shape, inertia);
         physicsObject.setUserPointer(parentGameObject);
 
         setPhysicsObject(physicsObject);
@@ -123,9 +123,9 @@ public class Wing extends GameObjectPart {
         Vector3f linearVelocity3f = new Vector3f();
         getPhysicsObject().getLinearVelocity(linearVelocity3f);
 
-        float leftRightDrag = -SIZE.getY() * SIZE.getZ();
-        float upDownDrag = -SIZE.getX() * SIZE.getZ();
-        float frontBackDrag = -SIZE.getX() * SIZE.getY();
+        float leftRightDrag = -size.getY() * size.getZ();
+        float upDownDrag = -size.getX() * size.getZ();
+        float frontBackDrag = -size.getX() * size.getY();
         final float dragTuningFactor = 0.1f;
 
 
