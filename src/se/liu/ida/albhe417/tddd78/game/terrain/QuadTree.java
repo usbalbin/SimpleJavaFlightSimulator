@@ -1,19 +1,28 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.terrain;
 
+import se.liu.ida.albhe417.tddd78.game.Helpers;
+import se.liu.ida.albhe417.tddd78.game.Settings;
+import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 /**
- * Project TDDD78
+ * QuadTree contains a quad tree for effectively holding the graphic mesh of objects like the TerrainLOD.
  *
- * File created by Albin on 2016-03-14.
+ * The tree structure is perfect for dividing the terrain into parts with different levels of detail.
  */
-class QuadTree {
+class QuadTree
+{
 
     private Settings settings;
     private Heightmap heightmap;
@@ -21,9 +30,9 @@ class QuadTree {
     private int detailFactor;
     private int maxLevels;
     private boolean isThreaded;
-    private Vector3 cameraPos;
-    private Matrix4x4 MVPMatrix;
-    private ForkJoinPool workerPool;
+    private Vector3 cameraPos = null;
+    private Matrix4x4 modelViewProjectionMatrix = null;
+    private ForkJoinPool workerPool = null;
 
     private Node rootNode;
 
@@ -39,9 +48,9 @@ class QuadTree {
         this.settings = settings;
     }
 
-    public void update(Vector3 cameraPosition, Matrix4x4 MVPMatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
+    public void update(Vector3 cameraPosition, Matrix4x4 modelViewProjectionMatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
         this.cameraPos = cameraPosition;
-        this.MVPMatrix = MVPMatrix;
+        this.modelViewProjectionMatrix = modelViewProjectionMatrix;
         this.detailFactor = settings.getDetailFactor();
         this.maxLevels = Integer.numberOfTrailingZeros(heightmap.size & (~1));
         this.isThreaded = settings.isThreaded();
@@ -64,13 +73,16 @@ class QuadTree {
 
     }
 
+	/**
+     * Node is the actual nodes making up the tree
+     */
     private final class Node extends RecursiveAction{
 
-        private Node leftFront;
-        private Node rightFront;
-        private Node leftBottom;
-        private Node rightBottom;
-        private Node parent;
+        private Node leftFront = null;
+        private Node rightFront = null;
+        private Node leftBottom = null;
+        private Node rightBottom = null;
+        private Node parent = null;
 
         private boolean leftStitchPnt = false;
         private boolean frontStitchPnt = false;
@@ -131,7 +143,7 @@ class QuadTree {
             final int desiredLevel = (int)Math.max(maxLevels - (Math.sqrt(dist) * 50/ detailFactor), 0);
 
 
-            if(desiredLevel <= level || level >= maxLevels || !inView(center, MVPMatrix)) {
+            if(desiredLevel <= level || level >= maxLevels || !inView()) {
                 leftFront = null;
                 rightFront = null;
                 rightBottom = null;
@@ -272,124 +284,114 @@ class QuadTree {
                 rightFront.generateVerticesAndIndices(vertices, indices, positionMap);
                 leftBottom.generateVerticesAndIndices(vertices, indices, positionMap);
                 rightBottom.generateVerticesAndIndices(vertices, indices, positionMap);
+                return;
             }
 
-            else{
-                int halfSide = size / 2;
-
-                Vector3 leftFrontPos = position.add(-halfSide, 0, -halfSide);
-                Vector3 rightFrontPos = position.add(+halfSide, 0, -halfSide);
-                Vector3 leftBottomPos = position.add(-halfSide, 0, +halfSide);
-                Vector3 rightBottomPos = position.add(+halfSide, 0, +halfSide);
-
-
-
-                heightmap.getHeight(leftFrontPos);
-                heightmap.getHeight(rightFrontPos);
-                heightmap.getHeight(leftBottomPos);
-                heightmap.getHeight(rightBottomPos);
-
-                Vector3 color = calculateColor(position);
-
-                if(!isStitched()){
-
-                    Integer leftFrontIndex = positionMap.get(leftFrontPos);
-                    if(leftFrontIndex == null) {
-                        leftFrontIndex = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(leftFrontPos, color));//0
-                        positionMap.put(leftFrontPos, leftFrontIndex);
-                    }
-
-                    Integer rightFrontIndex = positionMap.get(rightFrontPos);
-                    if(rightFrontIndex == null) {
-                        rightFrontIndex = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(rightFrontPos, color));//1
-                        positionMap.put(rightFrontPos, rightFrontIndex);
-                    }
-
-                    Integer leftBottomIndex = positionMap.get(leftBottomPos);
-                    if(leftBottomIndex == null) {
-                        leftBottomIndex = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(leftBottomPos, color));//2
-                        positionMap.put(leftBottomPos, leftBottomIndex);
-                    }
-
-                    Integer rightBottomIndex = positionMap.get(rightBottomPos);
-                    if(rightBottomIndex == null) {
-                        rightBottomIndex = vertices.size();
-                        vertices.add(new VertexPositionColorNormal(rightBottomPos, color));//3
-                        positionMap.put(rightBottomPos, rightBottomIndex);
-                    }
-
-                    indices.add(leftFrontIndex);indices.add(rightBottomIndex);indices.add(leftBottomIndex);
-                    indices.add(leftFrontIndex);indices.add(rightFrontIndex);indices.add(rightBottomIndex);
-
-                }else{
-                    final int numVertices = 5 + numStitchPoints();
-
-                    Vector3 center = position;
-                    heightmap.getHeight(center);
-                    Vector3 leftPos = position.add(-halfSide, 0, 0);
-                    Vector3 frontPos = position.add(0, 0, -halfSide);
-                    Vector3 rightPos = position.add(+halfSide, 0, 0);
-                    Vector3 bottomPos = position.add(0, 0, +halfSide);
-
-                    heightmap.getHeight(leftPos);
-                    heightmap.getHeight(frontPos);
-                    heightmap.getHeight(rightPos);
-                    heightmap.getHeight(bottomPos);
-
-
-                    int i = 0;
-                    Integer[] quadsIndices = new Integer[numVertices];
-
-                    quadsIndices[i] = vertices.size();
-                    vertices.add(new VertexPositionColorNormal(center, color)); i++;
-
-                    addVertexIndex(leftFrontPos, color, i, vertices, quadsIndices, positionMap); i++;
-
-                    if(frontStitchPnt) {
-                        addVertexIndex(frontPos, color, i, vertices, quadsIndices, positionMap); i++;
-                    }
-
-                    addVertexIndex(rightFrontPos, color, i, vertices, quadsIndices, positionMap); i++;
-
-                    if(rightStitchPnt) {
-                        addVertexIndex(rightPos, color, i, vertices, quadsIndices, positionMap); i++;
-                    }
-
-                    addVertexIndex(rightBottomPos, color, i, vertices, quadsIndices, positionMap); i++;
-
-                    if(bottomStitchPnt) {
-                        addVertexIndex(bottomPos, color, i, vertices, quadsIndices, positionMap); i++;
-                    }
-
-                    addVertexIndex(leftBottomPos, color, i, vertices, quadsIndices, positionMap); i++;
-
-                    if(leftStitchPnt) {
-                        addVertexIndex(leftPos, color, i, vertices, quadsIndices, positionMap);
-                    }
-
-                    indices.add(quadsIndices[numVertices - 1]);   //last vertex
-                    indices.add(quadsIndices[1]);         //First vertex
-                    indices.add(quadsIndices[0]);         //Center
-
-                    for(int j = 0; j < numVertices - 1; j++){
-                        indices.add(quadsIndices[j]);
-                        indices.add(quadsIndices[j + 1]);
-                        indices.add(quadsIndices[0]);
-                    }
-                }
+            if(isStitched()){
+                genVerticesIndicesStitched(vertices, indices, positionMap);
+            }else{
+                genVerticesIndicesNonStitched(vertices, indices, positionMap);
             }
         }
 
+        private void genVerticesIndicesNonStitched(final List<VertexPositionColorNormal> vertices, final Collection<Integer> indices, Map<Vector3, Integer> positionMap){
+            int halfSide = size / 2;
+
+            Vector3 leftFrontPos = position.add(-halfSide, 0, -halfSide);
+            Vector3 rightFrontPos = position.add(+halfSide, 0, -halfSide);
+            Vector3 leftBottomPos = position.add(-halfSide, 0, +halfSide);
+            Vector3 rightBottomPos = position.add(+halfSide, 0, +halfSide);
+
+
+
+            heightmap.getHeight(leftFrontPos);
+            heightmap.getHeight(rightFrontPos);
+            heightmap.getHeight(leftBottomPos);
+            heightmap.getHeight(rightBottomPos);
+
+            Vector3 color = calculateColor(position);
+
+            Integer leftFrontIndex = addVertexGetIndex(leftFrontPos, color, vertices, positionMap);
+
+            Integer rightFrontIndex = addVertexGetIndex(rightFrontPos, color, vertices, positionMap);
+
+            Integer leftBottomIndex = addVertexGetIndex(leftBottomPos, color, vertices, positionMap);
+
+            Integer rightBottomIndex = addVertexGetIndex(rightBottomPos, color, vertices, positionMap);
+
+            indices.add(leftFrontIndex);indices.add(rightBottomIndex);indices.add(leftBottomIndex);
+            indices.add(leftFrontIndex);indices.add(rightFrontIndex);indices.add(rightBottomIndex);
+        }
+
+        private void genVerticesIndicesStitched(final List<VertexPositionColorNormal> vertices, final Collection<Integer> indices, Map<Vector3, Integer> positionMap){
+            int halfSide = size / 2;
+
+            Vector3 center = position;
+            Vector3 leftFrontPos = position.add(-halfSide, 0, -halfSide);
+            Vector3 rightFrontPos = position.add(+halfSide, 0, -halfSide);
+            Vector3 leftBottomPos = position.add(-halfSide, 0, +halfSide);
+            Vector3 rightBottomPos = position.add(+halfSide, 0, +halfSide);
+
+            Vector3 frontPos = position.add(0, 0, -halfSide);
+            Vector3 rightPos = position.add(+halfSide, 0, 0);
+            Vector3 bottomPos = position.add(0, 0, +halfSide);
+            Vector3 leftPos = position.add(-halfSide, 0, 0);
+
+            Vector3[] corners = new Vector3[]{leftFrontPos, rightFrontPos, rightBottomPos, leftBottomPos};
+            Vector3[] stitchPoss = new Vector3[]{frontPos, rightPos, bottomPos, leftPos};
+            boolean[] stitchPoints = new boolean[]{frontStitchPnt, rightStitchPnt, bottomStitchPnt, leftStitchPnt};
+
+            final Vector3 color = calculateColor(position);
+            final int numVertices = 5 + numStitchPoints();
+
+            int i = 0;
+            Integer[] quadsIndices = new Integer[numVertices];
+
+            quadsIndices[i] = vertices.size();
+            vertices.add(new VertexPositionColorNormal(center, color)); i++;
+
+
+            for(int j = 0; j < 4; j++){
+                addVertexIndex(corners[j], color, i, vertices, quadsIndices, positionMap);
+                i++;
+
+                if(stitchPoints[j]) {
+                    addVertexIndex(stitchPoss[j], color, i, vertices, quadsIndices, positionMap);
+                    i++;
+                }
+            }
+
+            indices.add(quadsIndices[numVertices - 1]);   //last vertex
+            indices.add(quadsIndices[1]);         //First vertex
+            indices.add(quadsIndices[0]);         //Center
+
+            for(int j = 0; j < numVertices - 1; j++){
+                indices.add(quadsIndices[j]);
+                indices.add(quadsIndices[j + 1]);
+                indices.add(quadsIndices[0]);
+            }
+        }
+
+
         private void addVertexIndex(Vector3 position, Vector3 color, int currentIndex, List<VertexPositionColorNormal> vertices, Integer[] quadsIndices, Map<Vector3, Integer> positionMap){
+            heightmap.getHeight(position);
             quadsIndices[currentIndex] = positionMap.get(position);
             if(quadsIndices[currentIndex] == null) {
                 quadsIndices[currentIndex] = vertices.size();
                 vertices.add(new VertexPositionColorNormal(position, color));
                 positionMap.put(position, quadsIndices[currentIndex]);
             }
+        }
+
+        private int addVertexGetIndex(Vector3 position, Vector3 color, List<VertexPositionColorNormal> vertices, Map<Vector3, Integer> positionMap){
+            Integer currentIndex = positionMap.get(position);
+            if(currentIndex == null){
+                currentIndex = vertices.size();
+                vertices.add(new VertexPositionColorNormal(position, color));
+                positionMap.put(position, currentIndex);
+            }
+
+            return currentIndex;
         }
 
         private void addLeftStitchPnt(){
@@ -426,6 +428,8 @@ class QuadTree {
          * @return found node or null if it can not be found
          */
         private Node findNode(final Vector3 position){
+            //Recursion seems like the obvious choice over any kind of looping solution
+
             final int dx = Math.round(position.getX() - this.position.getX());
             final int dz = Math.round(position.getZ() - this.position.getZ());
 
@@ -482,60 +486,11 @@ class QuadTree {
 
         /**
          * Check if this node is inside of the camera view
-         * @param center Center of this node
-         * @param MVPMatrix the matrix converting the scene to screen space
          * @return whether the node is inside
          */
-        private boolean inView(Vector3 center, Matrix4x4 MVPMatrix) {
-            int halfSize = size / 2;
+        private boolean inView() {
 
-            //Find heights at every corner of this node
-            Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
-            Vector3 frontRight = position.add(0, 0, -halfSize);
-            Vector3 bottomRight = position.add(halfSize, 0, halfSize);
-            Vector3 bottomLeft = position.add(-halfSize, 0, halfSize);
-
-            heightmap.getHeight(frontLeft);
-            heightmap.getHeight(frontRight);
-            heightmap.getHeight(bottomRight);
-            heightmap.getHeight(bottomLeft);
-
-            float maxHeight = center.getY();
-            float minHeight = center.getY();
-
-            float[] heights = {frontLeft.getY(), frontRight.getY(), bottomRight.getY(), bottomLeft.getY()};
-
-            for (float height : heights) {
-                if (height > maxHeight)
-                    maxHeight = height;
-                else if (height < minHeight)
-                    minHeight = height;
-            }
-
-            Vector4 centerZeroHeight = new Vector4(center, 1);
-            centerZeroHeight.setY(0);
-
-            //Create axis aligned bounding box for this node
-            Vector4 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize, 1);
-            Vector4 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize, 1);
-            Vector4 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize, 1);
-            Vector4 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize, 1);
-
-            Vector4 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize, 1);
-            Vector4 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize, 1);
-            Vector4 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize, 1);
-            Vector4 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize, 1);
-
-            Vector4[] corners = {
-                    leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack,
-                    leftTopFront, rightTopFront, rightTopBack, leftTopBack
-            };
-
-            //Transform bounding box into screen space
-            for (int i = 0; i < corners.length; i++){
-                corners[i] = MVPMatrix.multiply(corners[i]);
-                corners[i] = corners[i].divide(corners[i].getW());//Compensate for things getting smaller farther away
-            }
+            Vector4[] corners = calculateTransformedAABB();
 
             for (int i = 0; i < 3; i++) {
                 final int screenBorderMax = +1;
@@ -571,6 +526,60 @@ class QuadTree {
 
             //All corners are inside some sides, thus box is either intersecting or completely inside the frustum
             return true;
+        }
+
+        private Vector4[] calculateTransformedAABB(){
+            int halfSize = size / 2;
+
+            //Find heights at every corner of this node
+            Vector3 frontLeft = position.add(-halfSize, 0, -halfSize);
+            Vector3 frontRight = position.add(0, 0, -halfSize);
+            Vector3 bottomRight = position.add(halfSize, 0, halfSize);
+            Vector3 bottomLeft = position.add(-halfSize, 0, halfSize);
+
+            heightmap.getHeight(frontLeft);
+            heightmap.getHeight(frontRight);
+            heightmap.getHeight(bottomRight);
+            heightmap.getHeight(bottomLeft);
+
+            float maxHeight = position.getY();
+            float minHeight = position.getY();
+
+            float[] heights = {frontLeft.getY(), frontRight.getY(), bottomRight.getY(), bottomLeft.getY()};
+
+            for (float height : heights) {
+                if (height > maxHeight)
+                    maxHeight = height;
+                else if (height < minHeight)
+                    minHeight = height;
+            }
+
+            Vector4 centerZeroHeight = new Vector4(position, 1);
+            centerZeroHeight.setY(0);
+
+            //Create axis aligned bounding box for this node
+            Vector4 leftBottomFront = centerZeroHeight.add(-halfSize, minHeight, -halfSize, 1);
+            Vector4 rightBottomFront = centerZeroHeight.add(halfSize, minHeight, -halfSize, 1);
+            Vector4 rightBottomBack = centerZeroHeight.add(halfSize, minHeight, halfSize, 1);
+            Vector4 leftBottomBack = centerZeroHeight.add(-halfSize, minHeight, halfSize, 1);
+
+            Vector4 leftTopFront = centerZeroHeight.add(-halfSize, maxHeight, -halfSize, 1);
+            Vector4 rightTopFront = centerZeroHeight.add(halfSize, maxHeight, -halfSize, 1);
+            Vector4 rightTopBack = centerZeroHeight.add(halfSize, maxHeight, halfSize, 1);
+            Vector4 leftTopBack = centerZeroHeight.add(-halfSize, maxHeight, halfSize, 1);
+
+            Vector4[] corners = {
+                    leftBottomFront, rightBottomFront, rightBottomBack, leftBottomBack,
+                    leftTopFront, rightTopFront, rightTopBack, leftTopBack
+            };
+
+            //Transform bounding box into screen space
+            for (int i = 0; i < corners.length; i++){
+                corners[i] = modelViewProjectionMatrix.multiply(corners[i]);
+                corners[i] = corners[i].divide(corners[i].getW());//Compensate for things getting smaller farther away
+            }
+
+            return corners;
         }
 
         /**

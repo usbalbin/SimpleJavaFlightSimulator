@@ -1,20 +1,13 @@
 package se.liu.ida.albhe417.tddd78.math;
 
-import javax.vecmath.Vector4f;
-
 /**
- * Project TDDD78
- *
- * File created by Albin.
+ * Vector4 is a useful 4-component float container useful for representing positions, colors, directions and much more.
  */
 public class Vector4
 {
-    public static final Vector4 UP = new Vector4(0, 1, 0, 1);
-    public static final Vector4 FORWARD = new Vector4(0, 0, -1, 1);
-    public static final Vector4 BACK = new Vector4(0, 0, 1, 1);
-    public static final Vector4 RIGHT = new Vector4(1, 0, 0, 1);
-
-
+    /**
+     * Underlying values of the vector where values[0] corresponds to X, values[1] to Y and so on.
+     */
     public final float[] values;
 
     public Vector4() {
@@ -33,7 +26,7 @@ public class Vector4
     }
 
     public static Vector4 createColor(int r, int g, int b, int a){
-        final float hexToFloat = 256f;
+        final float hexToFloat = 256.0f;
         return new Vector4(r / hexToFloat, g / hexToFloat, b / hexToFloat, a / hexToFloat);
     }
 
@@ -70,14 +63,6 @@ public class Vector4
     	return values[3];
     }
 
-    public Vector4 multiply(Vector4 other){
-        return new Vector4(this.getX() * other.getX(), this.getY() * other.getY(), this.getZ() * other.getZ(), this.getW() * other.getW());
-    }
-
-    public Vector4 multiply(float other){
-        return new Vector4(this.getX() * other, this.getY() * other, this.getZ() * other, this.getW() * other);
-    }
-
     public Vector4 divide(float other){
         return new Vector4(this.getX() / other, this.getY() / other, this.getZ() / other, this.getW() / other);
     }
@@ -92,10 +77,6 @@ public class Vector4
 
     public Vector3 toVector3(){
         return new Vector3(getX(), getY(), getZ());
-    }
-
-    public Vector4f toVector4f(){
-        return new Vector4f(this.values);
     }
 
     @Override

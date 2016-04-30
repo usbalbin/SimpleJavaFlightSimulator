@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.terrain;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.HeightfieldTerrainShape;
@@ -6,8 +6,10 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
+import se.liu.ida.albhe417.tddd78.game.Settings;
+import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -15,9 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 14/03/2016.
+ * TerrainLOD is a structure holding a terrain with auto adjusting level of detail depending on camera position.
  */
 public class TerrainLOD extends AbstractGameObject{
 
@@ -27,16 +27,13 @@ public class TerrainLOD extends AbstractGameObject{
 
     private QuadTree quadTree;
 
-    private int[] indexArray;
+    private int[] indexArray = null;
     private final List<VertexPositionColorNormal> vertices;
     private final List<Integer> indices;
 
     private static final int MAX_EXPECTED_VERTEX_COUNT = 100000;
 
-    public TerrainLOD(
-        Vector3 position, final float heightFactor,
-        Settings settings, final int shaderProgram, DynamicsWorld physics, Game game
-    ) {
+    public TerrainLOD(Vector3 position, final float heightFactor, Settings settings, final int shaderProgram, DynamicsWorld physics) {
         super(position, physics, heightFactor, "Ground");
         this.settings = settings;
         this.vertices = new ArrayList<>(MAX_EXPECTED_VERTEX_COUNT);
@@ -64,7 +61,7 @@ public class TerrainLOD extends AbstractGameObject{
                                                            heightmap.heightFactor, heightmap.minHeight, heightmap.maxHeight, 1, true
         );
 
-        RigidBody physicsObjectMain = new RigidBody(0f, motionState, shape);
+        RigidBody physicsObjectMain = new RigidBody(0.0f, motionState, shape);
         physicsObjectMain.setUserPointer(this);
         partMain.setPhysicsObject(physicsObjectMain);
         physics.addRigidBody(physicsObjectMain);

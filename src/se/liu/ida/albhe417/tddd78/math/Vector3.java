@@ -5,19 +5,28 @@ import se.liu.ida.albhe417.tddd78.game.Helpers;
 import javax.vecmath.Vector3f;
 
 /**
- * Project TDDD78
- *
- * File created by Albin.
+ * Vector3 is a useful 3-component float container useful for representing positions, colors, directions, forces and much more.
  */
 public class Vector3
 {
-    public static final Vector3 RIGHT = new Vector3(1, 0, 0);
-    public static final Vector3 UP = new Vector3(0, 1, 0);
-    public static final Vector3 BACK = new Vector3(0, 0, 1);
-    public static final Vector3 FORWARD = new Vector3(0, 0, -1);
-    public static final Vector3 ZERO = new Vector3(0, 0, 0);
-    public static final Vector3 ONE = new Vector3(1, 1, 1);
+    /**
+     * Unit vector pointing up
+     */
+    public static final Vector3 UP = new Vector3(0, 1, 0); //Up is a perfectly good name for something that is "up"
 
+    /**
+     * Unit vector pointing forward
+     */
+    public static final Vector3 FORWARD = new Vector3(0, 0, -1);
+
+    /**
+     * Vector with all axis set to zero
+     */
+    public static final Vector3 ZERO = new Vector3(0, 0, 0);
+
+	/**
+     * Underlying values of the vector where values[0] corresponds to X, values[1] to Y and so on.
+     */
     public final float[] values;
 
     public Vector3(Vector3f vector3f){
@@ -33,43 +42,37 @@ public class Vector3
     }
 
     public Vector3(final float x, final float y, final float z) {
-	    this.values = new float[3];
-	    setX(x);setY(y);setZ(z);
+        this.values = new float[3];
+        setX(x);setY(y);setZ(z);
     }
 
     public static Vector3 createColor(int r, int g, int b){
-        final float hexToFloat = 256f;
+        final float hexToFloat = 256.0f;
         return new Vector3(r / hexToFloat, g / hexToFloat, b / hexToFloat);
     }
 
-    public Vector3(float[] values) {
-	    if(values.length != 3)
-	        throw new IllegalArgumentException("Wrong sized array");
-        this.values = values;
-    }
-
     public void setX(float x){
-    	values[0] = x;
+        values[0] = x;
     }
 
     public void setY(float y){
-	values[1] = y;
+        values[1] = y;
     }
 
     public void setZ(float z){
-	values[2] = z;
+        values[2] = z;
     }
 
     public float getX(){
-	return values[0];
+        return values[0];
     }
 
     public float getY(){
-    	return values[1];
+        return values[1];
     }
 
     public float getZ(){
-    	return values[2];
+        return values[2];
     }
 
     public Vector3 multiply(Vector3 other){
@@ -156,6 +159,7 @@ public class Vector3
         return new Vector3(x, y, z);
     }
 
+    //Would not make sense to have rotate for x and y but not z for future development
     public Vector3 getRotatedAroundZ(float angle){
         float sin = (float)Math.sin(angle);
         float cos = (float)Math.cos(angle);
@@ -165,10 +169,6 @@ public class Vector3
         float z = this.getZ();
 
         return new Vector3(x, y, z);
-    }
-
-    public Vector3 getRotated(float yaw, float pitch, float roll){
-        return this.getRotatedAroundY(yaw).getRotatedAroundX(pitch).getRotatedAroundZ(roll);
     }
 
     @Override
@@ -186,8 +186,8 @@ public class Vector3
             return false;
         Vector3 other = (Vector3)obj;
         return Helpers.fEquals(this.getX(), other.getX()) &&
-                //Helpers.fEquals(this.getY(), other.getY()) &&
-                Helpers.fEquals(this.getZ(), other.getZ());
+               //Helpers.fEquals(this.getY(), other.getY()) &&
+               Helpers.fEquals(this.getZ(), other.getZ());
     }
 
     @Override

@@ -5,9 +5,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import java.util.Collection;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 09/03/2016.
+ * Helpers contains a handful of handy functions that might be useful at multiple places.
  */
 public final class Helpers {
 

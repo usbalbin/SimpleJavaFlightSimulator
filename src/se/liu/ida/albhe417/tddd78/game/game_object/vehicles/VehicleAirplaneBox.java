@@ -2,7 +2,7 @@ package se.liu.ida.albhe417.tddd78.game.game_object.vehicles;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.*;
-import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.Wing;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Vector3f;
@@ -14,66 +14,58 @@ import javax.vecmath.Vector3f;
  * File created by Albin on 11/03/2016.
  */
 public class VehicleAirplaneBox extends AbstractVehicleBox{
-    public static final float MASS = 1100.0f;
-    public static final float THRUST_FACTOR = 36000.0f;
-    public static final int MAX_HEALTH = 20000;
 
-    public VehicleAirplaneBox(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game, String playerName){
-		//TODO, add constants
-		super(position, MASS, THRUST_FACTOR, physics, game, MAX_HEALTH, playerName + "'s AirplaneBox", shaderProgram);
+	/**
+	 * Mass of an AIRPLANE in kilograms
+	 */
+	public static final float MASS = 1100.0f;
+
+	/**
+	 * Thrust factor of the thruster in Newtons
+	 */
+	public static final float THRUST_FACTOR = 36000.0f;
+
+	/**
+	 * Max health of the AIRPLANE described in max amount of momentum absorbed during collisions before getting destroyed.
+	 * Unit is kilogram * meter / sec or Newton / sec
+	 */
+	public static final int MAX_HEALTH = 20000;
+	protected Thruster thruster;
+
+	public VehicleAirplaneBox(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String playerName){
+		super(position, MASS, THRUST_FACTOR, physics, MAX_HEALTH, playerName + "'s AIRPLANE_BOX", shaderProgram);
 		setup(shaderProgram, physics);
 	}
 
 	private void setup(final int shaderProgram, DynamicsWorld physics){
-		setupBody(shaderProgram, physics);
+		setupBoxBody(shaderProgram, physics);
+		Vector3 thrustDirection = Vector3.FORWARD;
+		thruster = new Thruster(thrustDirection, thrustFactor, (Wing)partBody);
 	}
 
 
-	protected void calcAerodynamics(float deltaThrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
-	    final float throttleSensitivity 	= 1000.0f;
-	    final float yawSensitivity 		= 10000.0f;    //N/m
-	    final float pitchSensitivity 	= 10000.0f;
-	    final float rollSensitivity 	= 10000.0f;
-
-	    changeThrottle(deltaThrottle * throttleSensitivity * deltaTime);
-
-	    float lift = throttle * thrustFactor;
-	    Matrix4x4 modelMatrix = partBody.getMatrix();
-
-	    Matrix4x4 partMatrix = partBody.getMatrix();
-	    Vector3 thrustForce = new Vector3(0, 0, -lift);
-	    thrustForce = modelMatrix.multiply(thrustForce, false);//
-
-	    Vector3 thrustForcePoint = new Vector3(0, 0, 0);
-	    thrustForcePoint = modelMatrix.multiply(thrustForcePoint, false);
-
-	    Vector3f linearVelocity3f = new Vector3f();
-	    partBody.getPhysicsObject().getLinearVelocity(linearVelocity3f);
-	    final Vector3 dragFactor = new Vector3(-128, -512, -0.1f);
-	    Vector3 linearVelocity = new Vector3(linearVelocity3f);
-	    Vector3 modelLinearVelocity = modelMatrix.multiply(linearVelocity, false);
-
-	    Vector3 modelLinearResistance = modelLinearVelocity.multiply(modelLinearVelocity.abs());
-	    modelLinearResistance = modelLinearResistance.multiply(dragFactor);
-
-	    Vector3 linearResistance = partBody.getInvertedMatrix().multiply(modelLinearResistance, false);
+	protected void calcHandling(float deltaThrottle, float yawValue, float pitchValue, float rollValue, float deltaTime){
+		final float yawSensitivity 		= 10000.0f;    //N/m
+		final float pitchSensitivity 	= 10000.0f;
+		final float rollSensitivity 	= 10000.0f;
 
 
-	    Vector3f angularVelocity = new Vector3f();
-	    partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
+		thruster.update(deltaThrottle, deltaTime);
 
-	    final Vector3 angularResistanceFactor = new Vector3(-10000.0f, -10000.0f, -10000.0f);
-	    Vector3 angularResistance = new Vector3(angularVelocity);
-	    angularResistance = angularResistance.multiply(angularResistance.abs()).multiply(angularResistanceFactor);
+		Vector3f angularVelocity = new Vector3f();
+		partBody.getPhysicsObject().getAngularVelocity(angularVelocity);
 
-	    Vector3 torque = new Vector3(-pitchValue * pitchSensitivity, yawValue * yawSensitivity, -rollValue * rollSensitivity);
-	    torque = partMatrix.multiply(torque, false);
+		final Vector3 angularResistanceFactor = new Vector3(-10000.0f, -10000.0f, -10000.0f);
+		Vector3 angularResistance = new Vector3(angularVelocity);
+		angularResistance = angularResistance.multiply(angularResistance.abs()).multiply(angularResistanceFactor);
 
-	    partBody.getPhysicsObject().applyForce(thrustForce.toVector3f(), thrustForcePoint.toVector3f());
-	    partBody.getPhysicsObject().applyCentralForce(linearResistance.toVector3f());
-	    partBody.getPhysicsObject().applyTorque(angularResistance.toVector3f());
-	    partBody.getPhysicsObject().applyTorque(torque.toVector3f());
-	    partBody.getPhysicsObject().activate();
+		Vector3 torque = new Vector3(-pitchValue * pitchSensitivity, yawValue * yawSensitivity, -rollValue * rollSensitivity);
+		torque = partBody.getMatrix().multiply(torque, false);
+
+
+		partBody.getPhysicsObject().applyTorque(angularResistance.toVector3f());
+		partBody.getPhysicsObject().applyTorque(torque.toVector3f());
+		partBody.getPhysicsObject().activate();
 	}
 
 }

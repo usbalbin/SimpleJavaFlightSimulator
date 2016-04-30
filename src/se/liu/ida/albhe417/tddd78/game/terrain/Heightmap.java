@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.terrain;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -7,9 +7,8 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
 
 /**
- * Project TDDD78
- * <p>
- * File created by Albin on 26/04/2016.
+ * Heightmap holds heights for every point in a terrain.
+ * Thus it is useful for holding data for creating terrain mesh as well as terrain collision shape.
  */
 class Heightmap {
     public final int size;
@@ -42,7 +41,7 @@ class Heightmap {
                 byteImageToFloats(heightMapBuff, this.size);
         }
 
-        heightFactor = 256f / maxHeight;
+        heightFactor = 256.0f / maxHeight;
         maxHeight *= heightFactor;
         minHeight *= heightFactor;
     }

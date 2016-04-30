@@ -7,7 +7,6 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
-import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.AbstractVehicle;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
@@ -27,20 +26,20 @@ public class Gun extends Weapon {
     private final Vector3 offsetPosition;
     private float timeLastShotSec = 0;
     private final float fireRate;
-    private final float bulletRadius = 0.5f;
+    private static final float BULLET_RADIUS = 0.5f;
     private float currTimeSec = 0;
 
     private final Deque<RigidBody> bullets;
     private final ProjectileMesh projectile;
 
-    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, Game game, String playerName){
-        super(offsetPosition, physics, game, playerName);
+    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, String playerName){
+        super(offsetPosition, physics, playerName);
         this.offsetPosition = offsetPosition;
         this.fireRate = 0.1f; //= 1/shots per sec
         this.owner = owner;
         this.physics = physics;
         this.bullets = new LinkedList<>();
-        this.projectile = new ProjectileMesh(bulletRadius, shaderProgram, physics, game);
+        this.projectile = new ProjectileMesh(BULLET_RADIUS, shaderProgram, physics);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class Gun extends Weapon {
         Matrix4x4 matrix = Matrix4x4.createTranslation(position);
         Transform transform = new Transform(matrix.toMatrix4f());
         MotionState motionState = new DefaultMotionState(transform);
-        SphereShape collisionShape = new SphereShape(bulletRadius);
+        SphereShape collisionShape = new SphereShape(BULLET_RADIUS);
 
         float bulletMass = 1;
         Vector3f inertia = new Vector3f();
@@ -70,8 +69,8 @@ public class Gun extends Weapon {
         physicsObject.setLinearVelocity(velocity.toVector3f());
         physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
         physicsObject.setUserPointer(owner);
-        physicsObject.setCcdMotionThreshold(bulletRadius * bulletRadius);
-        physicsObject.setCcdSweptSphereRadius(bulletRadius / 5);
+        physicsObject.setCcdMotionThreshold(BULLET_RADIUS * BULLET_RADIUS);
+        physicsObject.setCcdSweptSphereRadius(BULLET_RADIUS / 5);
         bullets.add(physicsObject);
         physics.addRigidBody(physicsObject);
 
@@ -84,10 +83,10 @@ public class Gun extends Weapon {
         return false;
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId){
+    public void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId){
         for (RigidBody bullet: bullets) {
             projectile.setBullet(bullet);
-            projectile.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
+            projectile.draw(cameraMatrix, modelViewProjectionMatrixId, modelMatrixId);
         }
     }
 

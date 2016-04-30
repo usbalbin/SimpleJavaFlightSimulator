@@ -6,9 +6,8 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
-import se.liu.ida.albhe417.tddd78.game.Game;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Helpers;
 import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -25,7 +24,7 @@ import java.util.List;
  * File created by Albin on 2016-03-30.
  */
 public class Target extends AbstractGameObject{
-    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, Game game, String targetName){
+    public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String targetName){
         super(position, physics, 1, targetName);
         setup(position, shaderProgram, physics);
     }

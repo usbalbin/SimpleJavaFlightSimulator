@@ -6,11 +6,12 @@ import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 
 /**
- * Project TDDD78
+ * CollisionCallback is useful for snapping up all collisions from the physics engine.
  *
- * File created by Albin on 2016-04-07.
+ * When implemented properly, every collision will call the contactProcessed method
+ * which in turn will notify the colliding parties about the event
  */
-class TargetHitCallback extends ContactProcessedCallback {
+class CollisionCallback extends ContactProcessedCallback {
 
     @Override
     public boolean contactProcessed(ManifoldPoint cp, Object body0, Object body1) {

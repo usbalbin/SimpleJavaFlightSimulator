@@ -14,9 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 09/04/2016.
+ * Settings contains all settings for the game, most editable and threadsafe
  */
 public class Settings {
 
@@ -27,33 +25,43 @@ public class Settings {
     private final AtomicInteger drawDistance = new AtomicInteger(Float.floatToIntBits(3072));
     private final AtomicInteger drawDistanceNearLimit = new AtomicInteger(Float.floatToIntBits(1.0f));
     private final AtomicInteger detailFactor = new AtomicInteger(350);
-    private final AtomicInteger maxLevels = new AtomicInteger(11);
     private final AtomicInteger ticksPerFrame = new AtomicInteger(10);
     private final AtomicInteger preferredTimeStep = new AtomicInteger(Float.floatToIntBits(1/60.0f/ticksPerFrame.get()));
 
     private final AtomicBoolean wireFrame = new AtomicBoolean(false);
     private final AtomicBoolean threaded = new AtomicBoolean(true);
+
+	/**
+     * Level of anti aliasing used by the graphics
+     */
     public static final int AA_LEVEL = 16;
+
+	/**
+	 * Version of OpenGL used to render graphics
+     */
     public static final float OPENGL_VERSION = 3.0f;
 
-    private final String defaultTerrainPath = "content/heightmap4k.png";
+    private static final String DEFAULT_TERRAIN_PATH = "content/heightmap4k.png";
 
     private final AtomicReference<BufferedImage> rTerrainFile = new AtomicReference<>();
 
     private String playerName = "Player1";
     private final AtomicReference<String> rPlayerName = new AtomicReference<>(playerName);
-    private VehicleType vehicleType = VehicleType.HelicopterBox;
+    private VehicleType vehicleType = VehicleType.HELICOPTER_BOX;
 
 
     public Settings(){
-        InputStream inputStream =  Game.class.getResourceAsStream(defaultTerrainPath);
-
-        try{
+        try(InputStream inputStream =  Game.class.getResourceAsStream(DEFAULT_TERRAIN_PATH)){
             setTerrainImage(ImageIO.read(inputStream));
-            if(getTerrainImage() == null)
-                throw new IOException();
+            if(getTerrainImage() == null){
+                JOptionPane.showMessageDialog(null, "Failed to load default heightmap");
+                loadImage();
+            }
         }catch (IOException e){
-            JOptionPane.showMessageDialog(null, "Failed to load default heightmap");
+            JOptionPane.showMessageDialog(null,
+                "Failed to load default heightmap\n" +
+                e.getMessage()
+            );
             loadImage();
         }
 
@@ -62,20 +70,22 @@ public class Settings {
 
     public void loadImage(){
 
-        JFileChooser terrainFileSelector = new JFileChooser(defaultTerrainPath);
+        JFileChooser terrainFileSelector = new JFileChooser(DEFAULT_TERRAIN_PATH);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("jpg and png files", "jpg", "png");
         terrainFileSelector.setFileFilter(filter);
 
         terrainFileSelector.showOpenDialog(null);
 
         if (terrainFileSelector.getSelectedFile() == null) {
-            String filePath = defaultTerrainPath;
+            String filePath = DEFAULT_TERRAIN_PATH;
 
-            InputStream inputStream = Game.class.getResourceAsStream(filePath);
-            try {
+            try(InputStream inputStream = Game.class.getResourceAsStream(filePath)) {
                 setTerrainImage(ImageIO.read(inputStream));
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Failed to load default heightmap image");
+                JOptionPane.showMessageDialog(null,
+                    "Failed to load default heightmap image\n" +
+                    ex.getMessage()
+                );
                 loadImage();
             }
         }
@@ -85,7 +95,10 @@ public class Settings {
             try{
                 setTerrainImage(ImageIO.read(file));
             }catch (IOException ex){
-                JOptionPane.showMessageDialog(null, "Failed to load heightmap");
+                JOptionPane.showMessageDialog(null,
+                    "Failed to load heightmap\n" +
+                     ex.getMessage()
+                );
                 loadImage();
             }
         }
@@ -116,10 +129,6 @@ public class Settings {
         return getFloat(fov);
     }
 
-    public void setFov(float fov) {
-        setFloat(fov, this.fov);
-    }
-
     public float getDrawDistance() {
         return getFloat(drawDistance);
     }
@@ -134,10 +143,6 @@ public class Settings {
 
     public int getDetailFactor() {
         return detailFactor.get();
-    }
-
-    public int getMaxLevels(){
-        return maxLevels.get();
     }
 
     public void setDetailFactor(int detailFactor) {
@@ -180,10 +185,6 @@ public class Settings {
 
     public String getPlayerName(){
         return rPlayerName.get();
-    }
-
-    public void setPlayerName(String playerName){
-        rPlayerName.set(playerName);
     }
 
     public BufferedImage getTerrainImage(){

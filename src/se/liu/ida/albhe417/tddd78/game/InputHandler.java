@@ -4,9 +4,8 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 10/03/2016.
+ * InputHandler if implemented right gets notified on every keyboard change and keeps this information for querying by others.
+ * Thus it makes sense to have it as a singleton.
  */
 public final class InputHandler extends GLFWKeyCallback {
     private static final InputHandler INSTANCE = new InputHandler();
@@ -14,7 +13,7 @@ public final class InputHandler extends GLFWKeyCallback {
     private final boolean[] keys;
 
     private InputHandler(){
-        int numberOfKeys = java.lang.Short.MAX_VALUE + 1;
+        final int numberOfKeys = java.lang.Short.MAX_VALUE + 1;
         keys = new boolean[numberOfKeys];
     }
 

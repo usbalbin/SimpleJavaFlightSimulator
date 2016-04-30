@@ -3,7 +3,7 @@ package se.liu.ida.albhe417.tddd78.game.game_object;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
-import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -12,21 +12,25 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Project TDDD78
- *
- * File created by Albin.
+ * AbstractGameObject is any object in the scene that is both visible and that responds to physics
  */
-public abstract class AbstractGameObject
+public abstract class AbstractGameObject //Is abstract because it would not be of any use to create a AbstractGameObject
 {
-    //protected Vector3 position;
-    //protected float yaw, pitch, roll;
     protected Matrix4x4 modelMatrix;
     private final DynamicsWorld physics;
     private final float damageResistance;
     private float health;
     protected final AtomicInteger score;
+
+	/**
+	 * Name of player
+     */
     public final String playerName;
-    public AbstractGameObject killedBy;
+
+	/**
+	 * If this game object has been killed then this field will be populated with the object killing it
+     */
+    public AbstractGameObject killedBy = null;
 
     protected List<GameObjectPart> parts;
     protected List<TypedConstraint> constraints;
@@ -43,20 +47,18 @@ public abstract class AbstractGameObject
         this.constraints = new ArrayList<>();
     }
 
+    //it would be too long to call MVPMatrixId for modelViewProjectionMatrixId
+    public void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId){
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId){
-
-        for(GameObjectPart part : parts){
-            part.draw(cameraMatrix, MVPMatrixId, modelMatrixId);
-        }
+        for(GameObjectPart part : parts)
+            part.draw(cameraMatrix, modelViewProjectionMatrixId, modelMatrixId);
     }
 
     public void hitCalculation(ManifoldPoint cp){health -= Math.max(cp.appliedImpulse - damageResistance, 0);}
 
     public void hitRegister(AbstractGameObject other){
-        if(shouldDie() && killedBy == null) {
+        if(shouldDie() && killedBy == null)
             killedBy = other;
-        }
     }
 
     public boolean shouldDie(){

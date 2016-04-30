@@ -4,7 +4,7 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.game_object_Part.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class ProjectileMesh extends AbstractGameObject{
     private GameObjectPart part;
-    public ProjectileMesh(float radius, final int shaderProgram, DynamicsWorld physics, Game game){
+    public ProjectileMesh(float radius, final int shaderProgram, DynamicsWorld physics){
         super(new Vector3(0), physics, Float.POSITIVE_INFINITY, "");
         setup(radius, shaderProgram);
     }

@@ -13,13 +13,11 @@ import java.io.File;
 import java.util.Hashtable;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 08/04/2016.
+ * MenuFrame is the gui for the game. There is buttons for starting the game.
+ * The gui also contains bars and buttons for manipulating game setting in real time while playing.
  */
 public class MenuFrame extends JFrame {
     private final Settings settings;
-    private Game game;
 
 
     public MenuFrame(){
@@ -55,15 +53,15 @@ public class MenuFrame extends JFrame {
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         this.pack();
-        this.setVisible(true);
-
     }
 
     private void setupDrawDistSlider(String constraints){
         final int min = 512, max = 8192;
         final int defaultValue = (int) settings.getDrawDistance();
 
-        JSlider maxDrawDistanceSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
+        JSlider maxDrawDistanceSlider = new JSlider(SwingConstants.VERTICAL, min, max, defaultValue);
+
+        //JSlider.setLabelTable requires obsolete Hashtable
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
         JLabel label = new JLabel("Draw distance: " + defaultValue);
 
@@ -87,9 +85,8 @@ public class MenuFrame extends JFrame {
 
         JComboBox<VehicleType> vehicleSelector = new JComboBox<>(VehicleType.values());
 
-        ActionListener listener = e -> {
-            settings.setVehicleType((VehicleType) vehicleSelector.getSelectedItem());
-        };
+        ActionListener listener =
+                e -> settings.setVehicleType((VehicleType) vehicleSelector.getSelectedItem());
 
         vehicleSelector.addActionListener(listener);
         vehicleSelector.setSelectedItem(settings.getVehicleType());
@@ -100,7 +97,9 @@ public class MenuFrame extends JFrame {
         final int min = 50, max = 1000;
         final int defaultValue = settings.getDetailFactor();
 
-        JSlider qualityFactorSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
+        JSlider qualityFactorSlider = new JSlider(SwingConstants.VERTICAL, min, max, defaultValue);
+
+        //JSlider.setLabelTable requires obsolete Hashtable
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
         JLabel label = new JLabel("Quality factor: " + defaultValue);
 
@@ -124,7 +123,9 @@ public class MenuFrame extends JFrame {
         final int min = 1, max = 25;
         final int defaultValue = settings.getTicksPerFrame();
 
-        JSlider ticksPerFrameSlider = new JSlider(JSlider.VERTICAL, min, max, defaultValue);
+        JSlider ticksPerFrameSlider = new JSlider(SwingConstants.VERTICAL, min, max, defaultValue);
+
+        //JSlider.setLabelTable requires obsolete Hashtable
         Hashtable<Integer, JLabel> labels = new Hashtable<>(3);
         JLabel label = new JLabel("Ticks / frame: " + defaultValue);
 
@@ -166,7 +167,7 @@ public class MenuFrame extends JFrame {
         startButton.setMnemonic(KeyEvent.VK_ACCEPT);
 
         ActionListener listener = e -> {
-            game = new Game(settings);
+            Game game = new Game(settings);
             Thread gameThread = new Thread(game);
             gameThread.start();
         };
@@ -209,5 +210,6 @@ public class MenuFrame extends JFrame {
     public static void main(String[] args) {
         System.setProperty("org.lwjgl.librarypath", new File("lwjgl/native").getAbsolutePath());
         MenuFrame m = new MenuFrame();
+        m.setVisible(true);
     }
 }
