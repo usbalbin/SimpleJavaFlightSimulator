@@ -1,10 +1,11 @@
-package se.liu.ida.albhe417.tddd78.game.game_object.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.weapons;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import se.liu.ida.albhe417.tddd78.game.*;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.ArrayList;
@@ -12,9 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 2016-03-30.
+ * A mesh used for efficiently drawing multiple sphere-shaped bullets
  */
 public class ProjectileMesh extends AbstractGameObject{
     private GameObjectPart part;

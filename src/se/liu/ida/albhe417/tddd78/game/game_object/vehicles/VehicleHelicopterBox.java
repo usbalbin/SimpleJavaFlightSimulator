@@ -9,9 +9,7 @@ import javax.vecmath.Vector3f;
 
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 11/03/2016.
+ * A very simple box-shaped, drivable helicopter
  */
 public class VehicleHelicopterBox extends AbstractVehicleBox{
 

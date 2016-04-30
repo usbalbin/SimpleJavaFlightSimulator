@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.graphics;
 
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import static org.lwjgl.opengl.GL20.*;

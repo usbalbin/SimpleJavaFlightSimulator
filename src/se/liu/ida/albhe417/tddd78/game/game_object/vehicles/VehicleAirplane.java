@@ -10,9 +10,9 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * Project TDDD78
- * <p>
- * File created by Albin on 21/04/2016.
+ * An drivable airplane.
+ *
+ * The controls are not completely implemented yet.
  */
 public class VehicleAirplane extends AbstractVehicle{
     /**

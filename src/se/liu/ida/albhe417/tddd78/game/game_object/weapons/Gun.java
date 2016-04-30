@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.game_object.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.weapons;
 
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.shapes.SphereShape;
@@ -16,9 +16,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 07/04/2016.
+ * A fully automatic weapon firing large bullets at a high rate of fire
  */
 public class Gun extends Weapon {
     private AbstractVehicle owner;

@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.game_object_Part;
+package se.liu.ida.albhe417.tddd78.game.game_object_part;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -9,7 +9,7 @@ import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.dynamics.constraintsolver.*;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -19,9 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Project TDDD78
- * <p>
- * File created by Albin on 21/04/2016.
+ * Wing might be added to any game object where a cube-shaped part with aerodynamics are desired
  */
 public class Wing extends GameObjectPart {
     private final float mass;
@@ -32,7 +30,8 @@ public class Wing extends GameObjectPart {
         super(shaderProgram, NUM_VERTICES_PER_CUBE, new VertexPositionColorNormal());
         this.mass = mass;
         this.size = size;
-        setup(offsetPosition, modelMatrix, physics, parentGameObject);
+        setupGraphics();
+        setupPhysics(offsetPosition, modelMatrix, physics, parentGameObject);
     }
 
     public Generic6DofConstraint attachToParentFixed(GameObjectPart parent, Vector3 parentConnectionPoint, Vector3 thisConnectionPoint, AbstractGameObject parentGameObject){
@@ -53,11 +52,8 @@ public class Wing extends GameObjectPart {
         return constraint;
     }
 
-    private void setup(Vector3 offsetPosition, Matrix4x4 modelMatrix, DynamicsWorld physics, AbstractGameObject parentGameObject){
-        final Vector3 red = 	new Vector3(0, 0, 0.5f);//new Vector3(1, 0, 0);
-        final Vector3 green =	new Vector3(0, 0, 0.5f);//new Vector3(0, 1, 0);
-        final Vector3 blue = 	new Vector3(0, 0, 0.5f);//new Vector3(0, 0, 1);
-        final Vector3 white = 	new Vector3(0, 0, 0.5f);//new Vector3(1, 1, 1);
+    private void setupGraphics(){
+        final Vector3 color = new Vector3(0.5f, 0.5f, 0.5f);
 
         //"LTR" = left top rear
         Vector3 posLTR = new Vector3(-size.getX(), size.getY(), size.getZ());
@@ -70,24 +66,22 @@ public class Wing extends GameObjectPart {
         Vector3 posRBF = new Vector3(size.getX(), -size.getY(), -size.getZ());
         Vector3 posLBF = new Vector3(-size.getX(), -size.getY(), -size.getZ());
 
-        VertexPositionColorNormal leftTopRear = new VertexPositionColorNormal(posLTR, red, posLTR);
-        VertexPositionColorNormal rightTopRear = new VertexPositionColorNormal(posRTR, green, posRTR);
-        VertexPositionColorNormal rightBottomRear = new VertexPositionColorNormal(posRBR, blue, posRBR);
-        VertexPositionColorNormal leftBottomRear = new VertexPositionColorNormal(posLBR, white, posLBR);
+        VertexPositionColorNormal leftTopRear = new VertexPositionColorNormal(posLTR, color, posLTR);
+        VertexPositionColorNormal rightTopRear = new VertexPositionColorNormal(posRTR, color, posRTR);
+        VertexPositionColorNormal rightBottomRear = new VertexPositionColorNormal(posRBR, color, posRBR);
+        VertexPositionColorNormal leftBottomRear = new VertexPositionColorNormal(posLBR, color, posLBR);
 
-        VertexPositionColorNormal leftTopFront = new VertexPositionColorNormal(posLTF, red, posLTF);
-        VertexPositionColorNormal rightTopFront = new VertexPositionColorNormal(posRTF, green, posRTF);
-        VertexPositionColorNormal rearBottomFront = new VertexPositionColorNormal(posRBF, blue, posRBF);
-        VertexPositionColorNormal leftBottomFront = new VertexPositionColorNormal(posLBF, white, posLBF);
+        VertexPositionColorNormal leftTopFront = new VertexPositionColorNormal(posLTF, color, posLTF);
+        VertexPositionColorNormal rightTopFront = new VertexPositionColorNormal(posRTF, color, posRTF);
+        VertexPositionColorNormal rearBottomFront = new VertexPositionColorNormal(posRBF, color, posRBF);
+        VertexPositionColorNormal leftBottomFront = new VertexPositionColorNormal(posLBF, color, posLBF);
 
-        List<VertexPositionColorNormal> vertices = new ArrayList<VertexPositionColorNormal>(
-            Arrays.asList(
-                new VertexPositionColorNormal[]{
-                    leftTopRear, rightTopRear, rightBottomRear, leftBottomRear,
-                    leftTopFront, rightTopFront, rearBottomFront, leftBottomFront
-                }
-            )
-        );
+        List<VertexPositionColorNormal> vertices = new ArrayList<>(Arrays.asList(
+            new VertexPositionColorNormal[] {
+                leftTopRear, rightTopRear, rightBottomRear, leftBottomRear,
+                leftTopFront,  rightTopFront, rearBottomFront, leftBottomFront
+            }
+        ));
 
         int[] indices = {
             0, 2, 3, 	0, 1, 2,//Rear
@@ -99,9 +93,9 @@ public class Wing extends GameObjectPart {
         };
 
         updateData(vertices, indices);
+    }
 
-        //Physics
-
+    private void setupPhysics(Vector3 offsetPosition, Matrix4x4 modelMatrix, DynamicsWorld physics, AbstractGameObject parentGameObject){
         Matrix4x4 partModelMatrix = modelMatrix.multiply(Matrix4x4.createTranslation(offsetPosition));
         Transform transform = new Transform(partModelMatrix.toMatrix4f());
         MotionState motionState = new DefaultMotionState(transform);

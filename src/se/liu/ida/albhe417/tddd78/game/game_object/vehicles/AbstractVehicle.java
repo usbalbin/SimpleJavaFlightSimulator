@@ -10,9 +10,7 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 
 /**
- * Project TDDD78
- *
- * File created by Albin.
+ * AbstractVehicle is useful when you want some sort of controllable game object with support for a chasing camera
  */
 public abstract class AbstractVehicle extends AbstractGameObject
 {

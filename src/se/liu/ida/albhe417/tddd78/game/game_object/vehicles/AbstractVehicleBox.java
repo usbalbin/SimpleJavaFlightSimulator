@@ -2,8 +2,8 @@ package se.liu.ida.albhe417.tddd78.game.game_object.vehicles;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.InputHandler;
-import se.liu.ida.albhe417.tddd78.game.game_object.misc.Gun;
-import se.liu.ida.albhe417.tddd78.game.game_object.misc.Weapon;
+import se.liu.ida.albhe417.tddd78.game.game_object.weapons.Gun;
+import se.liu.ida.albhe417.tddd78.game.game_object.weapons.Weapon;
 import se.liu.ida.albhe417.tddd78.game.game_object_part.Wing;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;

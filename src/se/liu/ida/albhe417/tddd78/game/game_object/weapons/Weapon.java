@@ -1,14 +1,11 @@
-package se.liu.ida.albhe417.tddd78.game.game_object.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.weapons;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 07/04/2016.
+ * Weapon might be implemented when one wants mostly any form of weapon
  */
 public abstract class Weapon extends AbstractGameObject{
 
@@ -17,7 +14,4 @@ public abstract class Weapon extends AbstractGameObject{
     }
 
     abstract public void fire(float deltaTime);
-
-    //draw method of any type of weapon will have to be different from default draw() in order to reuse bullet mesh
-    abstract public void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId);
 }

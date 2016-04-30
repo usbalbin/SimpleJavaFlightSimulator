@@ -1,5 +1,6 @@
 package se.liu.ida.albhe417.tddd78.game;
 
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.Collection;

@@ -2,7 +2,7 @@ package se.liu.ida.albhe417.tddd78.game.terrain;
 
 import se.liu.ida.albhe417.tddd78.game.Helpers;
 import se.liu.ida.albhe417.tddd78.game.Settings;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;

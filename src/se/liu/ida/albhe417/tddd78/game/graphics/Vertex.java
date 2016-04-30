@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game;
+package se.liu.ida.albhe417.tddd78.game.graphics;
 
 /**
  * Vertex is interface for representing a vertex.

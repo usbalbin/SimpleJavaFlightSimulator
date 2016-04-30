@@ -1,11 +1,11 @@
-package se.liu.ida.albhe417.tddd78.game.game_object_Part;
+package se.liu.ida.albhe417.tddd78.game.game_object_part;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
-import se.liu.ida.albhe417.tddd78.game.Vertex;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.graphics.Vertex;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 
 import javax.vecmath.Matrix4f;
@@ -22,27 +22,24 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Project TDDD78
- *
- * File created by Albin.
+ * GameObjectPart might be added to any game object. A part is not only graphically visible but also has working physics.
  */
 public class GameObjectPart {
-    /*
-     *  TODO: add these
-     *  partMatrix
-     */
+
     private RigidBody physicsObject;
     private int indexCount;
     private int vertexArray;
     private int vertexBuffer;
     private int indexBuffer;
     private final int shaderProgram;
-    private FloatBuffer vertexBufferData;
+    private FloatBuffer vertexBufferData = null;
 
     public GameObjectPart(final int shaderProgram, int bufferSize, Vertex templateVertex) {
         this.shaderProgram = shaderProgram;
         setupEmpty(templateVertex);
         vertexBufferData = BufferUtils.createFloatBuffer(bufferSize * templateVertex.getFloatCount());
+        this.physicsObject = null;
+        this.vertexBufferData = null;
     }
 
     public GameObjectPart(List<VertexPositionColorNormal> vertices, int[] indices, final int shaderProgram, RigidBody physicsObject) {
@@ -83,7 +80,7 @@ public class GameObjectPart {
         updateData(vertices, indices);
     }
 
-    public void draw(Matrix4x4 cameraMatrix, int MVPMatrixId, int modelMatrixId) {
+    public void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId) {
 
 
         glBindVertexArray(vertexArray);
@@ -100,7 +97,7 @@ public class GameObjectPart {
         setMatrices(modelMatrix, modelMatrixId);
 
         Matrix4x4 modelViewProjectionMatrix = cameraMatrix.multiply(modelMatrix);
-        setMatrices(modelViewProjectionMatrix, MVPMatrixId);
+        setMatrices(modelViewProjectionMatrix, modelViewProjectionMatrixId);
 
 
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
@@ -149,7 +146,6 @@ public class GameObjectPart {
     }
 
     public void updateData(List<VertexPositionColorNormal> vertices, int[] indices) {
-        final int floatsPerVector = 3;
 
         if (vertices == null || indices == null)
             return;
@@ -160,7 +156,7 @@ public class GameObjectPart {
         vertexToFloatBuffer(vertices);
 
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_DYNAMIC_DRAW);//TODO: GL_STATIC_DRAW for non changing objects
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_DYNAMIC_DRAW);
 
 
         //Setup index buffer

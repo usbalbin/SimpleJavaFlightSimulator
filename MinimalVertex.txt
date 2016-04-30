@@ -1,6 +1,0 @@
-VertexHeightmapMinimal
-  byte x;
-  (y read from texture) 
-  byte z;
-  
-  byte3 normal

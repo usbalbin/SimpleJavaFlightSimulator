@@ -1,9 +1,7 @@
 package se.liu.ida.albhe417.tddd78.game.game_object;
 
 /**
- * Project TDDD78
- * <p>
- * File created by Albin on 26/04/2016.
+ * This enum might be used to specify a vehicle type
  */
 public enum VehicleType {
     /**

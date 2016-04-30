@@ -7,7 +7,7 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import se.liu.ida.albhe417.tddd78.game.Settings;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;

@@ -1,4 +1,4 @@
-package se.liu.ida.albhe417.tddd78.game.game_object.misc;
+package se.liu.ida.albhe417.tddd78.game.game_object.weapons;
 
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -9,7 +9,7 @@ import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.game_object_part.GameObjectPart;
 import se.liu.ida.albhe417.tddd78.game.Helpers;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -19,9 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Project TDDD78
- *
- * File created by Albin on 2016-03-30.
+ * Static/non-moving target good for target practice
  */
 public class Target extends AbstractGameObject{
     public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String targetName){
