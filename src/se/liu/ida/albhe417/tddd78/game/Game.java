@@ -299,7 +299,7 @@ public class Game implements Runnable
 	}
 
 	private void respawn(){
-		final Vector3 spawnPos = new Vector3(0, 130, 0);//new Vector3(0, -307, 0);
+		final Vector3 spawnPos = new Vector3(0, 130, 0);
 
 		switch (settings.getVehicleType()) {
 			case HELICOPTER_BOX:
@@ -340,8 +340,8 @@ public class Game implements Runnable
 				if(gameObject.equals(currentVehicle)) {
 					glfwHideWindow(window);
 					JOptionPane.showMessageDialog(null,
-												  "Score: " + currentVehicle.getScore() + "\n" +
-												  "Killed by " + currentVehicle.killedBy.entityName
+						"Score: " + currentVehicle.getScore() + "\n" +
+						"Killed by " + currentVehicle.killedBy.entityName
 					);
 					currentVehicle = null;
 					glfwShowWindow(window);
@@ -392,9 +392,9 @@ public class Game implements Runnable
 			}catch (InterruptedException e){
 				glfwHideWindow(window);
 				JOptionPane.showMessageDialog(null,
-											  "Something went really wrong with the terrain thread!: \n" +
-											  e.getMessage() + "\n" +
-											  "If this shows again, try to un tick the \"Multi threading\" checkbox."
+					"Something went really wrong with the terrain thread!: \n" +
+					e.getMessage() + "\n" +
+					"If this shows again, try to un tick the \"Multi threading\" checkbox."
 				);
 				glfwShowWindow(window);
 			}
@@ -423,7 +423,6 @@ public class Game implements Runnable
 		}
 
 		glfwSwapBuffers(window);
-		//glFinish();
 
 	}
 

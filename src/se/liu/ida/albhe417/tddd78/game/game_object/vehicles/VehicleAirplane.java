@@ -146,9 +146,4 @@ public class VehicleAirplane extends AbstractVehicle{
 
         thruster.update(deltaThrottle, deltaTime);
     }
-
-    @Override
-    public void update() {
-
-    }
 }
