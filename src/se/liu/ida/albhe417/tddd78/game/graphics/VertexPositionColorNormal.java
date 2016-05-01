@@ -6,8 +6,8 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 
 /**
- * VertexPositionColorNormal is a structure holding information about position color and surface normal.
- * A bunch of these are useful for representing colored and simply shaded 3D objects.
+ * VertexPositionColorNormal is a structure holding information about position, color and surface normal.
+ * A bunch of these linked together into triangles are useful for representing colored and simply shaded 3D objects as meshes.
  */
 public class VertexPositionColorNormal implements Vertex
 {

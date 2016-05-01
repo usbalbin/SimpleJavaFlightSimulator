@@ -20,6 +20,14 @@ import java.util.List;
 
 /**
  * Static/non-moving target good for target practice
+ *
+ * The target is sphere shaped non-moving implementation of game object useful for firing at.
+ *
+ * Due to its inheriting form AbstractGameObject it is drawable and has physics. Although the object is non-moving, so even if
+ * other object can collide with it, it wont move unless destroyed.
+ *
+ * The most important task for this class is setting up itself, an AbstractGameObject with data to form a static sphere.
+ * The rest is inherited.
  */
 public class Target extends AbstractGameObject{
     public Target(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String targetName){

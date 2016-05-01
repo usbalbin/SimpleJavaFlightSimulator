@@ -12,7 +12,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * AbstractGameObject is any object in the scene that is both visible and that responds to physics
+ * AbstractGameObject is any object in the scene that holds one or more GameObjectParts that are both visible and that responds to physics.
+ *
+ * AbstractGameObject is responsible for making sure that its parts are updating and drawing themselves and that they are
+ * properly destroyed along with any constraints. It also holds information about its health(whether it should die or not),
+ * score which is number of kills, as well as an entityName.
+ *
+ * If the object holds multiple parts, it is often useful to bind them together using constraints.
  */
 public abstract class AbstractGameObject //Is abstract because it would not be of any use to create a AbstractGameObject
 {
@@ -25,7 +31,7 @@ public abstract class AbstractGameObject //Is abstract because it would not be o
 	/**
 	 * Name of player
      */
-    public final String playerName;
+    public final String entityName;
 
 	/**
 	 * If this game object has been killed then this field will be populated with the object killing it
@@ -42,7 +48,7 @@ public abstract class AbstractGameObject //Is abstract because it would not be o
         this.health = maxHealth;
         this.damageResistance = maxHealth / 10;
         this.score = new AtomicInteger(0);
-        this.playerName = playerName;
+        this.entityName = playerName;
         this.parts = new ArrayList<>();
         this.constraints = new ArrayList<>();
     }

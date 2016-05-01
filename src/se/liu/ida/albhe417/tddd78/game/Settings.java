@@ -12,9 +12,11 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Settings contains all settings for the game, most editable and threadsafe
+ * Settings contains all settings for the game, most of them editable and threadsafe
  */
 public class Settings {
 
@@ -82,9 +84,10 @@ public class Settings {
             try(InputStream inputStream = Game.class.getResourceAsStream(filePath)) {
                 setTerrainImage(ImageIO.read(inputStream));
             } catch (IOException ex) {
+                String msg = "Failed to load default heightmap image\n" + ex.getMessage();
+                Logger.getGlobal().warning(msg);
                 JOptionPane.showMessageDialog(null,
-                    "Failed to load default heightmap image\n" +
-                    ex.getMessage()
+                    msg
                 );
                 loadImage();
             }
@@ -95,9 +98,11 @@ public class Settings {
             try{
                 setTerrainImage(ImageIO.read(file));
             }catch (IOException ex){
+                String msg = "Failed to load heightmap\n" + ex.getMessage();
+                if (Logger.getGlobal().isLoggable(Level.FINE))
+                    Logger.getGlobal().fine(msg);
                 JOptionPane.showMessageDialog(null,
-                    "Failed to load heightmap\n" +
-                     ex.getMessage()
+                    msg
                 );
                 loadImage();
             }

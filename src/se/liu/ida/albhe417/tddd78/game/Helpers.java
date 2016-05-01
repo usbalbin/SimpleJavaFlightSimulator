@@ -4,6 +4,7 @@ import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 /**
  * Helpers contains a handful of handy functions that might be useful at multiple places.
@@ -13,8 +14,11 @@ public final class Helpers {
     private Helpers() {}
 
     public static void createNormalSphere(Collection<VertexPositionColorNormal> vertices, Collection<Integer> indices, float radius, Vector3 color, int qualityFactor){
-        if(radius <= 0)
-            throw new IllegalArgumentException("A sphere should have a radius > 0");
+        if(radius <= 0) {
+            String msg = "A sphere should have a radius > 0";
+            Logger.getGlobal().severe(msg);
+            throw new IllegalArgumentException(msg);
+        }
 
         final float twoPi = 2.0f * (float)Math.PI;
         final float halfPi = (float)Math.PI / 2.0f;

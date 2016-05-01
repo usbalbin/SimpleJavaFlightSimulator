@@ -9,7 +9,15 @@ import javax.vecmath.Vector3f;
 
 
 /**
- * A very simple box-shaped, drivable helicopter
+ * The vehicle helicopter box is an implementation of the AbstractVehicleBox featuring a single part with aerodynamics
+ * enabled to make a fairly decent proof of concept for simple aerodynamics, and collision detection.
+ *
+ * The main task of this class is to implement some helicopter box specific methods such as calcHandling for applying forces
+ * based on the users input. This class also calls some inherited methods for setting it self up, during these calls special
+ * parameters are used unique to this object type such as thrust direction, mass etc.
+ *
+ * AbstractVehicleBox and its parents handle most of the rest such as making it visible and holding
+ * the actual physics objects.
  */
 public class VehicleHelicopterBox extends AbstractVehicleBox{
 
@@ -31,14 +39,14 @@ public class VehicleHelicopterBox extends AbstractVehicleBox{
     protected Thruster thruster;
 
     public VehicleHelicopterBox(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String playerName){
-        super(position, MASS, THRUST_FACTOR, physics, MAX_HEALTH, playerName + "s' HELICOPTER_BOX", shaderProgram);
+        super(position, physics, MAX_HEALTH, playerName + "s' HELICOPTER_BOX", shaderProgram);
         setup(shaderProgram, physics);
     }
 
     private void setup(final int shaderProgram, DynamicsWorld physics){
-        setupBoxBody(shaderProgram, physics);
-        Vector3 thrustDirection = Vector3.UP;
-        thruster = new Thruster(thrustDirection, thrustFactor, (Wing)partBody);
+        setupBoxBody(MASS, shaderProgram, physics);
+        Vector3 thrustDirection = Vector3.UPWARD;
+        thruster = new Thruster(thrustDirection, THRUST_FACTOR, (Wing)partBody);
     }
 
 

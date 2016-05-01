@@ -18,6 +18,13 @@ import java.util.List;
 
 /**
  * TerrainLOD is a structure holding a terrain with auto adjusting level of detail depending on camera position.
+ *
+ * The terrain heights are loaded from a heightmap image and stored in this objects Heightmap object. The heightmap is then
+ * used to create the physics object as well as the QuadTree.
+ *
+ * For the graphics, the main underlying structure is the QuadTree which generates the terrains mesh from the heightmap.
+ * This mesh is then inserted into the terrains GameObjectPart, in order to then be drawn as usual using inherited methods
+ * from AbstractGameObject.
  */
 public class TerrainLOD extends AbstractGameObject{
 
@@ -58,7 +65,7 @@ public class TerrainLOD extends AbstractGameObject{
         //Physics
         MotionState motionState = new DefaultMotionState();
         CollisionShape shape = new HeightfieldTerrainShape(size, size, heightmap.getHeights(),
-                                                           heightmap.heightFactor, heightmap.minHeight, heightmap.maxHeight, 1, true
+             heightmap.heightFactor, heightmap.minHeight, heightmap.maxHeight, 1, true
         );
 
         RigidBody physicsObjectMain = new RigidBody(0.0f, motionState, shape);
@@ -79,6 +86,7 @@ public class TerrainLOD extends AbstractGameObject{
         indexArray = indices.parallelStream().mapToInt(i -> i).toArray();
     }
 
+    //Must be called form main same thread that set up the graphics (currently the main thread in Game object)
     public void updateGraphics(){
         partMain.updateData(vertices, indexArray);
     }

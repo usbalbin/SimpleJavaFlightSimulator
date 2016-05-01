@@ -7,7 +7,6 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
-import com.bulletphysics.dynamics.constraintsolver.*;
 import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
 import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
@@ -19,7 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Wing might be added to any game object where a cube-shaped part with aerodynamics are desired
+ * Wing might be added to any game object where a cube-shaped part with aerodynamics are desired.
+ *
+ * Wing is cube-shaped implementation of the GameObjectPart it has aerodynamics based on the shape of the cube and
+ * its surfaces. The drawing and rest of the physics is handled by the inherited methods.
+ *
+ * Thus the main task of the Wing class is to setup a wing and calculate its aerodynamics.
  */
 public class Wing extends GameObjectPart {
     private final float mass;
@@ -32,24 +36,6 @@ public class Wing extends GameObjectPart {
         this.size = size;
         setupGraphics();
         setupPhysics(offsetPosition, modelMatrix, physics, parentGameObject);
-    }
-
-    public Generic6DofConstraint attachToParentFixed(GameObjectPart parent, Vector3 parentConnectionPoint, Vector3 thisConnectionPoint, AbstractGameObject parentGameObject){
-        Transform parentConnection   = new Transform(Matrix4x4.createTranslation(new Vector3(parentConnectionPoint)).toMatrix4f());
-        Transform thisConnection     = new Transform(Matrix4x4.createTranslation(new Vector3(thisConnectionPoint)).toMatrix4f());
-
-        Generic6DofConstraint constraint = new Generic6DofConstraint(parent.getPhysicsObject(), this.getPhysicsObject(), thisConnection, parentConnection, false);
-
-        final Vector3f zero = Vector3.ZERO.toVector3f();
-        constraint.setAngularLowerLimit(zero);
-        constraint.setAngularUpperLimit(zero);
-
-        constraint.setLinearLowerLimit(zero);
-        constraint.setLinearUpperLimit(zero);
-
-        parentGameObject.addConnection(constraint);
-
-        return constraint;
     }
 
     private void setupGraphics(){

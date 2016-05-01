@@ -1,6 +1,7 @@
 package se.liu.ida.albhe417.tddd78.math;
 
 import javax.vecmath.Matrix4f;
+import java.util.logging.Logger;
 
 /**
  * Powerful 4 by 4 matrix useful for transforming Vector3 or Vector4's.
@@ -8,14 +9,21 @@ import javax.vecmath.Matrix4f;
  */
 public class Matrix4x4 {
 	/**
-	 * The underlying float values of the matrix
+	 * The underying float values of the matrix
 	 */
 	public final float[][] values;
 
-    public Matrix4x4(float[][] matrixArray){
-		assert matrixArray.length == 4 : "Wrong sized array";
+	public Matrix4x4(float[][] matrixArray){
+		String msg = "Wrong sized array";
+		if(matrixArray.length != 4) {
+			Logger.getGlobal().severe(msg);
+			throw new IllegalArgumentException(msg);
+		}
 		for(float[] row : matrixArray)
-			assert row.length == 4 : "Wrong sized array";
+			if(row.length != 4) {
+				Logger.getGlobal().severe(msg);
+				throw new IllegalArgumentException(msg);
+			}
 
 		this.values = matrixArray;
     }

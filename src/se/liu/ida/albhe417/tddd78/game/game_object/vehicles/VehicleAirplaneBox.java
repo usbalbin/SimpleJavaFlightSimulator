@@ -9,7 +9,17 @@ import javax.vecmath.Vector3f;
 
 
 /**
- * Very simple box-shaped, drivable airplane
+ * This class is intended to be replaced by airplane when it is finished.
+ *
+ * The vehicle airplane box is an implementation of the AbstractVehicleBox featuring a single part with aerodynamics enabled
+ * to make a fairly decent proof of concept for simple aerodynamics, and collision detection.
+ *
+ * The main task of this class is to implement some airplane box specific methods such as calcHandling for applying forces
+ * based on the users input. This class also calls some inherited methods for setting it self up, during these calls special
+ * parameters are used unique to this object type such as thrust direction, mass etc.
+ *
+ * AbstractVehicleBox and its parents handle most of the rest such as making it visible and holding
+ * the actual physics objects.
  */
 public class VehicleAirplaneBox extends AbstractVehicleBox{
 
@@ -31,14 +41,14 @@ public class VehicleAirplaneBox extends AbstractVehicleBox{
 	protected Thruster thruster;
 
 	public VehicleAirplaneBox(final Vector3 position, final int shaderProgram, DynamicsWorld physics, String playerName){
-		super(position, MASS, THRUST_FACTOR, physics, MAX_HEALTH, playerName + "'s AIRPLANE_BOX", shaderProgram);
+		super(position, physics, MAX_HEALTH, playerName + "'s AIRPLANE_BOX", shaderProgram);
 		setup(shaderProgram, physics);
 	}
 
 	private void setup(final int shaderProgram, DynamicsWorld physics){
-		setupBoxBody(shaderProgram, physics);
+		setupBoxBody(MASS, shaderProgram, physics);
 		Vector3 thrustDirection = Vector3.FORWARD;
-		thruster = new Thruster(thrustDirection, thrustFactor, (Wing)partBody);
+		thruster = new Thruster(thrustDirection, THRUST_FACTOR, (Wing)partBody);
 	}
 
 

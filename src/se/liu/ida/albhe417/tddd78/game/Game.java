@@ -35,15 +35,22 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 /**
- * Game is the class setting up the graphics window, and a lot of the graphics.
- * It also holds all game objects and the physics world.
+ * Game is the class setting up the graphics window, and a lot of the initial graphics setup. With this also comes a set
+ * of callbacks for window resize, keyboard presses etc. It also holds all game objects and the physics world.
+ *
+ * Game implements the runnable interface, thus it can be used to created a thread.
  */
 public class Game implements Runnable
 {
+	private final Logger logger;
 	private final Settings settings;
 
 	private long window;//Reference to window
@@ -77,10 +84,25 @@ public class Game implements Runnable
 
 	public Game(Settings settings){
 		this.settings = settings;
+		this.logger = Logger.getGlobal();
+		setupLogging();
+	}
+
+	private void setupLogging(){
+		try {
+			FileHandler handler = new FileHandler();
+			logger.addHandler(handler);
+		}catch (IOException e){
+			JOptionPane.showMessageDialog(null,
+				"Logging to file will not be available due to an error:\n"+
+				e.getMessage()
+			);
+			logger.addHandler(new ConsoleHandler());
+		}
 	}
 
 
-	private void setupGraphics(){
+	private void setup(){
 		try {
 			setupWindow();
 			setupShaders();
@@ -102,7 +124,9 @@ public class Game implements Runnable
 
 		long res = glfwInit();
 		if(res != GL_TRUE){
-			throw new GraphicsInitException("Failed to initialize!");
+			String msg = "Failed to initialize glfw";
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
 		}
 
 		glfwWindowHint(GLFW_SAMPLES, Settings.AA_LEVEL);
@@ -113,7 +137,9 @@ public class Game implements Runnable
 		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
 
 		if(window == NULL){
-			throw new GraphicsInitException("Failed to create window");
+			String msg = "Failed to create window";
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
 		}
 
 		windowSizeCallback = new GLFWWindowSizeCallback() {
@@ -172,8 +198,9 @@ public class Game implements Runnable
 		glCompileShader(vertexShaderRef);
 		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
-			glGetShaderInfoLog(vertexShaderRef);
-			throw new GraphicsInitException("Failed to compile vertex shader");
+			String msg = "Failed to compile vertex shader: " + glGetShaderInfoLog(vertexShaderRef);
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
 		}
 
 		String fragmentShaderCode =
@@ -199,8 +226,9 @@ public class Game implements Runnable
 		glGetShaderInfoLog(fragmentShaderRef);
 		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
 		if(result != GL_TRUE){
-
-			throw new GraphicsInitException("Failed to compile fragment shader");
+			String msg = "Failed to compile fragment shader: " + glGetShaderInfoLog(fragmentShaderRef);
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
 		}
 
 		shaderProgram = glCreateProgram();
@@ -211,7 +239,9 @@ public class Game implements Runnable
 
 		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
 		if(result != GL_TRUE){
-			throw new GraphicsInitException("Failed to link shader program");
+			String msg = "Failed to link shader program";
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
 		}
 		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
 		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
@@ -309,7 +339,7 @@ public class Game implements Runnable
 					glfwHideWindow(window);
 					JOptionPane.showMessageDialog(null,
 												  "Score: " + currentVehicle.getScore() + "\n" +
-												  "Killed by " + currentVehicle.killedBy.playerName
+												  "Killed by " + currentVehicle.killedBy.entityName
 					);
 					currentVehicle = null;
 					glfwShowWindow(window);
@@ -398,7 +428,7 @@ public class Game implements Runnable
 
 
 	public void run(){
-		setupGraphics();
+		setup();
 		while(glfwWindowShouldClose(window) != GL_TRUE && !InputHandler.getInstance().isPressed(GLFW_KEY_ESCAPE)){
 			glfwPollEvents();
 

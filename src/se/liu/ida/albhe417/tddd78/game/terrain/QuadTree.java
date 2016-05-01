@@ -19,7 +19,7 @@ import java.util.concurrent.RecursiveAction;
 /**
  * QuadTree contains a quad tree for effectively holding the graphic mesh of objects like the TerrainLOD.
  *
- * The tree structure is perfect for dividing the terrain into parts with different levels of detail.
+ * The tree structure is perfect for recursively dividing the terrain into parts with different levels of detail.
  */
 class QuadTree
 {
@@ -74,7 +74,10 @@ class QuadTree
     }
 
 	/**
-     * Node is the actual nodes making up the tree
+     * Node is the actual nodes making up the tree. Once the tree itself is generated the nodes can be used to generate the
+     * terrain mesh's vertices and indices.
+     *
+     * Node extends RecursiveAction, thus it has the ability to do some of its processing in parallel using ForkJoin
      */
     private final class Node extends RecursiveAction{
 

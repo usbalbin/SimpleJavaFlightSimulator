@@ -12,7 +12,7 @@ public class Vector3
     /**
      * Unit vector pointing up
      */
-    public static final Vector3 UP = new Vector3(0, 1, 0); //Up is a perfectly good name for something that is "up"
+    public static final Vector3 UPWARD = new Vector3(0, 1, 0);
 
     /**
      * Unit vector pointing forward

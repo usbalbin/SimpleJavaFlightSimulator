@@ -1,17 +1,14 @@
 package se.liu.ida.albhe417.tddd78.game.game_object.weapons;
 
-import com.bulletphysics.dynamics.DynamicsWorld;
-import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
-import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 
 /**
  * Weapon might be implemented when one wants mostly any form of weapon
  */
-public abstract class Weapon extends AbstractGameObject{
+public interface Weapon{
+    void fire(float deltaTime);
 
-    Weapon(Vector3 position, DynamicsWorld physics, String gunName){
-        super(position, physics, Float.POSITIVE_INFINITY, gunName);
-    }
+    void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId);
 
-    abstract public void fire(float deltaTime);
+    void destroy();
 }

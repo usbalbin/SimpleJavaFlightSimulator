@@ -5,7 +5,10 @@ import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 /**
- * Thruster might be attached to a wing for propelling air vehicles or similar
+ * Thruster is as the name suggest an object that might apply a certain force to a part more specifically a Wing. The thrust
+ * is variable and the Thruster is thus perfect for propelling air vehicles or similar.
+ *
+ * When creating a Thruster it is attached to a wing on which it can act on.
  */
 public class Thruster {
     private final float thrustFactor;

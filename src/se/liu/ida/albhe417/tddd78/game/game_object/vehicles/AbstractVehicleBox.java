@@ -13,21 +13,21 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * AbstractVehicleBox might be useful to inherit from for most simple box-shaped vehicles
  *
- * Contains methods for setting up the graphics-box as well as the physics box, drawing and handling input is also done here.
+ * Contains methods for setting up the graphics-box as well as the physics box, drawing and handling input is also implemented
+ * here. However acting on the input will have to be implemented by extending class.
  */
 abstract public class AbstractVehicleBox extends AbstractVehicle {
 	private final Weapon weaponLeft;
 	private final Weapon weaponRight;
 
-	protected AbstractVehicleBox(final Vector3 position, final float mass, final float thrustFactor,
-								 final DynamicsWorld physics, final float maxHealth, final String playerName, int shaderProgram)
+	AbstractVehicleBox(final Vector3 position, final DynamicsWorld physics, final float maxHealth, final String playerName, int shaderProgram)
 	{
-		super(position, mass, thrustFactor, physics, maxHealth, playerName);
-		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram, playerName + "'s left gun");
-		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram, playerName + "'s right gun");
+		super(position, physics, maxHealth, playerName);
+		this.weaponLeft = new Gun(new Vector3(-2, 0, -2), this, physics, shaderProgram);
+		this.weaponRight = new Gun(new Vector3(+2, 0, -2), this, physics, shaderProgram);
 	}
 
-	protected void setupBoxBody(int shaderProgram, DynamicsWorld physics){
+	void setupBoxBody(float mass, int shaderProgram, DynamicsWorld physics){
 		final Vector3 size = new Vector3(2, 0.5f, 2);
 		partBody = new Wing(Vector3.ZERO, size, mass, modelMatrix, shaderProgram, physics, this);
 		parts.add(partBody);

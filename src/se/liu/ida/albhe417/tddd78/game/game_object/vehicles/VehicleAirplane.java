@@ -10,20 +10,24 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * An drivable airplane.
+ * A to-be drivable airplane. Not yet fully implemented yet!
  *
- * The controls are not completely implemented yet.
+ * This class is intended to replace the box airplane when it is finished.
+ *
+ * The vehicle airplane is an implementation of the AbstractVehicle featuring about half a dozen of parts all with aerodynamics
+ * enabled to make the best possible airplane with both good aerodynamics as well as general physics, bending wings accurate
+ * collision detection and so on.
+ *
+ * The task of this class is to implement some airplane specific methods such as handleInput but its main task is setting up
+ * all of its parts. Whereas AbstractVehicle and its parents handle most of the rest such as making it visible and holding
+ * the actual physics objects.
  */
 public class VehicleAirplane extends AbstractVehicle{
-    /**
-     * Mass of an AIRPLANE in kilograms
-     */
-    public static final int MASS = 1000;
 
     /**
      * Thrust factor of the thruster in Newtons
      */
-    public static final int THRUST_FACTOR = 1000;
+    public static final int THRUST_FACTOR = 10000;
 
     /**
      * Max health of the AIRPLANE described in max amount of momentum absorbed during collisions before getting destroyed.
@@ -33,7 +37,7 @@ public class VehicleAirplane extends AbstractVehicle{
     private Thruster thruster;
 
     public VehicleAirplane(Vector3 position, DynamicsWorld physics, String playerName, int shaderProgram) {
-        super(position, MASS, THRUST_FACTOR, physics, MAX_HEALTH, playerName + "'s Test vehicle");
+        super(position, physics, MAX_HEALTH, playerName + "'s Test vehicle");
         setupParts(physics, shaderProgram);
     }
 
@@ -61,12 +65,11 @@ public class VehicleAirplane extends AbstractVehicle{
         setupRudder(tail, tailPosition, tailSize, wingThickness, shaderProgram, physics);
 
 
-        final float thrustFactor = 10000;
         final Vector3 thrustDirection = Vector3.FORWARD;
 
-        thruster = new Thruster(thrustDirection, thrustFactor, body);
+        thruster = new Thruster(thrustDirection, THRUST_FACTOR, body);
 
-        setPartBody(body);
+        partBody = body;
         parts.add(partBody);
         parts.add(tail);
 

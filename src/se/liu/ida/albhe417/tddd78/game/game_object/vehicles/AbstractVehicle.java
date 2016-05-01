@@ -10,25 +10,25 @@ import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 
 /**
- * AbstractVehicle is useful when you want some sort of controllable game object with support for a chasing camera
+ * AbstractVehicle is useful when you want some sort of controllable game object with support for a chasing camera.
+ *
+ * Thus it has methods for finding a suitable camera position and projection matrix although handling user input will have
+ * to be implemented by the extending class. Because of its inheritance from AbstractGameObject it is also fully visible
+ * and has proper physics as well as book keeping of player score.
  */
 public abstract class AbstractVehicle extends AbstractGameObject
 {
-    protected final float mass;
-    protected final float thrustFactor;
     private Vector3 cameraPosition;
+
+	/**
+	 * The main part of the vehicle which the camera will have as its target
+     */
     protected GameObjectPart partBody = null;
 
 
-    AbstractVehicle(Vector3 position, float mass, float thrustFactor, DynamicsWorld physics, float maxHealth, String playerName){
+    AbstractVehicle(Vector3 position, DynamicsWorld physics, float maxHealth, String playerName){
 	    super(position, physics, maxHealth, playerName);
-        this.mass = mass;
-        this.thrustFactor = thrustFactor;
         this.cameraPosition = new Vector3(0);
-    }
-
-    protected void setPartBody(GameObjectPart partBody){
-        this.partBody = partBody;
     }
 
     abstract public void handleInput(float deltaTime);
@@ -38,11 +38,10 @@ public abstract class AbstractVehicle extends AbstractGameObject
         final Vector3 cameraOffset = new Vector3(0, 5.0f, 15.0f);
 
         cameraPosition = modelMatrix.multiply(cameraOffset, true);
-        //cameraPosition = cameraPosition.add(modelMatrix.getPosition());
 
         Vector3 cameraTarget = modelMatrix.getPosition();
 
-        Vector3 cameraUp = modelMatrix.multiply(Vector3.UP, false);
+        Vector3 cameraUp = modelMatrix.multiply(Vector3.UPWARD, false);
 
 
         return Matrix4x4.createViewMatrix(cameraPosition, cameraTarget, cameraUp);

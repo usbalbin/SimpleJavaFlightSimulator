@@ -8,6 +8,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.AbstractVehicle;
+import se.liu.ida.albhe417.tddd78.game.game_object_part.BulletMesh;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
@@ -17,8 +18,17 @@ import java.util.LinkedList;
 
 /**
  * A fully automatic weapon firing large bullets at a high rate of fire
+ *
+ * The Gun has a list for keeping track of all fired bullets so they can be drawn and kept from becoming too many.
+ * Unlike any form of abstractGameObject the gun uses one and only one Projectile mesh for drawing every bullet in order
+ * to save resources.
+ *
+ * Because it is a gun it also features a fire method which fires a bullet, if it is time, while doing this it will put a
+ * reference of the guns owner on to the bullet in order to notify him/her about any eventual hit. The bullets also has
+ * some special parameters set differentiating them from most physics objects used in GameObjectPart's due the bullets high
+ * speed.
  */
-public class Gun extends Weapon {
+public class Gun implements Weapon {
     private AbstractVehicle owner;
     private final DynamicsWorld physics;
     private final Vector3 offsetPosition;
@@ -28,22 +38,21 @@ public class Gun extends Weapon {
     private float currTimeSec = 0;
 
     private final Deque<RigidBody> bullets;
-    private final ProjectileMesh projectile;
+    private final BulletMesh projectile;
 
-    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram, String playerName){
-        super(offsetPosition, physics, playerName);
+    public Gun(Vector3 offsetPosition, AbstractVehicle owner, DynamicsWorld physics, int shaderProgram){
         this.offsetPosition = offsetPosition;
         this.fireRate = 0.1f; //= 1/shots per sec
         this.owner = owner;
         this.physics = physics;
         this.bullets = new LinkedList<>();
-        this.projectile = new ProjectileMesh(BULLET_RADIUS, shaderProgram, physics);
+        this.projectile = new BulletMesh(BULLET_RADIUS, shaderProgram);
     }
 
     @Override
     public void fire(float deltaTime) {
         currTimeSec += deltaTime;
-        if(currTimeSec - timeLastShotSec < fireRate || noAmmo())
+        if(currTimeSec - timeLastShotSec < fireRate)
             return;
 
         timeLastShotSec = currTimeSec;
@@ -67,7 +76,8 @@ public class Gun extends Weapon {
         physicsObject.setLinearVelocity(velocity.toVector3f());
         physicsObject.setCollisionFlags(physicsObject.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
         physicsObject.setUserPointer(owner);
-        physicsObject.setCcdMotionThreshold(BULLET_RADIUS * BULLET_RADIUS);
+        final float updateThreshold = 0.5f;
+        physicsObject.setCcdMotionThreshold(BULLET_RADIUS * updateThreshold);
         physicsObject.setCcdSweptSphereRadius(BULLET_RADIUS / 5);
         bullets.add(physicsObject);
         physics.addRigidBody(physicsObject);
@@ -77,9 +87,6 @@ public class Gun extends Weapon {
             physics.removeRigidBody(bullets.pop());
     }
 
-    public boolean noAmmo() {
-        return false;
-    }
 
     public void draw(Matrix4x4 cameraMatrix, int modelViewProjectionMatrixId, int modelMatrixId){
         for (RigidBody bullet: bullets) {
@@ -88,10 +95,8 @@ public class Gun extends Weapon {
         }
     }
 
-    @Override
     public void destroy(){
-        super.destroy();
-        projectile.destroy();
+        projectile.destroy(physics);
         bullets.forEach(physics::removeRigidBody);
     }
 }
