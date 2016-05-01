@@ -7,53 +7,41 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.io.OutputStream;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Settings contains all settings for the game, most of them editable and threadsafe
+ * Settings contains all settings for the game by storing them in a property
  */
-public class Settings {
-
-    private final AtomicInteger windowWidth = new AtomicInteger(1400);
-    private final AtomicInteger windowHeight = new AtomicInteger(800);
-
-    private final AtomicInteger fov = new AtomicInteger(Float.floatToIntBits((90 * (float)Math.PI / 180.0f)));
-    private final AtomicInteger drawDistance = new AtomicInteger(Float.floatToIntBits(3072));
-    private final AtomicInteger drawDistanceNearLimit = new AtomicInteger(Float.floatToIntBits(1.0f));
-    private final AtomicInteger detailFactor = new AtomicInteger(350);
-    private final AtomicInteger ticksPerFrame = new AtomicInteger(10);
-    private final AtomicInteger preferredTimeStep = new AtomicInteger(Float.floatToIntBits(1/60.0f/ticksPerFrame.get()));
-
-    private final AtomicBoolean wireFrame = new AtomicBoolean(false);
-    private final AtomicBoolean threaded = new AtomicBoolean(true);
+public final class Settings
+{
+    private Properties properties;
 
 	/**
-     * Level of anti aliasing used by the graphics
+	 * Path to user config, relative to JAR-file
      */
-    public static final int AA_LEVEL = 16;
+    public static final String PROPERTY_PATH = "config.properties";
 
 	/**
-	 * Version of OpenGL used to render graphics
+	 * Path to default config, inside JAR
      */
-    public static final float OPENGL_VERSION = 3.0f;
-
-    private static final String DEFAULT_TERRAIN_PATH = "content/heightmap4k.png";
+    public static final String DEFAULT_PROPERTY_PATH = "content/default.properties";
 
     private final AtomicReference<BufferedImage> rTerrainFile = new AtomicReference<>();
 
-    private String playerName = "Player1";
-    private final AtomicReference<String> rPlayerName = new AtomicReference<>(playerName);
-    private VehicleType vehicleType = VehicleType.HELICOPTER_BOX;
 
+    public Settings() throws IOException, FileNotFoundException {
+        loadProperties();
 
-    public Settings(){
-        try(InputStream inputStream =  Game.class.getResourceAsStream(DEFAULT_TERRAIN_PATH)){
+        try(InputStream inputStream =  Game.class.getResourceAsStream(getDefaultTerrainPath())){
             setTerrainImage(ImageIO.read(inputStream));
             if(getTerrainImage() == null){
                 JOptionPane.showMessageDialog(null, "Failed to load default heightmap");
@@ -70,16 +58,62 @@ public class Settings {
 
     }
 
+    private void loadProperties() throws IOException, FileNotFoundException {
+        Properties defaults;
+        defaults = new Properties();
+
+        try(InputStream inputStream = Game.class.getResourceAsStream(DEFAULT_PROPERTY_PATH)){
+            if(inputStream == null)
+                loadDefaultProperties(defaults);
+            defaults.load(inputStream);
+        }catch (IOException ignored){
+            loadDefaultProperties(defaults);
+        }
+
+        properties = new Properties(defaults);
+
+        try(FileInputStream inputStream = new FileInputStream(PROPERTY_PATH)){
+            properties.load(inputStream);
+        }catch (IOException ignored){
+            String msg = "User properties could not be loaded, falling back to defaults";
+            Logger.getGlobal().warning(msg);
+        }
+    }
+
+    private void loadDefaultProperties(Properties defaults) throws IOException, FileNotFoundException {
+        JOptionPane.showMessageDialog(null, "Could not load default settings! Try specifying the path manually");
+        JFileChooser defaultFileChooser = new JFileChooser();
+        defaultFileChooser.showOpenDialog(null);
+
+        if(defaultFileChooser.getSelectedFile() == null)
+            throw new IOException("Failed to load file property file");
+        FileInputStream inputStream = new FileInputStream(defaultFileChooser.getSelectedFile());
+
+        defaults.load(inputStream);
+    }
+
+    public void saveProperties(){
+        try(OutputStream outputStream = new FileOutputStream(PROPERTY_PATH)) {
+
+            properties.store(outputStream, "User config for Simple Java Flight Simulator");
+        }catch (IOException e){
+            String msg = "Could not save user config: " + e.getMessage();
+            JOptionPane.showMessageDialog(null, msg);
+            Logger.getGlobal().warning(msg);
+        }
+
+    }
+
     public void loadImage(){
 
-        JFileChooser terrainFileSelector = new JFileChooser(DEFAULT_TERRAIN_PATH);
+        JFileChooser terrainFileSelector = new JFileChooser(getDefaultTerrainPath());
         FileNameExtensionFilter filter = new FileNameExtensionFilter("jpg and png files", "jpg", "png");
         terrainFileSelector.setFileFilter(filter);
 
         terrainFileSelector.showOpenDialog(null);
 
         if (terrainFileSelector.getSelectedFile() == null) {
-            String filePath = DEFAULT_TERRAIN_PATH;
+            String filePath = getDefaultTerrainPath();
 
             try(InputStream inputStream = Game.class.getResourceAsStream(filePath)) {
                 setTerrainImage(ImageIO.read(inputStream));
@@ -87,7 +121,7 @@ public class Settings {
                 String msg = "Failed to load default heightmap image\n" + ex.getMessage();
                 Logger.getGlobal().warning(msg);
                 JOptionPane.showMessageDialog(null,
-                    msg
+                                              msg
                 );
                 loadImage();
             }
@@ -102,7 +136,7 @@ public class Settings {
                 if (Logger.getGlobal().isLoggable(Level.FINE))
                     Logger.getGlobal().fine(msg);
                 JOptionPane.showMessageDialog(null,
-                    msg
+                                              msg
                 );
                 loadImage();
             }
@@ -111,15 +145,15 @@ public class Settings {
     }
 
     public int getWindowWidth() {
-        return windowWidth.get();
+        return Integer.parseInt(properties.getProperty("windowWidth"));
     }
 
     public void setWindowWidth(int windowWidth) {
-        this.windowWidth.set(windowWidth);
+        properties.setProperty("windowWidth", Integer.toString(windowWidth));
     }
 
     public int getWindowHeight() {
-        return windowHeight.get();
+        return Integer.parseInt(properties.getProperty("windowHeight"));
     }
 
     public float getAspectRatio(){
@@ -127,69 +161,64 @@ public class Settings {
     }
 
     public void setWindowHeight(int windowHeight) {
-        this.windowHeight.set(windowHeight);
+        properties.setProperty("windowHeight", Integer.toString(windowHeight));
     }
 
     public float getFov() {
-        return getFloat(fov);
+        return Float.parseFloat(properties.getProperty("fov"));
     }
 
     public float getDrawDistance() {
-        return getFloat(drawDistance);
+        return Float.parseFloat(properties.getProperty("drawDistance"));
     }
 
     public void setDrawDistance(float drawDistance) {
-        setFloat(drawDistance, this.drawDistance);
+        properties.setProperty("drawDistance", Float.toString(drawDistance));
     }
 
     public float getDrawDistanceNearLimit() {
-        return getFloat(drawDistanceNearLimit);
+        return Float.parseFloat(properties.getProperty("drawDistanceNearLimit"));
     }
 
     public int getDetailFactor() {
-        return detailFactor.get();
+        return Integer.parseInt(properties.getProperty("detailFactor"));
     }
 
     public void setDetailFactor(int detailFactor) {
-        this.detailFactor.set(detailFactor);
+        properties.setProperty("detailFactor",Integer.toString(detailFactor));
     }
 
     public int getTicksPerFrame() {
-        return ticksPerFrame.get();
+        return Integer.parseInt(properties.getProperty("ticksPerFrame"));
     }
 
     public void setTicksPerFrame(int ticksPerFrame) {
-        this.ticksPerFrame.set(ticksPerFrame);
-        setPreferredTimeStep();
+        properties.setProperty("ticksPerFrame", Integer.toString(ticksPerFrame));
     }
 
     public float getPreferredTimeStep(){
-        return getFloat(preferredTimeStep);
-    }
-
-    private void setPreferredTimeStep(){
         final float tickToTimeStep = 1/60.0f;
-        setFloat(tickToTimeStep/ticksPerFrame.get(), this.preferredTimeStep);
+        return tickToTimeStep/getTicksPerFrame();
     }
 
     public boolean isWireFrame() {
-        return wireFrame.get();
+        return Boolean.parseBoolean(properties.getProperty("wireFrame"));
     }
 
     public void setWireFrame(boolean wireFrame) {
-        this.wireFrame.set(wireFrame);
+        properties.setProperty("wireFrame", Boolean.toString(wireFrame));
     }
 
     public boolean isThreaded() {
-        return threaded.get();
+        return Boolean.parseBoolean(properties.getProperty("threaded"));
     }
 
     public void setThreaded(boolean threaded) {
-        this.threaded.set(threaded);
+        properties.setProperty("threaded", Boolean.toString(threaded));
     }
 
     public String getPlayerName(){
-        return rPlayerName.get();
+        return properties.getProperty("playerName");
     }
 
     public BufferedImage getTerrainImage(){
@@ -200,20 +229,32 @@ public class Settings {
         rTerrainFile.set(terrainImage);
     }
 
-    private void setFloat(float value, AtomicInteger res){
-        res.set(Float.floatToIntBits(value));
-    }
-
-    private float getFloat(AtomicInteger value){
-        return Float.intBitsToFloat(value.get());
-    }
-
     public void setVehicleType(VehicleType vehicleType){
-        this.vehicleType = vehicleType;
+        properties.setProperty("vehicleType", vehicleType.toString());
     }
 
     public VehicleType getVehicleType(){
-        return this.vehicleType;
+        return VehicleType.valueOf(properties.getProperty("vehicleType"));
+    }
+
+    public int getAALevel(){
+        return Integer.parseInt(properties.getProperty("AALevel"));
+    }
+
+    public String getOpenglVersion(){
+        return properties.getProperty("openglVersion");
+    }
+
+    public int getOpenglVersionMajor(){
+        return Integer.parseInt(getOpenglVersion().split("\\.")[0]);
+    }
+
+    public int getOpenglVersionMinor(){
+        return Integer.parseInt(getOpenglVersion().split("\\.")[1]);
+    }
+
+    public String getDefaultTerrainPath(){
+        return properties.getProperty("defaultTerrainPath");
     }
 
 }

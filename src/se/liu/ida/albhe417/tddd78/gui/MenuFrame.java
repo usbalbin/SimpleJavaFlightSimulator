@@ -2,15 +2,18 @@ package se.liu.ida.albhe417.tddd78.gui;
 
 import net.miginfocom.swing.MigLayout;
 import se.liu.ida.albhe417.tddd78.game.Game;
-import se.liu.ida.albhe417.tddd78.game.game_object.VehicleType;
 import se.liu.ida.albhe417.tddd78.game.Settings;
+import se.liu.ida.albhe417.tddd78.game.game_object.VehicleType;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.logging.Logger;
 
 /**
  * MenuFrame is the gui for the game. There is buttons for starting the game.
@@ -20,7 +23,7 @@ public class MenuFrame extends JFrame {
     private final Settings settings;
 
 
-    public MenuFrame(){
+    public MenuFrame() throws IOException, FileNotFoundException {
         super("Title");
         this.settings = new Settings();
         this.setLayout(new MigLayout(
@@ -46,6 +49,7 @@ public class MenuFrame extends JFrame {
 
         startButton("gapright");
         setupVehicleSelector("");
+        setupSaveButton("");
         terrainFileChooser("right");
         helpButton("right");
         exitButton("right, wrap");
@@ -175,6 +179,15 @@ public class MenuFrame extends JFrame {
         this.add(startButton, constraints);
     }
 
+    private void setupSaveButton(String constraints){
+        JButton saveButton = new JButton("Save settings");
+
+        ActionListener listener = e ->
+                settings.saveProperties();
+        saveButton.addActionListener(listener);
+        this.add(saveButton, constraints);
+    }
+
     private void helpButton(String constraints){
 
         JButton helpButton = new JButton("Help");
@@ -209,7 +222,14 @@ public class MenuFrame extends JFrame {
 
     public static void main(String[] args) {
         System.setProperty("org.lwjgl.librarypath", new File("lwjgl/native").getAbsolutePath());
-        MenuFrame m = new MenuFrame();
-        m.setVisible(true);
+
+        try{
+            MenuFrame m = new MenuFrame();
+            m.setVisible(true);
+        }catch (IOException e){
+            String msg = "Failed to start game!:\n " + e.getMessage();
+            JOptionPane.showMessageDialog(null, msg);
+            Logger.getGlobal().severe(msg);
+        }
     }
 }

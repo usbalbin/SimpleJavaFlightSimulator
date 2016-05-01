@@ -2,13 +2,17 @@ package se.liu.ida.albhe417.tddd78.game.game_object_part;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.constraintsolver.Generic6DofConstraint;
 import com.bulletphysics.linearmath.Transform;
 import org.lwjgl.BufferUtils;
-import se.liu.ida.albhe417.tddd78.game.Vertex;
-import se.liu.ida.albhe417.tddd78.game.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.game.game_object.AbstractGameObject;
+import se.liu.ida.albhe417.tddd78.game.graphics.Vertex;
+import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
+import se.liu.ida.albhe417.tddd78.math.Vector3;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -23,10 +27,18 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * GameObjectPart might be added to any game object. A part is not only graphically visible but also has working physics.
+ *
+ * The GameObjectPart is the lowest level of all drawable objects, it contains the rather low level stuff such as graphics
+ * buffers and references for graphics related things. Thus this is the object initializing OpenGL buffers, performing the
+ * draw calls and so on.
+ *
+ * The GameObjectPart also keeps track of its physics object to know where in the world to draw itself. It also has a method
+ * physically connecting itself to another GameObjectPart via a constraint
  */
 public class GameObjectPart {
 
     private RigidBody physicsObject;
+
     private int indexCount;
     private int vertexArray;
     private int vertexBuffer;
@@ -50,8 +62,25 @@ public class GameObjectPart {
         setup(vertices, indices);
     }
 
-    private void setupEmpty(Vertex templateVertex) {
+    public Generic6DofConstraint attachToParentFixed(GameObjectPart parent, Vector3 parentConnectionPoint, Vector3 thisConnectionPoint, AbstractGameObject parentGameObject){
+        Transform parentConnection   = new Transform(Matrix4x4.createTranslation(new Vector3(parentConnectionPoint)).toMatrix4f());
+        Transform thisConnection     = new Transform(Matrix4x4.createTranslation(new Vector3(thisConnectionPoint)).toMatrix4f());
 
+        Generic6DofConstraint constraint = new Generic6DofConstraint(parent.physicsObject, this.physicsObject, thisConnection, parentConnection, false);
+
+        final Vector3f zero = Vector3.ZERO.toVector3f();
+        constraint.setAngularLowerLimit(zero);
+        constraint.setAngularUpperLimit(zero);
+
+        constraint.setLinearLowerLimit(zero);
+        constraint.setLinearUpperLimit(zero);
+
+        parentGameObject.addConnection(constraint);
+
+        return constraint;
+    }
+
+    private void setupEmpty(Vertex templateVertex) {
 
         vertexArray = glGenVertexArrays();
         glBindVertexArray(vertexArray);
@@ -139,7 +168,7 @@ public class GameObjectPart {
         return new Matrix4x4(matrix4f);
     }
 
-    public Matrix4x4 getInvertedMatrix(){
+    Matrix4x4 getInvertedMatrix(){
         Matrix4f matrix4f = getMatrix4f();
         matrix4f.invert();
         return new Matrix4x4(matrix4f);

@@ -129,9 +129,9 @@ public class Game implements Runnable
 			throw new GraphicsInitException(msg);
 		}
 
-		glfwWindowHint(GLFW_SAMPLES, Settings.AA_LEVEL);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int) Settings.OPENGL_VERSION);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int)(Settings.OPENGL_VERSION * 10) % 10);
+		glfwWindowHint(GLFW_SAMPLES, settings.getAALevel());
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.getOpenglVersionMajor());
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.getOpenglVersionMinor());
 
 
 		window = glfwCreateWindow(settings.getWindowWidth(), settings.getWindowHeight(), TITLE, NULL, NULL);
@@ -148,6 +148,8 @@ public class Game implements Runnable
 				settings.setWindowWidth(width);
 				settings.setWindowHeight(height);
 				glViewport(0, 0, width, height);
+				settings.setWindowWidth(width);
+				settings.setWindowHeight(height);
 			}
 		};
 
