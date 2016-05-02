@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  */
 public class Matrix4x4 {
 	/**
-	 * The underying float values of the matrix
+	 * The underlying float values of the matrix
 	 */
 	public final float[][] values;
 
@@ -65,7 +65,6 @@ public class Matrix4x4 {
 		final float zFactor2 = -(2.0f * nearLimit * farLimit) / (farLimit - nearLimit);
 		final float wFactor = -1;
 
-		//TODO: Fix: stuff gets larger the further away they get
 		result.values[0][0] = xScale;
 		result.values[1][1] = yScale;
 		result.values[2][2] = zFactor1;

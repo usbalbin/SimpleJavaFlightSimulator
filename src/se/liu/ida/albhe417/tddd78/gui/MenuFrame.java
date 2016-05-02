@@ -193,7 +193,14 @@ public class MenuFrame extends JFrame {
         JButton helpButton = new JButton("Help");
 
         ActionListener listener = e ->
-            JOptionPane.showMessageDialog(this, "Steer with W,A,S,D and arrows");
+            JOptionPane.showMessageDialog(this,
+                "Steer with W,A,S,D and arrows\n\n" +
+                "  W/S - collective or throttle up/down\n" +
+                "  A/D  - yaw left/right\n\n" +
+                "  Arrow Left/Right - roll left/right\n" +
+                "  Arrow Up/Down  - pitch up/down\n\n" +
+                "  Space - fire guns"
+            );
         helpButton.addActionListener(listener);
 
         this.add(helpButton, constraints);

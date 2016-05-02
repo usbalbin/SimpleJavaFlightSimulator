@@ -11,6 +11,8 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
  */
 public class VertexPositionColorNormal implements Vertex
 {
+    //The graphics card will handle all VertexPositionColorNormals the same, therefore the info is the same for them all
+    //and there is no need to save it for every object. This is why they are static
     private static int positionIndex = -1;
     private static int colorIndex = -1;
     private static int normalIndex = -1;
