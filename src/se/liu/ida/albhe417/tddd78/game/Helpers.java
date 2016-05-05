@@ -76,4 +76,14 @@ public final class Helpers {
 
         return displacedValue * scale + outMin;
     }
+
+    public static float linearInterpolate(float percentOfSecond, float first, float second){
+        return first * percentOfSecond + second * (1- percentOfSecond);
+    }
+
+    public static float cosineInterpolate(float percentOfSecond, float first, float second){
+        percentOfSecond = (float)(1 - Math.cos(percentOfSecond* 3.14159265))/2;
+        return first * percentOfSecond + second * (1 - percentOfSecond);
+    }
+
 }

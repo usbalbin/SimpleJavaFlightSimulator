@@ -127,7 +127,7 @@ public class Wing extends GameObjectPart {
             getPhysicsObject().activate();
     }
 
-
+    @Override
     public void update() {
         calcAerodynamics();
     }
