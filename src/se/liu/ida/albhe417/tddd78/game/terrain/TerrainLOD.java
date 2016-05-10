@@ -53,7 +53,7 @@ public class TerrainLOD extends AbstractGameObject{
         Heightmap heightmap;
 
 
-        heightmap = new Heightmap(4097);//Heightmap(settings.getTerrainImage());
+        heightmap = new Heightmap(8193);//Heightmap(settings.getTerrainImage());
 
         quadTree = new QuadTree(heightmap, settings);
         final int size = heightmap.size;

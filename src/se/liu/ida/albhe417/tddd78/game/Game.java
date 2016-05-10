@@ -30,9 +30,11 @@ import se.liu.ida.albhe417.tddd78.game.game_object.vehicles.VehicleHelicopterBox
 import se.liu.ida.albhe417.tddd78.game.graphics.GraphicsInitException;
 import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.game.terrain.TerrainLOD;
+import se.liu.ida.albhe417.tddd78.game.terrain.TerrainLOD_procedural;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
+import se.liu.itn.stegu.simplex_noise.SimplexNoise;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -77,7 +79,7 @@ public class Game implements Runnable
 
 	private List<AbstractGameObject> gameObjects = null;
 	private AbstractVehicle currentVehicle = null;
-	private TerrainLOD terrain = null;
+	private TerrainLOD_procedural terrain = null;
 	private int shaderProgram;
 
 	private long lastTime;
@@ -173,7 +175,7 @@ public class Game implements Runnable
 
 	}
 
-	private void setupShaders() throws GraphicsInitException{
+	private void setupShaders_old() throws GraphicsInitException{
 		int result;
 
 		String vertexShaderCode =
@@ -252,6 +254,69 @@ public class Game implements Runnable
 		VertexPositionColorNormal.init(shaderProgram);
 	}
 
+	private void setupShaders() throws GraphicsInitException{
+		int result;
+
+		String vertexShaderCode = "";
+		try {
+			vertexShaderCode = Helpers.loadFileAsString("content/noise_shader.vert");
+		}catch(IOException e) {
+			String msg = "Failed to load shader.vert" + e.toString();
+			logger.severe(msg);
+			JOptionPane.showMessageDialog(null, msg);
+			throw new GraphicsInitException(msg);
+		}
+
+		int vertexShaderRef = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShaderRef, vertexShaderCode);
+		glCompileShader(vertexShaderRef);
+		result = glGetShaderi(vertexShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
+			String msg = "Failed to compile vertex shader: " + glGetShaderInfoLog(vertexShaderRef);
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
+		}
+
+		String fragmentShaderCode = "";
+		try {
+			fragmentShaderCode = Helpers.loadFileAsString("content/shader.frag");
+		}catch(IOException e) {
+			String msg = "Failed to load shader.frag" + e.toString();
+			logger.severe(msg);
+			JOptionPane.showMessageDialog(null, msg);
+			throw new GraphicsInitException(msg);
+		}
+
+		int fragmentShaderRef = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShaderRef, fragmentShaderCode);
+		glCompileShader(fragmentShaderRef);
+		glGetShaderInfoLog(fragmentShaderRef);
+		result = glGetShaderi(fragmentShaderRef, GL_COMPILE_STATUS);
+		if(result != GL_TRUE){
+			String msg = "Failed to compile fragment shader: " + glGetShaderInfoLog(fragmentShaderRef);
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
+		}
+
+		shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShaderRef);
+		glAttachShader(shaderProgram, fragmentShaderRef);
+
+		glLinkProgram(shaderProgram);
+
+		result = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+		if(result != GL_TRUE){
+			String msg = "Failed to link shader program";
+			logger.severe(msg);
+			throw new GraphicsInitException(msg);
+		}
+		modelViewProjectionMatrixId = glGetUniformLocation(shaderProgram, "modelViewProjectionMatrix");
+		modelMatrixId = glGetUniformLocation(shaderProgram, "modelMatrix");
+		lightDirectionId = glGetUniformLocation(shaderProgram, "lightDirection");
+
+		VertexPositionColorNormal.init(shaderProgram);
+	}
+
 	private void setupPhysics(){
 		BroadphaseInterface broadPhase = new DbvtBroadphase();
 		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
@@ -279,7 +344,7 @@ public class Game implements Runnable
 	private void setupGameObjects(){
 		gameObjects = new ArrayList<>();
 
-		terrain = new TerrainLOD(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics);
+		terrain = new TerrainLOD_procedural(new Vector3(0, 0, 0), HEIGHT_SCALE, settings, shaderProgram, physics);
 
 		final Vector3 targetSpacing = new Vector3(250, 0, 250);
 		final int targetHeight = 140;

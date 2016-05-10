@@ -186,18 +186,15 @@ public class Vector3
             return false;
         Vector3 other = (Vector3)obj;
         return Helpers.fEquals(this.getX(), other.getX()) &&
-               //Helpers.fEquals(this.getY(), other.getY()) &&
                Helpers.fEquals(this.getZ(), other.getZ());
     }
 
     @Override
     public int hashCode() {
         int x = Math.round(getX());
-        int y = Math.round(getY());
         int z = Math.round(getZ());
 
         int result = x;
-        result = 31 * result + y;
         result = 31 * result + z;
         return result;
     }

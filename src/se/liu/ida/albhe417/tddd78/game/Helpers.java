@@ -3,6 +3,10 @@ package se.liu.ida.albhe417.tddd78.game;
 import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -84,6 +88,19 @@ public final class Helpers {
     public static float cosineInterpolate(float percentOfSecond, float first, float second){
         percentOfSecond = (float)(1 - Math.cos(percentOfSecond* 3.14159265))/2;
         return first * percentOfSecond + second * (1 - percentOfSecond);
+    }
+
+    public static String loadFileAsString(String fileName) throws IOException{
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Game.class.getResourceAsStream(fileName)));
+
+        String line = reader.readLine();
+        while(line != null){
+            stringBuilder.append(line).append('\n');
+            line = reader.readLine();
+        }
+
+        return stringBuilder.toString();
     }
 
 }

@@ -1,7 +1,9 @@
 package se.liu.ida.albhe417.tddd78.game.terrain;
 
-import se.liu.ida.albhe417.tddd78.game.Helpers;
+import com.bulletphysics.collision.shapes.Heightfield;
+
 import se.liu.ida.albhe417.tddd78.math.Vector3;
+import se.liu.itn.stegu.simplex_noise.*;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -11,7 +13,7 @@ import java.awt.image.DataBufferUShort;
  * Heightmap holds heights for every point in a terrain.
  * Thus it is useful for holding data for creating terrain mesh as well as terrain collision shape.
  */
-class Heightmap {
+class Heightmap{
     public final int size;
     public final float heightFactor;
     public float maxHeight;
@@ -19,13 +21,17 @@ class Heightmap {
 
     private float[] heights;
 
+    private float yOffset;
+
 
     Heightmap(int size){
         this.size = size;
         generateRandomFloats(size);
-        heightFactor = 1 / 10f;
-        maxHeight *= heightFactor;
-        minHeight *= heightFactor;
+        this.heightFactor = 1;// / 10f;
+        this.maxHeight *= heightFactor;
+        this.minHeight *= heightFactor;
+        //            Terrain top-down radius     +    base height
+        this.yOffset = (maxHeight - minHeight) / 2.0f + minHeight;
     }
 
     Heightmap(BufferedImage heightMapBuff) {
@@ -49,9 +55,10 @@ class Heightmap {
                 byteImageToFloats(heightMapBuff, this.size);
         }
 
-        heightFactor = 256.0f / maxHeight;
-        maxHeight *= heightFactor;
-        minHeight *= heightFactor;
+        this.heightFactor = 256.0f / maxHeight;
+        this.maxHeight *= heightFactor;
+        this.minHeight *= heightFactor;
+        this.yOffset = (maxHeight - minHeight) / 2.0f + minHeight;
     }
 
     private void shortImageToFloats(BufferedImage heightMapBuff, int size){
@@ -85,6 +92,7 @@ class Heightmap {
         heights = colors;
         this.maxHeight = maxHeight;
         this.minHeight = minHeight;
+        this.yOffset = (maxHeight - minHeight) / 2.0f + minHeight;
     }
 
     private void byteImageToFloats(BufferedImage heightMapBuff, int size){
@@ -120,85 +128,97 @@ class Heightmap {
     }
 
     private void generateRandomFloats(int size){
+        final double persistance = 0.05;
+        final int maxAmplitude = 1 << 12;
         heights = new float[size * size];
-        for(int z = 0; z < size; z++){
-            for(int x = 0; x < size; x++){
-                heights[z * size + x] = generateHeight(x, z, 3);
+
+        Thread[] threads = new Thread[4];
+        for(int z = 0; z < size; z+=threads.length){
+            ;
+
+            for(int i = 0; i < threads.length && z + i < size; i++){
+                threads[i] = new Thread(new HeightRowGenerator(z + i, maxAmplitude, persistance));
+                threads[i].start();
+            }
+
+            for (Thread t : threads) {
+                try {
+                    t.join();
+                }catch (InterruptedException e) {
+
+                }
             }
         }
     }
 
-    private float generateHeight(int x, int z, int level){
-        final float[][] heightFactorsX = {
-                //{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-                //{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-                //{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-                //{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}
-
-                {+0.2f, +0.8f, +0.4f, +0.2f, +0.3f, +0.5f, +0.4f, +0.5f, +0.4f, +0.3f, +0.9f, +0.1f, +0.7f, +0.5f, +0.4f, +0.7f, +0.6f},
-                {-0.3f, -0.7f, -0.5f, -0.1f, -0.9f, -0.2f, -0.4f, -0.3f, -0.5f, -0.7f, -0.2f, -0.6f, -0.7f, -0.0f, -0.1f, -0.3f, -0.4f},
-                {+0.9f, +0.3f, +0.7f, +0.6f, +0.5f, +0.7f, +0.8f, +0.4f, +0.3f, +0.0f, +0.2f, +0.6f, +0.9f, +0.6f, +0.1f, +0.9f, +0.3f},
-                {-0.4f, -0.8f ,-0.3f, -0.6f, -0.6f, -0.4f, -0.5f ,-0.3f, -0.6f, -0.8f, -0.2f, -0.7f, -0.5f, -0.4f, -0.6f, -0.7f, -0.5f},
-                {+0.2f, +0.8f, +0.4f, +0.2f, +0.3f, +0.5f, +0.4f, +0.5f, +0.4f, +0.3f, +0.2f ,+0.7f, +0.5f, +0.5f, +0.2f, +0.3f, +0.8f}
-        };
-
-        final float[][] heightFactorsZ = {
-                {-0.9f, -0.8f, -0.7f, -0.1f, -0.4f, -0.2f, -0.6f, -0.3f, -0.0f, -0.5f, -0.6f, -0.3f, -0.9f, -0.1f, -0.8f, -0.2f, -0.5f},
-                {+0.3f, +0.0f, +0.2f, +0.5f, +0.4f, +0.5f, +0.9f, +0.8f, +0.7f, +0.6f, +0.1f, +0.4f, +0.9f, +0.6f, +0.1f, +0.5f, +0.8f},
-                {-0.7f, -0.1f, -0.0f, -0.2f, -0.8f, -0.4f, -0.5f, -0.3f, -0.5f, -0.6f, -0.9f, -0.8f, -0.2f, -0.6f, -0.0f, -0.4f, -0.5f},
-                {+0.2f, +0.3f, +0.6f, +0.9f, +0.0f, +0.7f, +0.8f, +0.1f, +0.5f, +0.3f, +0.1f, +0.9f, +0.8f, +0.7f, +0.4f, +0.6f, +0.2f},
-                {-0.6f,- 0.7f, -0.0f, -0.8f, -0.4f, -0.3f, -0.1f, -0.8f, -0.2f, -0.6f, -0.1f, -0.4f, -0.3f, -0.7f, -0.5f, -0.0f, -0.9f}
-        };
-
-        final float[] scaleFactors = {
-                10 * 10 * 10 * 10,
-                10 * 10 * 10,
-                10 * 10,
-                10,
-                1
-        };
-
-
-        float res = 0;
-
-        float xRel = x / scaleFactors[level];
-
-        float zRel = z / scaleFactors[level];
-
-        res += scaleFactors[level] * Helpers.cosineInterpolate(
-            xRel - (int)xRel,
-
-            heightFactorsX[level][ ((int)xRel    ) % 17 ],
-            heightFactorsX[level][ ((int)xRel + 1) % 17 ]
-        );
-
-        res += scaleFactors[level] * Helpers.cosineInterpolate(
-            zRel - (int)zRel,
-
-            heightFactorsZ[level][ ((int)zRel    ) % 17 ],
-            heightFactorsZ[level][ ((int)zRel + 1) % 17 ]
-        );
-
-        if(level > 0)
-            res += generateHeight(x, z, level - 1);
-
-        if(res > maxHeight)
-            maxHeight = res;
-        else if(res < minHeight)
-            minHeight = res;
-
-        return res;
-    }
 
     public void getHeight(Vector3 position){
-        final float yOffset = -maxHeight / 2.0f;
         int x = size / 2 + (int)position.getX();
         int z = size / 2 + (int)position.getZ();
+
         float y =  heights[z * size + x];
-        position.setY(yOffset + y * heightFactor);
+        position.setY(y * heightFactor - yOffset);
+    }
+
+    public void getHeight___(Vector3 position){
+        int x = size / 2 + (int)position.getX();
+        int z = size / 2 + (int)position.getZ();
+        double y = 0;
+
+        int maxAmplitude = 8192;
+        double persistance = 0.05;
+
+        for (int amplitude = 1; amplitude <= maxAmplitude; amplitude <<= 1) {
+            double period = 1.0 / amplitude;
+            y += persistance * amplitude * (float) SimplexNoise.noise(x * period, z * period);
+        }
+        position.setY(getHeight(x, z));
+    }
+
+    public float getHeight(int x, int y){
+        double height = 0;
+
+        int maxAmplitude = 8192;
+        double persistance = 0.05;
+
+        for (int amplitude = 1; amplitude <= maxAmplitude; amplitude <<= 1) {
+            double period = 1.0 / amplitude;
+            height += persistance * amplitude * (float) SimplexNoise.noise(x * period, y * period);
+        }
+
+        return (float)height * heightFactor - yOffset;
+    }
+
+    public float getYOffset() {
+        return yOffset;
     }
 
     public float[] getHeights(){
         return heights;
+    }
+
+    class HeightRowGenerator implements Runnable {
+        HeightRowGenerator(int row, int maxAmplitude, double persistance){
+            this.row = row;
+            this.maxAmplitude = maxAmplitude;
+            this.persistance = persistance;
+        }
+
+        int row;
+        int maxAmplitude;
+        double persistance;
+
+        @Override
+        public void run() {
+            for (int x = 0; x < size; x++) {
+                double height = 0;
+
+                for (int amplitude = 1; amplitude <= maxAmplitude; amplitude <<= 1) {
+                    double period = 1.0 / amplitude;
+                    height += persistance * amplitude * (float) SimplexNoise.noise(x * period, row * period);
+                }
+                heights[row * size + x] = (float) height;
+            }
+        }
     }
 }

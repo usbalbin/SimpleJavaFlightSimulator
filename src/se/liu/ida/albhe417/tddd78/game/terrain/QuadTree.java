@@ -1,8 +1,8 @@
 package se.liu.ida.albhe417.tddd78.game.terrain;
 
-import se.liu.ida.albhe417.tddd78.game.Helpers;
 import se.liu.ida.albhe417.tddd78.game.Settings;
 import se.liu.ida.albhe417.tddd78.game.graphics.VertexPositionColorNormal;
+import se.liu.ida.albhe417.tddd78.math.FloatMapper;
 import se.liu.ida.albhe417.tddd78.math.Matrix4x4;
 import se.liu.ida.albhe417.tddd78.math.Vector3;
 import se.liu.ida.albhe417.tddd78.math.Vector4;
@@ -26,6 +26,7 @@ class QuadTree
 
     private Settings settings;
     private Heightmap heightmap;
+    private FloatMapper floatMapper;
 
     private int detailFactor;
     private int maxLevels;
@@ -46,6 +47,7 @@ class QuadTree
         this.rootNode = new Node(new Vector3(0, 0, 0), heightmap.size, (short)0, null);
         this.workerPool = new ForkJoinPool();
         this.settings = settings;
+        this.floatMapper = new FloatMapper(heightmap.minHeight, heightmap.maxHeight, 0, 100);
     }
 
     public void update(Vector3 cameraPosition, Matrix4x4 modelViewProjectionMatrix, List<VertexPositionColorNormal> vertices, List<Integer> indices){
@@ -602,13 +604,8 @@ class QuadTree
             final float rockGrassLine = 30;
             final float grassWaterLine = 4;
 
-            final float yOffset = heightmap.maxHeight / 2.0f;
 
-            float percentOfMaxHeight = Helpers.map(
-                    position.getY() + yOffset,
-                    heightmap.minHeight, heightmap.maxHeight,
-                    0, 100
-            );
+            float percentOfMaxHeight = floatMapper.map(position.getY() + heightmap.getYOffset());
 
             if(percentOfMaxHeight > snowRockLine)
                 return snow;
